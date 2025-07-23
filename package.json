@@ -23,7 +23,8 @@
     "test:ui": "vitest --ui",
     "clean": "rm -rf dist *.tsbuildinfo",
     "lint": "prettier --check . && eslint . && knip",
-    "lint:fix": "prettier --write . && eslint --fix ."
+    "lint:fix": "prettier --write . && eslint --fix .",
+    "prepublishOnly": "pnpm clean && pnpm build"
   },
   "keywords": [
     "solidity",
