@@ -12,6 +12,7 @@ import { NoUnusedVars } from "./no-unused-vars.js";
 import { PrivateVars } from "./private-vars.js";
 import { NamingConvention } from "./naming-convention.js";
 import { SortImports } from "./sort-imports.js";
+import { NoDefaultVisibility } from "./no-default-visibility.js";
 
 export function getAllRules() {
   return [
@@ -29,5 +30,6 @@ export function getAllRules() {
     NoUnusedVars,
     PrivateVars,
     SortImports,
+    NoDefaultVisibility,
   ];
 }

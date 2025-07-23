@@ -64,6 +64,7 @@ export default {
 - [`max-state-vars`](/docs/rules/max-state-vars.md): limits the number of state variables in a contract.
 - [`naming-convention`](/docs/rules/naming-convention.md): enforces a naming convention across the codebase.
 - [`no-console`](/docs/rules/no-console.md): forbids the use of `console.log` and the import of `console.sol`.
+- [`no-default-visibility`](/docs/rules/no-default-visibility.md): forbids the use of default visibility for state variables.
 - [`no-duplicate-imports`](/docs/rules/no-duplicate-imports.md): forbids importing the same file multiple times.
 - [`no-global-imports`](/docs/rules/no-global-imports.md): forbids global imports like `import "./foo.sol"`.
 - [`no-tx-origin`](/docs/rules/no-tx-origin.md): forbids the use of `tx.origin`.
