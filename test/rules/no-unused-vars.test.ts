@@ -195,6 +195,19 @@ contract Foo {
     `,
     config: [{ ignorePattern: "^_" }],
   },
+  {
+    description:
+      "should not report variables used in tuple deconstruction statements",
+    content: `
+      contract A {
+          function f() public {
+              uint x;
+              uint y;
+              (x, y) = (1, 2);
+          }
+      }
+    `,
+  },
 ];
 
 describe(ruleName, async () => {
