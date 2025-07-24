@@ -53,7 +53,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@nomicfoundation/slang": "^1.2.0",
+    "@nomicfoundation/slang": "^1.2.1",
     "chalk": "^5.4.1",
     "fast-glob": "^3.3.3",
     "minimist": "^1.2.8",
