@@ -4,7 +4,7 @@ import { NonterminalKind, TerminalKind } from "@nomicfoundation/slang/cst";
 import { isImmutable } from "../slang/state-variables.js";
 
 export class NoUninitializedImmutableReference implements Rule {
-  public static ruleName = "no-uninitialized-immutable-reference";
+  public static ruleName = "no-uninitialized-immutable-references";
   public static recommended = true;
 
   public run({ file, unit }: RuleContext): LintResult[] {

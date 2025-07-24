@@ -1,7 +1,7 @@
 import { describe } from "vitest";
 import { RuleTester, RuleTestFixture } from "../helpers/rule-tester.js";
 
-const ruleName = "no-uninitialized-immutable-reference";
+const ruleName = "no-uninitialized-immutable-references";
 
 const fixtures: RuleTestFixture[] = [
   {
