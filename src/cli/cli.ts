@@ -106,7 +106,7 @@ async function runCli(): Promise<number> {
         throw new SlippyError(result.message, result.code, result.hint);
       }
     }),
-  );
+  ).finally(() => pool.terminate());
 
   const sortedResults = results
     .flatMap((x) => x.lintResults)
