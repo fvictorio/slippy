@@ -48,7 +48,7 @@ contract Example {
 
 ## Options
 
-This rule can receive an objet option with an `ignorePattern` string field, which is a regular expression that matches identifiers to ignore.
+This rule can receive an object option with an `ignorePattern` string field, which is a regular expression that matches identifiers to ignore.
 
 For example, to ignore all identifiers that start with an underscore, you can do:
 
