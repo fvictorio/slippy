@@ -1,3 +1,5 @@
+import * as z from "zod";
+
 export class AssertionError extends Error {
   constructor(message: string) {
     super(`Assertion error: ${message}`);
@@ -15,6 +17,7 @@ export enum SlippyErrorCode {
   SlippyCantInferSolidityVersion = "SLIPPY_CANT_INFER_SOLIDITY_VERSION",
   SlippyErrorLoadingConfig = "SLIPPY_ERROR_LOADING_CONFIG",
   SlippyInvalidConfig = "SLIPPY_INVALID_CONFIG",
+  SlippyRuleConfigError = "SLIPPY_RULE_CONFIG_ERROR",
 }
 
 export class SlippyError extends Error {
@@ -101,5 +104,14 @@ export class SlippyInvalidConfigError extends SlippyError {
     super(`Invalid config at '${slippyConfigPath}': ${message}`);
     this.code = SlippyErrorCode.SlippyInvalidConfig;
     this.hint = hint;
+  }
+}
+
+export class SlippyRuleConfigError extends SlippyError {
+  constructor(ruleName: string, zodError: z.ZodError) {
+    super(
+      `Error in configuration for rule '${ruleName}':\n\n${z.prettifyError(zodError)}`,
+    );
+    this.code = SlippyErrorCode.SlippyRuleConfigError;
   }
 }

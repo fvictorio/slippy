@@ -7,8 +7,12 @@ import {
 import { filterByCommentDirectives } from "./comment-directives.js";
 import { compilationUnitFromContent } from "./slang/compilation-unit.js";
 import { ConfigLoader } from "./config.js";
-import { SlippyRuleNotRegisteredError } from "./errors.js";
+import {
+  SlippyRuleConfigError,
+  SlippyRuleNotRegisteredError,
+} from "./errors.js";
 import { getAllRules } from "./rules/get-all-rules.js";
+import { ZodError } from "zod";
 
 export class Linter {
   private ruleNameToRule: Map<string, RuleClass> = new Map();
@@ -59,7 +63,16 @@ export class Linter {
 
       if (severity === "off") continue;
 
-      const rule = new Rule(ruleConfig[1]);
+      let rule;
+      try {
+        rule = new Rule(ruleConfig[1]);
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          throw new SlippyRuleConfigError(Rule.ruleName, error);
+        }
+
+        throw error;
+      }
       const ruleResults: LintResult[] = await rule.run({
         unit,
         file,

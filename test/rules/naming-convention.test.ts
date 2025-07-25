@@ -1,10 +1,29 @@
 import { describe, expect, it } from "vitest";
 import { RuleTester, RuleTestFixture } from "../helpers/rule-tester.js";
 import {
+  ConfigSchema,
   MetaSelectors,
   normalizeConfig,
   Selectors,
 } from "../../src/rules/naming-convention.js";
+
+describe("config validation", function () {
+  it("should reject invalid configs", function () {
+    const invalidConfigs = [
+      {},
+      { selector: "default" }, // missing format
+      { format: ["camelCase"] }, // missing selector
+      { selector: "default", format: "camelCase" }, // format should be an array
+      { selector: "defaul", format: ["camelCase"] }, // invalid selector
+      { selector: "default", format: ["camelcase"] }, // invalid format
+    ];
+
+    for (const config of invalidConfigs) {
+      const result = ConfigSchema.safeParse(config);
+      expect(result.error).toBeDefined();
+    }
+  });
+});
 
 describe("config normalization", function () {
   it("should give individual selectors higher priority than to meta selectors", async () => {

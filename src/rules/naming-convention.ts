@@ -16,6 +16,7 @@ import {
   TerminalKind,
   TextRange,
 } from "@nomicfoundation/slang/cst";
+import * as z from "zod";
 import { AssertionError } from "../errors.js";
 
 enum PredefinedFormats {
@@ -333,14 +334,54 @@ export function normalizeConfig(
   });
 }
 
+const MatchRegexSchema = z.object({
+  match: z.boolean(),
+  regex: z.string(),
+});
+const SelectorsStringSchema = z.enum(
+  Object.keys(Selectors) as SelectorsString[],
+);
+const MetaSelectorsStringSchema = z.enum(
+  Object.keys(MetaSelectors) as MetaSelectorsString[],
+);
+const IndividualAndMetaSelectorsStringSchema = z.union([
+  SelectorsStringSchema,
+  MetaSelectorsStringSchema,
+]);
+const PredefinedFormatsStringSchema = z.enum(
+  Object.keys(PredefinedFormats) as PredefinedFormatsString[],
+);
+const UnderscoreOptionsStringSchema = z.enum(
+  Object.keys(UnderscoreOptions) as UnderscoreOptionsString[],
+);
+const ModifiersStringSchema = z.enum(
+  Object.keys(Modifiers) as ModifiersString[],
+);
+
+export const ConfigSchema = z.array(
+  z.object({
+    custom: z.optional(MatchRegexSchema),
+    filter: z.optional(z.union([z.string(), MatchRegexSchema])),
+    format: z.nullable(z.array(PredefinedFormatsStringSchema)),
+    leadingUnderscore: z.optional(UnderscoreOptionsStringSchema),
+    modifiers: z.optional(z.array(ModifiersStringSchema)),
+    selector: z.union([
+      IndividualAndMetaSelectorsStringSchema,
+      z.array(IndividualAndMetaSelectorsStringSchema),
+    ]),
+    trailingUnderscore: z.optional(UnderscoreOptionsStringSchema),
+  }),
+);
+
 export class NamingConvention implements Rule {
   public static ruleName = "naming-convention";
   public static recommended = true;
 
   private configs: NamingConventionNormalizedConfig;
 
-  public constructor(userConfig: NamingConventionUserConfig = DEFAULT_CONFIG) {
-    this.configs = normalizeConfig(userConfig);
+  public constructor(userConfig: unknown = DEFAULT_CONFIG) {
+    const parsedConfig = ConfigSchema.parse(userConfig);
+    this.configs = normalizeConfig(parsedConfig);
   }
 
   public run({ file }: RuleContext): LintResult[] {
