@@ -34,7 +34,7 @@ You can read a more detailed [comparison between Slippy and Solhint](/docs/slipp
 
 # Configuration
 
-Slippy's configuration lives in a `slippy.config.js` file that exports a configuration object. If your project uses CommonJS, the content of the file should look like this:
+Slippy's configuration lives in a `slippy.config.js` file that exports a configuration object:
 
 ```js
 module.exports = {
