@@ -66,6 +66,7 @@ export default {
 - [`no-console`](/docs/rules/no-console.md): forbids the use of `console.log` and the import of `console.sol`.
 - [`no-default-visibility`](/docs/rules/no-default-visibility.md): forbids the use of default visibility for state variables.
 - [`no-duplicate-imports`](/docs/rules/no-duplicate-imports.md): forbids importing the same file multiple times.
+- [`no-empty-blocks`](/docs/rules/no-empty-blocks.md): forbids blocks without statements.
 - [`no-global-imports`](/docs/rules/no-global-imports.md): forbids global imports like `import "./foo.sol"`.
 - [`no-tx-origin`](/docs/rules/no-tx-origin.md): forbids the use of `tx.origin`.
 - [`no-uninitialized-immutable-references`](/docs/rules/no-uninitialized-immutable-references.md): forbids using immutable references before they are initialized.
