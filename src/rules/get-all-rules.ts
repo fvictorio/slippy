@@ -14,6 +14,7 @@ import { NamingConvention } from "./naming-convention.js";
 import { SortImports } from "./sort-imports.js";
 import { NoDefaultVisibility } from "./no-default-visibility.js";
 import { RequireRevertReason } from "./require-revert-reason.js";
+import { NoEmptyBlocks } from "./no-empty-blocks.js";
 
 export function getAllRules() {
   return [
@@ -25,6 +26,7 @@ export function getAllRules() {
     NamingConvention,
     NoConsole,
     NoDuplicateImports,
+    NoEmptyBlocks,
     NoGlobalImports,
     NoTxOrigin,
     NoUninitializedImmutableReference,
