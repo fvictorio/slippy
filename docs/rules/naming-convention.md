@@ -14,18 +14,18 @@ Examples of **correct** code for this rule:
 
 ```solidity
 contract MyContract {
-    error MyCustomError(uint256 myErrorParam);
+  error MyCustomError(uint256 myErrorParam);
 
-    uint256 myVariable;
+  uint256 myVariable;
 
-    function myFunction(uint256 myFunctionParam) public {
-        uint myLocalVariable;
-    }
+  function myFunction(uint256 myFunctionParam) public {
+    uint myLocalVariable;
+  }
 }
 
 enum MyEnum {
-    FirstValue,
-    SecondValue
+  FirstValue,
+  SecondValue
 }
 ```
 

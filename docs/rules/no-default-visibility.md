@@ -8,7 +8,7 @@ Examples of **correct** code for this rule:
 
 ```solidity
 contract Example {
-    uint256 public value;
+  uint256 public value;
 }
 ```
 
@@ -16,6 +16,6 @@ Examples of **incorrect** code for this rule:
 
 ```solidity
 contract Example {
-    uint256 value;
+  uint256 value;
 }
 ```

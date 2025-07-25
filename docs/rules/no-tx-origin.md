@@ -8,10 +8,10 @@ Examples of **incorrect** code for this rule:
 
 ```solidity
 contract Example {
-    address public owner;
+  address public owner;
 
-    constructor() {
-        owner = tx.origin;
-    }
+  constructor() {
+    owner = tx.origin;
+  }
 }
 ```

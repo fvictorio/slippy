@@ -24,11 +24,11 @@ Examples of **incorrect** code for this rule:
 import { UnusedNamedImport } from "./Unused.sol";
 
 contract Example {
-    uint private unusedPrivateStateVar;
+  uint private unusedPrivateStateVar;
 
-    function unusedPrivateFunction(uint unusedParam) private {
-        uint unusedLocalVar;
-    }
+  function unusedPrivateFunction(uint unusedParam) private {
+    uint unusedLocalVar;
+  }
 }
 ```
 
@@ -38,11 +38,11 @@ Examples of **correct** code for this rule:
 import "./UnusedGlobalImport.sol";
 
 contract Example {
-    uint public unusedPublicStateVar;
+  uint public unusedPublicStateVar;
 
-    function unusedPublicFunction() public view returns (uint unusedReturnParam) {
-        return 1;
-    }
+  function unusedPublicFunction() public view returns (uint unusedReturnParam) {
+    return 1;
+  }
 }
 ```
 

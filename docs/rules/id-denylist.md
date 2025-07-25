@@ -8,9 +8,9 @@ Examples of **incorrect** code for this rule:
 
 ```solidity
 contract Example {
-    uint public I;
-    uint public l;
-    uint public O;
+  uint public I;
+  uint public l;
+  uint public O;
 }
 ```
 

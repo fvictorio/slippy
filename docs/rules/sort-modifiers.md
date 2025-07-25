@@ -16,7 +16,7 @@ Examples of **correct** code for this rule:
 
 ```solidity
 contract Example {
-    function f() public pure virtual override myModifier {}
+  function f() public pure virtual override myModifier {}
 }
 ```
 
@@ -24,6 +24,6 @@ Examples of **incorrect** code for this rule:
 
 ```solidity
 contract Example {
-    function f() myModifier override virtual pure public {}
+  function f() public pure virtual override myModifier {}
 }
 ```

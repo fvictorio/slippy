@@ -10,8 +10,8 @@ Examples of **incorrect** code for this rule:
 import "hardhat/console.sol";
 
 contract Example {
-    function f() public {
-        console.log("This should not be used in production");
-    }
+  function f() public {
+    console.log("This should not be used in production");
+  }
 }
 ```

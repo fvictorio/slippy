@@ -10,10 +10,10 @@ Examples of **incorrect** code for this rule:
 
 ```solidity
 contract Example {
-    function f() public {
-        revert();
-        require(false);
-    }
+  function f() public {
+    revert();
+    require(false);
+  }
 }
 ```
 
@@ -21,15 +21,15 @@ Examples of **correct** code for this rule:
 
 ```solidity
 contract Example {
-    error MyError();
+  error MyError();
 
-    function f() public {
-        revert("reason string");
-        revert MyError();
+  function f() public {
+    revert("reason string");
+    revert MyError();
 
-        require(false, "reason string");
-        require(false, MyError());
-    }
+    require(false, "reason string");
+    require(false, MyError());
+  }
 }
 ```
 
