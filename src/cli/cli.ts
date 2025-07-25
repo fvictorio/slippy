@@ -103,6 +103,11 @@ async function runCli(): Promise<number> {
       if ("lintResults" in result) {
         return result;
       } else {
+        // This can cause non-deterministic behavior if two files throw different errors:
+        // a user could see one of the errors on one run and the other error on another run.
+        // This can be fixed by using Promise.allSettled instead of Promise.all,
+        // but that means that all workers have to finish before the error is shown.
+        // For now, we just throw the error.
         throw new SlippyError(result.message, result.code, result.hint);
       }
     }),
