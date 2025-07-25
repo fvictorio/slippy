@@ -1,13 +1,22 @@
 import { Rule, LintResult, RuleContext } from "./types.js";
 import { NonterminalKind, TerminalKind } from "@nomicfoundation/slang/cst";
+import * as z from "zod";
 
 const DEFAULT_MAX_STATE_VARIABLES = 15;
+
+const ConfigSchema = z.optional(z.number());
 
 export class MaxStateVars implements Rule {
   public static ruleName = "max-state-vars";
   public static recommended = true;
 
-  public constructor(private maxStateVariables = DEFAULT_MAX_STATE_VARIABLES) {}
+  public maxStateVariables: number;
+
+  public constructor(userMaxStateVariables: unknown) {
+    const maxStateVariables = ConfigSchema.parse(userMaxStateVariables);
+
+    this.maxStateVariables = maxStateVariables ?? DEFAULT_MAX_STATE_VARIABLES;
+  }
 
   public run({ file }: RuleContext): LintResult[] {
     const results: LintResult[] = [];
