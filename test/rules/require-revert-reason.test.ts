@@ -65,7 +65,7 @@ const fixtures: RuleTestFixture[] = [
     config: ["customError"],
   },
   {
-    description: "should report requires that use an error instead of a string",
+    description: "should report reverts that use an error instead of a string",
     content: `
     contract A {
         error MyError();
