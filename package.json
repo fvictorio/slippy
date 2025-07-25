@@ -18,7 +18,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "check": "tsc --noEmit",
-    "test": "vitest --run",
+    "test": "vitest --run --allowOnly false",
     "test:coverage": "vitest --run --coverage",
     "test:ui": "vitest --ui",
     "clean": "rm -rf dist *.tsbuildinfo",
