@@ -71,6 +71,7 @@ export default {
 - [`no-uninitialized-immutable-references`](/docs/rules/no-uninitialized-immutable-references.md): forbids using immutable references before they are initialized.
 - [`no-unused-vars`](/docs/rules/no-unused-vars.md): detects unused variables, imports and functions.
 - [`private-vars`](/docs/rules/private-vars.md): enforces that all state variables are private.
+- [`require-revert-reason`](/docs/rules/require-revert-reason.md): enforces that all reverts have a reason.
 - [`sort-imports`](/docs/rules/sort-imports.md): enforces a specific order for import statements.
 - [`sort-modifiers`](/docs/rules/sort-modifiers.md): enforces a specific order for modifiers.
 

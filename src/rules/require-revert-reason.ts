@@ -1,0 +1,156 @@
+import {
+  PositionalArguments,
+  StringExpression,
+} from "@nomicfoundation/slang/ast";
+import { Rule, LintResult, RuleContext } from "./types.js";
+import {
+  assertNonterminalNode,
+  Cursor,
+  Query,
+  TerminalKindExtensions,
+} from "@nomicfoundation/slang/cst";
+import { File as SlangFile } from "@nomicfoundation/slang/compilation";
+
+const GET_REQUIRE_ARGS_QUERY = Query.create(`
+[FunctionCallExpression
+  operand: [Expression ["require"]]
+  arguments: [ArgumentsDeclaration [PositionalArgumentsDeclaration
+    @requireArgs arguments: [PositionalArguments]
+  ]]
+]
+`);
+
+const GET_REVERT_FUNCTION_ARGS_QUERY = Query.create(`
+[RevertStatement
+  [RevertKeyword]
+  .
+  [ArgumentsDeclaration [PositionalArgumentsDeclaration
+    @revertFunctionArgs arguments: [PositionalArguments]
+  ]]
+]
+`);
+
+const GET_REVERT_STATEMENT_ARGS_QUERY = Query.create(`
+[RevertStatement
+  [RevertKeyword]
+  [IdentifierPath]
+  [ArgumentsDeclaration [PositionalArgumentsDeclaration
+    @revertStatementArgs arguments: [PositionalArguments]
+  ]]
+]
+`);
+
+export class RequireRevertReason implements Rule {
+  public static ruleName = "require-revert-reason";
+  public static recommended = true;
+
+  public constructor(
+    private readonly reasonKind: "any" | "string" | "customError" = "any",
+  ) {}
+
+  public run({ file }: RuleContext): LintResult[] {
+    const results: LintResult[] = [];
+
+    const cursor = file.createTreeCursor();
+
+    const matches = cursor.query([
+      GET_REQUIRE_ARGS_QUERY,
+      GET_REVERT_FUNCTION_ARGS_QUERY,
+      GET_REVERT_STATEMENT_ARGS_QUERY,
+    ]);
+
+    for (const match of matches) {
+      const requireArgs = match.captures.requireArgs?.[0];
+      const revertFunctionArgs = match.captures.revertFunctionArgs?.[0];
+      const revertStatementArgs = match.captures.revertStatementArgs?.[0];
+
+      const node = (requireArgs ?? revertFunctionArgs ?? revertStatementArgs)
+        .node;
+      assertNonterminalNode(node);
+      const args = new PositionalArguments(node);
+
+      if (requireArgs !== undefined) {
+        if (args.items.length === 1) {
+          results.push(
+            this.makeResult(file, match.root, "require", "missingReason"),
+          );
+        } else if (args.items.length === 2) {
+          const isStringReason =
+            args.items[1].variant instanceof StringExpression;
+          if (this.reasonKind === "customError" && isStringReason) {
+            results.push(
+              this.makeResult(file, match.root, "require", "notError"),
+            );
+          } else if (this.reasonKind === "string" && !isStringReason) {
+            results.push(
+              this.makeResult(file, match.root, "require", "notString"),
+            );
+          }
+        }
+      } else if (revertFunctionArgs !== undefined) {
+        if (args.items.length === 0) {
+          results.push(
+            this.makeResult(file, match.root, "revert", "missingReason"),
+          );
+        } else if (args.items.length === 1) {
+          const isStringReason =
+            args.items[0].variant instanceof StringExpression;
+          if (this.reasonKind === "customError" && isStringReason) {
+            results.push(
+              this.makeResult(file, match.root, "revert", "notError"),
+            );
+          } else if (this.reasonKind === "string" && !isStringReason) {
+            results.push(
+              this.makeResult(file, match.root, "revert", "notString"),
+            );
+          }
+        }
+      } else if (revertStatementArgs !== undefined) {
+        // revert statements always have a reason of error kind
+        if (this.reasonKind === "string") {
+          results.push(
+            this.makeResult(file, match.root, "revert", "notString"),
+          );
+        }
+      }
+    }
+
+    return results;
+  }
+
+  private makeResult(
+    file: SlangFile,
+    cursor: Cursor,
+    name: "require" | "revert",
+    cause: "missingReason" | "notError" | "notString",
+  ): LintResult {
+    ignoreLeadingTrivia(cursor);
+
+    let message: string;
+    if (cause === "missingReason") {
+      message = `Missing revert reason in ${name} statement`;
+    } else if (cause === "notError") {
+      message = `Revert reason in ${name} should be an error`;
+    } else {
+      message = `Revert reason in ${name} should be a string`;
+    }
+
+    return {
+      rule: RequireRevertReason.ruleName,
+      sourceId: file.id,
+      message,
+      line: cursor.textRange.start.line,
+      column: cursor.textRange.start.column,
+    };
+  }
+}
+
+function ignoreLeadingTrivia(cursor: Cursor) {
+  while (
+    cursor.goToNextTerminal() &&
+    cursor.node.isTerminalNode() &&
+    TerminalKindExtensions.isTrivia(cursor.node.kind)
+  ) {
+    // ignore trivia nodes
+  }
+}
