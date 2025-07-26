@@ -27,7 +27,7 @@ import { AssertionError } from "../errors.js";
 
 const DEFAULT_DENYLIST = ["I", "l", "O"];
 
-const Schema = z.array(z.string()).optional().default(DEFAULT_DENYLIST);
+const Schema = z.array(z.string()).default(DEFAULT_DENYLIST);
 type Config = z.infer<typeof Schema>;
 
 export const IdDenylist: RuleDefinition<Config> = {

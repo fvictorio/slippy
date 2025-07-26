@@ -1,12 +1,12 @@
 import {
   LintResult,
   RuleContext,
-  RuleDefinition,
+  RuleDefinitionWithoutConfig,
   RuleWithoutConfig,
 } from "./types.js";
 import { NonterminalKind, TerminalKind } from "@nomicfoundation/slang/cst";
 
-export const ImportsOnTop: RuleDefinition<null> = {
+export const ImportsOnTop: RuleDefinitionWithoutConfig = {
   name: "imports-on-top",
   recommended: true,
   create: function () {
@@ -15,8 +15,6 @@ export const ImportsOnTop: RuleDefinition<null> = {
 };
 
 class ImportsOnTopRule implements RuleWithoutConfig {
-  public recommended = true;
-
   constructor(public name: string) {}
 
   public run({ file }: RuleContext): LintResult[] {

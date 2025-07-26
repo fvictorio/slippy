@@ -60,9 +60,6 @@ export const RequireRevertReason: RuleDefinitionWithConfig<Config> = {
 };
 
 class RequireRevertReasonRule implements RuleWithConfig<Config> {
-  public static ruleName = "require-revert-reason";
-  public static recommended = true;
-
   public constructor(
     public name: string,
     public config: Config,

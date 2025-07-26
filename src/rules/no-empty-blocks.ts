@@ -183,7 +183,7 @@ const handlers: QueryHandler[] = [
 ];
 
 export const NoEmptyBlocks: RuleDefinitionWithoutConfig = {
-  name: "no-empty-blocks",
+  name,
   recommended: true,
   create: function () {
     return new NoEmptyBlocksRule(this.name);

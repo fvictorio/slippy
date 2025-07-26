@@ -11,10 +11,8 @@ const ConfigSchema = z.enum(["always", "never"]).default("always");
 
 type Config = z.infer<typeof ConfigSchema>;
 
-const ruleName = "explicit-types";
-
 export const ExplicitTypes: RuleDefinition<Config> = {
-  name: ruleName,
+  name: "explicit-types",
   recommended: true,
   parseConfig: (config: unknown) => {
     return ConfigSchema.parse(config);
