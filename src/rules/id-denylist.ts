@@ -12,20 +12,40 @@ import {
   StructDefinition,
   UserDefinedValueTypeDefinition,
 } from "@nomicfoundation/slang/ast";
-import { Rule, LintResult, RuleContext } from "./types.js";
+import {
+  LintResult,
+  RuleContext,
+  RuleDefinition,
+  RuleWithConfig,
+} from "./types.js";
 import {
   assertNonterminalNode,
   NonterminalKind,
 } from "@nomicfoundation/slang/cst";
+import * as z from "zod";
 import { AssertionError } from "../errors.js";
 
 const DEFAULT_DENYLIST = ["I", "l", "O"];
 
-export class IdDenylist implements Rule {
-  public static ruleName = "id-denylist";
-  public static recommended = true;
+const Schema = z.array(z.string()).default(DEFAULT_DENYLIST);
+type Config = z.infer<typeof Schema>;
 
-  public constructor(private readonly config = DEFAULT_DENYLIST) {}
+export const IdDenylist: RuleDefinition<Config> = {
+  name: "id-denylist",
+  recommended: true,
+  parseConfig: (config: unknown) => {
+    return Schema.parse(config);
+  },
+  create: function (config) {
+    return new IdDenylistRule(this.name, config);
+  },
+};
+
+class IdDenylistRule implements RuleWithConfig<Config> {
+  public constructor(
+    public name: string,
+    public config: Config,
+  ) {}
 
   public run({ file }: RuleContext): LintResult[] {
     const results: LintResult[] = [];
@@ -87,7 +107,7 @@ export class IdDenylist implements Rule {
 
       if (this.config.includes(contractName)) {
         results.push({
-          rule: IdDenylist.ruleName,
+          rule: this.name,
           message: `Identifier '${contractName}' is restricted`,
           sourceId: file.id,
           line: cursor.textRange.start.line,

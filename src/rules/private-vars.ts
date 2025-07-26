@@ -1,5 +1,10 @@
 import { StateVariableDefinition } from "@nomicfoundation/slang/ast";
-import { Rule, LintResult, RuleContext } from "./types.js";
+import {
+  LintResult,
+  RuleContext,
+  RuleWithoutConfig,
+  RuleDefinitionWithoutConfig,
+} from "./types.js";
 import {
   assertNonterminalNode,
   NonterminalKind,
@@ -10,9 +15,16 @@ import {
   isPrivate,
 } from "../slang/state-variables.js";
 
-export class PrivateVars implements Rule {
-  public static ruleName = "private-vars";
-  public static recommended = false;
+export const PrivateVars: RuleDefinitionWithoutConfig = {
+  name: "private-vars",
+  recommended: false,
+  create: function () {
+    return new PrivateVarsRule(this.name);
+  },
+};
+
+class PrivateVarsRule implements RuleWithoutConfig {
+  constructor(public name: string) {}
 
   public run({ file }: RuleContext): LintResult[] {
     const results: LintResult[] = [];
@@ -37,7 +49,7 @@ export class PrivateVars implements Rule {
         !isPrivate(stateVariable)
       ) {
         results.push({
-          rule: PrivateVars.ruleName,
+          rule: this.name,
           sourceId: file.id,
           message: `State variable '${stateVariable.name.unparse()}' should be private`,
           line: cursor.textRange.start.line,

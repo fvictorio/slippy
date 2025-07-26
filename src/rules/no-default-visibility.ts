@@ -1,15 +1,27 @@
 import { StateVariableDefinition } from "@nomicfoundation/slang/ast";
 import { hasDefaultVisibility } from "../slang/state-variables.js";
-import { Rule, LintResult, RuleContext } from "./types.js";
+import {
+  LintResult,
+  RuleContext,
+  RuleWithoutConfig,
+  RuleDefinitionWithoutConfig,
+} from "./types.js";
 import {
   assertNonterminalNode,
   NonterminalKind,
   TerminalKindExtensions,
 } from "@nomicfoundation/slang/cst";
 
-export class NoDefaultVisibility implements Rule {
-  public static ruleName = "no-default-visibility";
-  public static recommended = true;
+export const NoDefaultVisibility: RuleDefinitionWithoutConfig = {
+  name: "no-default-visibility",
+  recommended: true,
+  create: function () {
+    return new NoDefaultVisibilityRule(this.name);
+  },
+};
+
+class NoDefaultVisibilityRule implements RuleWithoutConfig {
+  public constructor(public name: string) {}
 
   public run({ file }: RuleContext): LintResult[] {
     const results: LintResult[] = [];
@@ -37,7 +49,7 @@ export class NoDefaultVisibility implements Rule {
           // ignore trivia
         }
         results.push({
-          rule: NoDefaultVisibility.ruleName,
+          rule: this.name,
           sourceId: file.id,
           line: firstTerminalCursor.textRange.start.line,
           column: firstTerminalCursor.textRange.start.column,

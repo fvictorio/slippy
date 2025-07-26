@@ -1,22 +1,35 @@
-import { Rule, LintResult, RuleContext } from "./types.js";
+import {
+  LintResult,
+  RuleContext,
+  RuleDefinition,
+  RuleWithConfig,
+} from "./types.js";
 import { NonterminalKind, TerminalKind } from "@nomicfoundation/slang/cst";
 import * as z from "zod";
 
 const DEFAULT_MAX_STATE_VARIABLES = 15;
 
-const ConfigSchema = z.optional(z.number());
+const ConfigSchema = z
+  .optional(z.number())
+  .default(DEFAULT_MAX_STATE_VARIABLES);
+type Config = z.infer<typeof ConfigSchema>;
 
-export class MaxStateVars implements Rule {
-  public static ruleName = "max-state-vars";
-  public static recommended = true;
+export const MaxStateVars: RuleDefinition<Config> = {
+  name: "max-state-vars",
+  recommended: true,
+  parseConfig: (config: unknown) => {
+    return ConfigSchema.parse(config);
+  },
+  create: function (config) {
+    return new MaxStateVarsRule(this.name, config);
+  },
+};
 
-  public maxStateVariables: number;
-
-  public constructor(userMaxStateVariables: unknown) {
-    const maxStateVariables = ConfigSchema.parse(userMaxStateVariables);
-
-    this.maxStateVariables = maxStateVariables ?? DEFAULT_MAX_STATE_VARIABLES;
-  }
+class MaxStateVarsRule implements RuleWithConfig<Config> {
+  public constructor(
+    public name: string,
+    public config: Config,
+  ) {}
 
   public run({ file }: RuleContext): LintResult[] {
     const results: LintResult[] = [];
@@ -44,11 +57,11 @@ export class MaxStateVars implements Rule {
         count++;
       }
 
-      if (count > this.maxStateVariables) {
+      if (count > this.config) {
         results.push({
           sourceId: file.id,
-          rule: MaxStateVars.ruleName,
-          message: `Contract '${contractName}' has more than ${this.maxStateVariables} state variables`,
+          rule: this.name,
+          message: `Contract '${contractName}' has more than ${this.config} state variables`,
           line: contractRange.start.line,
           column: contractRange.start.column,
         });

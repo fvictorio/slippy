@@ -8,7 +8,12 @@
   Significant parts of this file are derived from that source, with modifications for Solidity.
 */
 import { File as SlangFile } from "@nomicfoundation/slang/compilation";
-import { Rule, LintResult, RuleContext } from "./types.js";
+import {
+  LintResult,
+  RuleContext,
+  RuleDefinition,
+  RuleWithConfig,
+} from "./types.js";
 import {
   assertNonterminalNode,
   Cursor,
@@ -310,7 +315,7 @@ const nonterminalKindToMetadata: PartialRecord<NonterminalKind, NodeMetadata> =
   };
 
 export function normalizeConfig(
-  userConfig: NamingConventionUserConfig,
+  userConfig: Config,
 ): NamingConventionNormalizedConfig {
   return userConfig.flatMap(normalizeOption).sort((a, b) => {
     if (a.selector === b.selector) {
@@ -358,30 +363,44 @@ const ModifiersStringSchema = z.enum(
   Object.keys(Modifiers) as ModifiersString[],
 );
 
-export const ConfigSchema = z.array(
-  z.object({
-    custom: z.optional(MatchRegexSchema),
-    filter: z.optional(z.union([z.string(), MatchRegexSchema])),
-    format: z.nullable(z.array(PredefinedFormatsStringSchema)),
-    leadingUnderscore: z.optional(UnderscoreOptionsStringSchema),
-    modifiers: z.optional(z.array(ModifiersStringSchema)),
-    selector: z.union([
-      IndividualAndMetaSelectorsStringSchema,
-      z.array(IndividualAndMetaSelectorsStringSchema),
-    ]),
-    trailingUnderscore: z.optional(UnderscoreOptionsStringSchema),
-  }),
-);
+export const Schema = z
+  .array(
+    z.object({
+      custom: z.optional(MatchRegexSchema),
+      filter: z.optional(z.union([z.string(), MatchRegexSchema])),
+      format: z.nullable(z.array(PredefinedFormatsStringSchema)),
+      leadingUnderscore: z.optional(UnderscoreOptionsStringSchema),
+      modifiers: z.optional(z.array(ModifiersStringSchema)),
+      selector: z.union([
+        IndividualAndMetaSelectorsStringSchema,
+        z.array(IndividualAndMetaSelectorsStringSchema),
+      ]),
+      trailingUnderscore: z.optional(UnderscoreOptionsStringSchema),
+    }),
+  )
+  .default(DEFAULT_CONFIG);
 
-export class NamingConvention implements Rule {
-  public static ruleName = "naming-convention";
-  public static recommended = true;
+type Config = z.infer<typeof Schema>;
 
-  private configs: NamingConventionNormalizedConfig;
+export const NamingConvention: RuleDefinition<Config> = {
+  name: "naming-convention",
+  recommended: true,
+  parseConfig: (config: unknown) => {
+    return Schema.parse(config);
+  },
+  create: function (config) {
+    return new NamingConventionRule(this.name, config);
+  },
+};
 
-  public constructor(userConfig: unknown = DEFAULT_CONFIG) {
-    const parsedConfig = ConfigSchema.parse(userConfig);
-    this.configs = normalizeConfig(parsedConfig);
+class NamingConventionRule implements RuleWithConfig<Config> {
+  private normalizedConfig: NamingConventionNormalizedConfig;
+
+  public constructor(
+    public name: string,
+    public config: Config,
+  ) {
+    this.normalizedConfig = normalizeConfig(config);
   }
 
   public run({ file }: RuleContext): LintResult[] {
@@ -413,7 +432,7 @@ export class NamingConvention implements Rule {
         name: originalName,
         textRange,
       } of identifiersWithTextRange) {
-        for (const config of this.configs) {
+        for (const config of this.normalizedConfig) {
           if (!matchesSelector(config.selector, nonterminalMetadata.selector)) {
             continue;
           }
@@ -568,7 +587,7 @@ export class NamingConvention implements Rule {
       case UnderscoreOptions.forbid: {
         if (hasSingleUnderscore()) {
           return {
-            rule: NamingConvention.ruleName,
+            rule: this.name,
             sourceId: file.id,
             line: textRange.start.line,
             column: textRange.start.column,
@@ -583,7 +602,7 @@ export class NamingConvention implements Rule {
       case UnderscoreOptions.require: {
         if (!hasSingleUnderscore()) {
           return {
-            rule: NamingConvention.ruleName,
+            rule: this.name,
             sourceId: file.id,
             line: textRange.start.line,
             column: textRange.start.column,
@@ -597,7 +616,7 @@ export class NamingConvention implements Rule {
       case UnderscoreOptions.requireDouble: {
         if (!hasDoubleUnderscore()) {
           return {
-            rule: NamingConvention.ruleName,
+            rule: this.name,
             sourceId: file.id,
             line: textRange.start.line,
             column: textRange.start.column,
@@ -631,7 +650,7 @@ export class NamingConvention implements Rule {
     }
 
     return {
-      rule: NamingConvention.ruleName,
+      rule: this.name,
       sourceId: file.id,
       line: textRange.start.line,
       column: textRange.start.column,
@@ -660,7 +679,7 @@ export class NamingConvention implements Rule {
     const formatsString = formats?.map((f) => PredefinedFormats[f]).join(", ");
 
     return {
-      rule: NamingConvention.ruleName,
+      rule: this.name,
       sourceId: file.id,
       line: textRange.start.line,
       column: textRange.start.column,

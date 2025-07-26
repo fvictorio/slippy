@@ -1,12 +1,31 @@
-import { Rule, LintResult, RuleContext } from "./types.js";
+import * as z from "zod";
+import {
+  LintResult,
+  RuleContext,
+  RuleDefinition,
+  RuleWithConfig,
+} from "./types.js";
 import { TerminalKind, TextRange } from "@nomicfoundation/slang/cst";
 
-export class ExplicitTypes implements Rule {
-  public static ruleName = "explicit-types";
-  public static recommended = true;
+const ConfigSchema = z.enum(["always", "never"]).default("always");
 
+type Config = z.infer<typeof ConfigSchema>;
+
+export const ExplicitTypes: RuleDefinition<Config> = {
+  name: "explicit-types",
+  recommended: true,
+  parseConfig: (config: unknown) => {
+    return ConfigSchema.parse(config);
+  },
+  create: function (config) {
+    return new ExplicitTypesRule(this.name, config);
+  },
+};
+
+class ExplicitTypesRule implements RuleWithConfig<Config> {
   public constructor(
-    private readonly criteria: "always" | "never" = "always",
+    public name: string,
+    public config: Config,
   ) {}
 
   public run({ file }: RuleContext): LintResult[] {
@@ -24,7 +43,7 @@ export class ExplicitTypes implements Rule {
     ) {
       const typeText = cursor.node.unparse();
 
-      if (this.criteria === "always") {
+      if (this.config === "always") {
         if (
           typeText === "uint" ||
           typeText === "int" ||
@@ -58,9 +77,9 @@ export class ExplicitTypes implements Rule {
     textRange: TextRange,
   ): LintResult {
     return {
-      rule: ExplicitTypes.ruleName,
+      rule: this.name,
       sourceId,
-      message: `${this.criteria === "always" ? "implicit" : "explicit"} type '${typeText}' should be avoided`,
+      message: `${this.config === "always" ? "implicit" : "explicit"} type '${typeText}' should be avoided`,
       line: textRange.start.line,
       column: textRange.start.column,
     };

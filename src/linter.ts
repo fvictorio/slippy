@@ -1,7 +1,7 @@
 import {
   LintResult,
   LintResultToReport,
-  RuleClass,
+  RuleDefinition,
   SourceFile,
 } from "./rules/types.js";
 import { filterByCommentDirectives } from "./comment-directives.js";
@@ -12,10 +12,10 @@ import {
   SlippyRuleNotRegisteredError,
 } from "./errors.js";
 import { getAllRules } from "./rules/get-all-rules.js";
-import { ZodError } from "zod";
+import * as z from "zod";
 
 export class Linter {
-  private ruleNameToRule: Map<string, RuleClass> = new Map();
+  private ruleNameToRule: Map<string, RuleDefinition<any>> = new Map();
 
   constructor(private configLoader: ConfigLoader) {
     this.registerBuiltInRules();
@@ -64,14 +64,33 @@ export class Linter {
       if (severity === "off") continue;
 
       let rule;
-      try {
-        rule = new Rule(ruleConfig[1]);
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          throw new SlippyRuleConfigError(Rule.ruleName, error);
+      if ("parseConfig" in Rule) {
+        if (ruleConfig.length > 2) {
+          throw new SlippyRuleConfigError(
+            Rule.name,
+            "Rule configuration must be an array with at most two elements: [severity, config]",
+          );
         }
 
-        throw error;
+        try {
+          const config = Rule.parseConfig(ruleConfig[1]);
+          rule = Rule.create(config);
+        } catch (error: unknown) {
+          if (error instanceof z.ZodError) {
+            const problem = z.prettifyError(error);
+            throw new SlippyRuleConfigError(Rule.name, `\n\n${problem}`);
+          }
+
+          throw error;
+        }
+      } else {
+        if (ruleConfig.length > 1) {
+          throw new SlippyRuleConfigError(
+            Rule.name,
+            "Rule requires no configuration, but received an array with more than one element.",
+          );
+        }
+        rule = Rule.create();
       }
       const ruleResults: LintResult[] = await rule.run({
         unit,
@@ -104,7 +123,7 @@ export class Linter {
     const rules = getAllRules();
 
     for (const rule of rules) {
-      this.ruleNameToRule.set(rule.ruleName, rule);
+      this.ruleNameToRule.set(rule.name, rule);
     }
   }
 }

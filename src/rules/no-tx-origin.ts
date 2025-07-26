@@ -1,9 +1,21 @@
-import { Rule, LintResult, RuleContext } from "./types.js";
+import {
+  LintResult,
+  RuleContext,
+  RuleWithoutConfig,
+  RuleDefinitionWithoutConfig,
+} from "./types.js";
 import { NonterminalKind, TerminalKind } from "@nomicfoundation/slang/cst";
 
-export class NoTxOrigin implements Rule {
-  public static ruleName = "no-tx-origin";
-  public static recommended = true;
+export const NoTxOrigin: RuleDefinitionWithoutConfig = {
+  name: "no-tx-origin",
+  recommended: true,
+  create: function () {
+    return new NoTxOriginRule(this.name);
+  },
+};
+
+class NoTxOriginRule implements RuleWithoutConfig {
+  public constructor(public name: string) {}
 
   public run({ file }: RuleContext): LintResult[] {
     const results: LintResult[] = [];
@@ -31,7 +43,7 @@ export class NoTxOrigin implements Rule {
 
       results.push({
         sourceId: file.id,
-        rule: NoTxOrigin.ruleName,
+        rule: this.name,
         message: "Avoid using tx.origin",
         line: txTextRange.start.line,
         column: txTextRange.start.column,

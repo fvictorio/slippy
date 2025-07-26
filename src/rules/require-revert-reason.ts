@@ -2,7 +2,12 @@ import {
   PositionalArguments,
   StringExpression,
 } from "@nomicfoundation/slang/ast";
-import { Rule, LintResult, RuleContext } from "./types.js";
+import {
+  LintResult,
+  RuleContext,
+  RuleWithConfig,
+  RuleDefinitionWithConfig,
+} from "./types.js";
 import {
   assertNonterminalNode,
   Cursor,
@@ -10,6 +15,7 @@ import {
   TerminalKindExtensions,
 } from "@nomicfoundation/slang/cst";
 import { File as SlangFile } from "@nomicfoundation/slang/compilation";
+import * as z from "zod";
 
 const GET_REQUIRE_ARGS_QUERY = Query.create(`
 [FunctionCallExpression
@@ -40,12 +46,23 @@ const GET_REVERT_STATEMENT_ARGS_QUERY = Query.create(`
 ]
 `);
 
-export class RequireRevertReason implements Rule {
-  public static ruleName = "require-revert-reason";
-  public static recommended = true;
+const Schema = z.enum(["any", "string", "customError"]).default("any");
 
+type Config = z.infer<typeof Schema>;
+
+export const RequireRevertReason: RuleDefinitionWithConfig<Config> = {
+  name: "require-revert-reason",
+  recommended: true,
+  parseConfig: (config: unknown) => Schema.parse(config),
+  create: function (config: Config) {
+    return new RequireRevertReasonRule(this.name, config);
+  },
+};
+
+class RequireRevertReasonRule implements RuleWithConfig<Config> {
   public constructor(
-    private readonly reasonKind: "any" | "string" | "customError" = "any",
+    public name: string,
+    public config: Config,
   ) {}
 
   public run({ file }: RuleContext): LintResult[] {
@@ -77,11 +94,11 @@ export class RequireRevertReason implements Rule {
         } else if (args.items.length === 2) {
           const isStringReason =
             args.items[1].variant instanceof StringExpression;
-          if (this.reasonKind === "customError" && isStringReason) {
+          if (this.config === "customError" && isStringReason) {
             results.push(
               this.makeResult(file, match.root, "require", "notError"),
             );
-          } else if (this.reasonKind === "string" && !isStringReason) {
+          } else if (this.config === "string" && !isStringReason) {
             results.push(
               this.makeResult(file, match.root, "require", "notString"),
             );
@@ -95,11 +112,11 @@ export class RequireRevertReason implements Rule {
         } else if (args.items.length === 1) {
           const isStringReason =
             args.items[0].variant instanceof StringExpression;
-          if (this.reasonKind === "customError" && isStringReason) {
+          if (this.config === "customError" && isStringReason) {
             results.push(
               this.makeResult(file, match.root, "revert", "notError"),
             );
-          } else if (this.reasonKind === "string" && !isStringReason) {
+          } else if (this.config === "string" && !isStringReason) {
             results.push(
               this.makeResult(file, match.root, "revert", "notString"),
             );
@@ -107,7 +124,7 @@ export class RequireRevertReason implements Rule {
         }
       } else if (revertStatementArgs !== undefined) {
         // revert statements always have a reason of error kind
-        if (this.reasonKind === "string") {
+        if (this.config === "string") {
           results.push(
             this.makeResult(file, match.root, "revert", "notString"),
           );
@@ -136,7 +153,7 @@ export class RequireRevertReason implements Rule {
     }
 
     return {
-      rule: RequireRevertReason.ruleName,
+      rule: this.name,
       sourceId: file.id,
       message,
       line: cursor.textRange.start.line,

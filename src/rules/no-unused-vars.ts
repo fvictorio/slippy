@@ -2,7 +2,12 @@ import {
   CompilationUnit,
   File as SlangFile,
 } from "@nomicfoundation/slang/compilation";
-import { Rule, LintResult, RuleContext } from "./types.js";
+import {
+  LintResult,
+  RuleContext,
+  RuleWithConfig,
+  RuleDefinitionWithConfig,
+} from "./types.js";
 import {
   assertNonterminalNode,
   Cursor,
@@ -11,18 +16,32 @@ import {
   TextRange,
 } from "@nomicfoundation/slang/cst";
 import { Definition } from "@nomicfoundation/slang/bindings";
+import * as z from "zod";
 
-interface NoUnusedVarsConfig {
-  ignorePattern?: string;
-}
+const Schema = z
+  .object({
+    ignorePattern: z.string().optional(),
+  })
+  .default({});
 
-export class NoUnusedVars implements Rule {
-  public static ruleName = "no-unused-vars";
-  public static recommended = true;
+type Config = z.infer<typeof Schema>;
 
+export const NoUnusedVars: RuleDefinitionWithConfig<Config> = {
+  name: "no-unused-vars",
+  recommended: true,
+  parseConfig: (config: unknown) => Schema.parse(config),
+  create: function (config: Config) {
+    return new NoUnusedVarsRule(this.name, config);
+  },
+};
+
+class NoUnusedVarsRule implements RuleWithConfig<Config> {
   private ignorePattern?: RegExp;
 
-  public constructor(config: NoUnusedVarsConfig = {}) {
+  public constructor(
+    public name: string,
+    public config: Config,
+  ) {
     this.ignorePattern =
       config.ignorePattern !== undefined
         ? new RegExp(config.ignorePattern)
@@ -45,7 +64,7 @@ export class NoUnusedVars implements Rule {
         }
 
         results.push({
-          rule: NoUnusedVars.ruleName,
+          rule: this.name,
           sourceId: unusedVar.definition.definiensLocation.fileId,
           message: `'${unusedVar.name}' is defined but never used`,
           line: unusedVar.textRange.start.line,

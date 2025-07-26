@@ -1,11 +1,23 @@
 import { StateVariableDefinition } from "@nomicfoundation/slang/ast";
-import { Rule, LintResult, RuleContext } from "./types.js";
+import {
+  LintResult,
+  RuleContext,
+  RuleDefinitionWithoutConfig,
+  RuleWithoutConfig,
+} from "./types.js";
 import { NonterminalKind, TerminalKind } from "@nomicfoundation/slang/cst";
 import { isImmutable } from "../slang/state-variables.js";
 
-export class NoUninitializedImmutableReference implements Rule {
-  public static ruleName = "no-uninitialized-immutable-references";
-  public static recommended = true;
+export const NoUninitializedImmutableReference: RuleDefinitionWithoutConfig = {
+  name: "no-uninitialized-immutable-references",
+  recommended: true,
+  create: function () {
+    return new NoUninitializedImmutableReferenceRule(this.name);
+  },
+};
+
+class NoUninitializedImmutableReferenceRule implements RuleWithoutConfig {
+  constructor(public name: string) {}
 
   public run({ file, unit }: RuleContext): LintResult[] {
     const results: LintResult[] = [];
@@ -58,7 +70,7 @@ export class NoUninitializedImmutableReference implements Rule {
 
         if (referencedOffset > definedOffset) {
           results.push({
-            rule: NoUninitializedImmutableReference.ruleName,
+            rule: this.name,
             sourceId: file.id,
             message: `Immutable variable '${valueCursor.node.unparse()}' cannot be referenced before it is initialized`,
             line: valueCursor.textRange.start.line,

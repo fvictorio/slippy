@@ -1,5 +1,10 @@
 import { File as SlangFile } from "@nomicfoundation/slang/compilation";
-import { Rule, LintResult, RuleContext } from "./types.js";
+import {
+  LintResult,
+  RuleContext,
+  RuleWithoutConfig,
+  RuleDefinitionWithoutConfig,
+} from "./types.js";
 import {
   assertNonterminalNode,
   assertTerminalNode,
@@ -23,9 +28,16 @@ interface ModifierPosition {
   textRange: TextRange;
 }
 
-export class SortModifiers implements Rule {
-  public static ruleName = "sort-modifiers";
-  public static recommended = true;
+export const SortModifiers: RuleDefinitionWithoutConfig = {
+  name: "sort-modifiers",
+  recommended: true,
+  create: function () {
+    return new SortModifiersRule(this.name);
+  },
+};
+
+class SortModifiersRule implements RuleWithoutConfig {
+  constructor(public name: string) {}
 
   public run({ file }: RuleContext): LintResult[] {
     const results: LintResult[] = [];
@@ -168,7 +180,7 @@ export class SortModifiers implements Rule {
     textRange: TextRange,
   ): LintResult {
     return {
-      rule: SortModifiers.ruleName,
+      rule: this.name,
       sourceId: file.id,
       message: `${first} modifier should come before ${second} modifier`,
       line: textRange.start.line,

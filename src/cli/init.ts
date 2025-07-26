@@ -31,13 +31,11 @@ export async function initConfig() {
   }
   lines.push("  rules: {");
 
-  const allRules = getAllRules().sort((a, b) =>
-    a.ruleName.localeCompare(b.ruleName),
-  );
+  const allRules = getAllRules().sort((a, b) => a.name.localeCompare(b.name));
 
   for (const rule of allRules) {
     const severity = rule.recommended ? "error" : "off";
-    lines.push(`    "${rule.ruleName}": "${severity}",`);
+    lines.push(`    "${rule.name}": "${severity}",`);
   }
   lines.push("  },");
   lines.push("};");
