@@ -32,7 +32,8 @@ export class NoUnusedVars implements Rule {
   public run({ file, unit }: RuleContext): LintResult[] {
     const results: LintResult[] = [];
 
-    const unusedVars = findUnusedVarsInFile(unit, file);
+    const inheritDocComments = findInheritDocComments(file);
+    const unusedVars = findUnusedVarsInFile(unit, file, inheritDocComments);
 
     for (const unusedVar of unusedVars) {
       if (unusedVar.definition.definiensLocation.isUserFileLocation()) {
@@ -65,6 +66,7 @@ interface UnusedVar {
 function findUnusedVarsInFile(
   unit: CompilationUnit,
   file: SlangFile,
+  inheritDocComments: string[],
 ): UnusedVar[] {
   const unusedDefinitions = [];
   const cursor = file.createTreeCursor();
@@ -94,7 +96,11 @@ function findUnusedVarsInFile(
     unusedDefinitions.push(...unusedDefinitionsInFunction);
   }
 
-  const unusedImportedNames = findUnusedImportedNames(unit, cursor.spawn());
+  const unusedImportedNames = findUnusedImportedNames(
+    unit,
+    cursor.spawn(),
+    inheritDocComments,
+  );
 
   unusedDefinitions.push(...unusedImportedNames);
 
@@ -267,6 +273,7 @@ function findUnusedPrivateFunctions(
 function findUnusedImportedNames(
   unit: CompilationUnit,
   cursor: Cursor,
+  inheritDocComments: string[],
 ): UnusedVar[] {
   const definitions: UnusedVar[] = [];
 
@@ -321,11 +328,15 @@ function findUnusedImportedNames(
     }
 
     if (definition.references().length === 0) {
-      definitions.push({
-        name: variableDefinitionCursor.node.unparse(),
-        textRange: variableDefinitionCursor.textRange,
-        definition,
-      });
+      const name = variableDefinitionCursor.node.unparse();
+
+      if (!inheritDocComments.includes(name)) {
+        definitions.push({
+          name,
+          textRange: variableDefinitionCursor.textRange,
+          definition,
+        });
+      }
     }
   }
 
@@ -359,4 +370,25 @@ function getFunctionNameDefinition(
   }
 
   return unit.bindingGraph.definitionAt(functionDefinitionCursor);
+}
+
+function findInheritDocComments(file: SlangFile): string[] {
+  const results: string[] = [];
+  const cursor = file.createTreeCursor();
+
+  while (
+    cursor.goToNextTerminalWithKinds([
+      TerminalKind.SingleLineNatSpecComment,
+      TerminalKind.MultiLineNatSpecComment,
+    ])
+  ) {
+    const commentText = cursor.node.unparse();
+    const inheritDocMatch = commentText.match(/@inheritdoc\s+(\w+)/);
+
+    if (inheritDocMatch) {
+      results.push(inheritDocMatch[1]);
+    }
+  }
+
+  return results;
 }
