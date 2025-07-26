@@ -208,6 +208,39 @@ contract Foo {
       }
     `,
   },
+  {
+    description:
+      "should not report imported names that are used in @inheritdoc comments",
+    content: `
+    import { ExtendsBar, Bar, Bar123, Bar_Snake_Case, $Bar } from "./Bar.sol";
+
+    contract Foo is ExtendsBar {
+      /// @inheritdoc Bar
+      function f() public override {}
+    }
+
+    contract Foo2 is ExtendsBar {
+      /**
+        @inheritdoc Bar123
+      */
+      function f() public override {}
+    }
+
+    contract Foo3 is ExtendsBar {
+      /**
+        @inheritdoc Bar_Snake_Case
+      */
+      function f() public override {}
+    }
+
+    contract Foo3 is ExtendsBar {
+      /**
+        @inheritdoc $Bar
+      */
+      function f() public override {}
+    }
+    `,
+  },
 ];
 
 describe(ruleName, async () => {
