@@ -383,7 +383,7 @@ function findInheritDocComments(file: SlangFile): string[] {
     ])
   ) {
     const commentText = cursor.node.unparse();
-    const inheritDocMatch = commentText.match(/@inheritdoc\s+(\w+)/);
+    const inheritDocMatch = commentText.match(/@inheritdoc\s+([$\w]+)/);
 
     if (inheritDocMatch) {
       results.push(inheritDocMatch[1]);
