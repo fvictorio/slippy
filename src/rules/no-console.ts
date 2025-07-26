@@ -1,5 +1,10 @@
 import { File as SlangFile } from "@nomicfoundation/slang/compilation";
-import { Rule, LintResult, RuleContext } from "./types.js";
+import {
+  LintResult,
+  RuleContext,
+  RuleDefinitionWithoutConfig,
+  RuleWithoutConfig,
+} from "./types.js";
 import { Query } from "@nomicfoundation/slang/cst";
 
 const forbiddenImportPaths = [
@@ -12,9 +17,16 @@ const forbiddenImportPaths = [
   "forge-std/src/safeconsole.sol",
 ];
 
-export class NoConsole implements Rule {
-  public static ruleName = "no-console";
-  public static recommended = true;
+export const NoConsole: RuleDefinitionWithoutConfig = {
+  name: "no-console",
+  recommended: true,
+  create: function () {
+    return new NoConsoleRule(this.name);
+  },
+};
+
+class NoConsoleRule implements RuleWithoutConfig {
+  constructor(public readonly name: string) {}
 
   public run({ file }: RuleContext): LintResult[] {
     const results: LintResult[] = [];
@@ -48,7 +60,7 @@ export class NoConsole implements Rule {
       if (member.node.unparse().trim().startsWith("log")) {
         results.push({
           sourceId: file.id,
-          rule: NoConsole.ruleName,
+          rule: this.name,
           message: "Unexpected console.* usage",
           line: operand.textRange.start.line,
           column: operand.textRange.start.column,
@@ -83,7 +95,7 @@ export class NoConsole implements Rule {
       if (forbiddenImportPaths.includes(importPath)) {
         results.push({
           sourceId: file.id,
-          rule: NoConsole.ruleName,
+          rule: this.name,
           message: "Unexpected import of console",
           line: importKeyword.textRange.start.line,
           column: importKeyword.textRange.start.column,

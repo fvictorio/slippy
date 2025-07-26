@@ -20,13 +20,30 @@ export interface RuleContext {
   file: SlangFile;
 }
 
-export interface Rule {
-  run(ctx: RuleContext): LintResult[];
+export type RuleDefinition<Config> =
+  | RuleDefinitionWithConfig<Config>
+  | RuleDefinitionWithoutConfig;
+
+export interface RuleDefinitionWithConfig<Config> {
+  name: string;
+  recommended: boolean;
+  parseConfig: (config: unknown) => Config;
+  create: (config: Config) => RuleWithConfig<Config>;
 }
 
-export interface RuleClass {
-  new (ruleConfig: any): Rule;
-  ruleName: string;
+export interface RuleDefinitionWithoutConfig {
+  name: string;
+  recommended: boolean;
+  create: () => RuleWithoutConfig;
+}
+
+export interface RuleWithoutConfig {
+  name: string;
+  run: (context: RuleContext) => LintResult[];
+}
+
+export interface RuleWithConfig<Config> extends RuleWithoutConfig {
+  config: Config;
 }
 
 export interface SourceFile {

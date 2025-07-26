@@ -15,16 +15,17 @@ import { SortImports } from "./sort-imports.js";
 import { NoDefaultVisibility } from "./no-default-visibility.js";
 import { RequireRevertReason } from "./require-revert-reason.js";
 import { NoEmptyBlocks } from "./no-empty-blocks.js";
+import { RuleDefinition } from "./types.js";
 
-export function getAllRules() {
+export function getAllRules(): Array<RuleDefinition<any>> {
   return [
     ExplicitTypes,
     IdDenylist,
     ImportsOnTop,
     MaxStateVars,
-    SortModifiers,
     NamingConvention,
     NoConsole,
+    NoDefaultVisibility,
     NoDuplicateImports,
     NoEmptyBlocks,
     NoGlobalImports,
@@ -34,6 +35,6 @@ export function getAllRules() {
     PrivateVars,
     RequireRevertReason,
     SortImports,
-    NoDefaultVisibility,
+    SortModifiers,
   ];
 }

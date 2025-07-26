@@ -1,5 +1,3 @@
-import * as z from "zod";
-
 export class AssertionError extends Error {
   constructor(message: string) {
     super(`Assertion error: ${message}`);
@@ -108,10 +106,9 @@ export class SlippyInvalidConfigError extends SlippyError {
 }
 
 export class SlippyRuleConfigError extends SlippyError {
-  constructor(ruleName: string, zodError: z.ZodError) {
-    super(
-      `Error in configuration for rule '${ruleName}':\n\n${z.prettifyError(zodError)}`,
-    );
+  constructor(ruleName: string, problem: string) {
+    super(`Error in configuration for rule '${ruleName}': ${problem}`);
+
     this.code = SlippyErrorCode.SlippyRuleConfigError;
   }
 }

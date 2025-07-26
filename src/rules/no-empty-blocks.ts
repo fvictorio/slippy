@@ -7,7 +7,12 @@ import {
   Statements,
   YulStatements,
 } from "@nomicfoundation/slang/ast";
-import { Rule, LintResult, RuleContext } from "./types.js";
+import {
+  LintResult,
+  RuleContext,
+  RuleWithoutConfig,
+  RuleDefinitionWithoutConfig,
+} from "./types.js";
 import {
   assertNonterminalNode,
   Cursor,
@@ -17,6 +22,8 @@ import {
   TerminalKind,
 } from "@nomicfoundation/slang/cst";
 import { File as SlangFile } from "@nomicfoundation/slang/compilation";
+
+const name = "no-empty-blocks";
 
 interface QueryHandler {
   query: string;
@@ -50,7 +57,7 @@ function checkEmptyBlock(
 
     return [
       {
-        rule: NoEmptyBlocks.ruleName,
+        rule: name,
         sourceId: file.id,
         line: openBrace.textRange.start.line,
         column: openBrace.textRange.start.column,
@@ -175,13 +182,16 @@ const handlers: QueryHandler[] = [
   },
 ];
 
-export class NoEmptyBlocks implements Rule {
-  public static ruleName = "no-empty-blocks";
-  public static recommended = true;
+export const NoEmptyBlocks: RuleDefinitionWithoutConfig = {
+  name: "no-empty-blocks",
+  recommended: true,
+  create: function () {
+    return new NoEmptyBlocksRule(this.name);
+  },
+};
 
-  public constructor(
-    private readonly criteria: "always" | "never" = "always",
-  ) {}
+class NoEmptyBlocksRule implements RuleWithoutConfig {
+  public constructor(public name: string) {}
 
   public run({ file }: RuleContext): LintResult[] {
     const results: LintResult[] = [];

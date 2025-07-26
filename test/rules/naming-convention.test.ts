@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { RuleTester, RuleTestFixture } from "../helpers/rule-tester.js";
 import {
-  ConfigSchema,
+  Schema,
   MetaSelectors,
   normalizeConfig,
   Selectors,
@@ -19,7 +19,7 @@ describe("config validation", function () {
     ];
 
     for (const config of invalidConfigs) {
-      const result = ConfigSchema.safeParse(config);
+      const result = Schema.safeParse(config);
       expect(result.error).toBeDefined();
     }
   });

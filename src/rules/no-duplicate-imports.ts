@@ -1,9 +1,21 @@
-import { Rule, LintResult, RuleContext } from "./types.js";
+import {
+  LintResult,
+  RuleContext,
+  RuleWithoutConfig,
+  RuleDefinitionWithoutConfig,
+} from "./types.js";
 import { NonterminalKind, TerminalKind } from "@nomicfoundation/slang/cst";
 
-export class NoDuplicateImports implements Rule {
-  public static ruleName = "no-duplicate-imports";
-  public static recommended = true;
+export const NoDuplicateImports: RuleDefinitionWithoutConfig = {
+  name: "no-duplicate-imports",
+  recommended: true,
+  create: function () {
+    return new NoDuplicateImportsRule(this.name);
+  },
+};
+
+class NoDuplicateImportsRule implements RuleWithoutConfig {
+  public constructor(public name: string) {}
 
   public run({ file }: RuleContext): LintResult[] {
     const results: LintResult[] = [];
@@ -39,7 +51,7 @@ export class NoDuplicateImports implements Rule {
       if (importPaths.has(importPath)) {
         results.push({
           sourceId: file.id,
-          rule: NoDuplicateImports.ruleName,
+          rule: this.name,
           message: `Duplicate import of '${importPath}'`,
           line: importKeywordCursor.textRange.start.line,
           column: importKeywordCursor.textRange.start.column,

@@ -1,9 +1,21 @@
-import { Rule, LintResult, RuleContext } from "./types.js";
+import {
+  LintResult,
+  RuleContext,
+  RuleWithoutConfig,
+  RuleDefinitionWithoutConfig,
+} from "./types.js";
 import { NonterminalKind, TerminalKind } from "@nomicfoundation/slang/cst";
 
-export class NoGlobalImports implements Rule {
-  public static ruleName = "no-global-imports";
-  public static recommended = true;
+export const NoGlobalImports: RuleDefinitionWithoutConfig = {
+  name: "no-global-imports",
+  recommended: true,
+  create: function () {
+    return new NoGlobalImportsRule(this.name);
+  },
+};
+
+class NoGlobalImportsRule implements RuleWithoutConfig {
+  public constructor(public name: string) {}
 
   public run({ file }: RuleContext): LintResult[] {
     const results: LintResult[] = [];
@@ -37,7 +49,7 @@ export class NoGlobalImports implements Rule {
       ) {
         results.push({
           sourceId: file.id,
-          rule: NoGlobalImports.ruleName,
+          rule: this.name,
           message: `Global import of '${importPathString}'`,
           line: textRange.start.line,
           column: textRange.start.column,

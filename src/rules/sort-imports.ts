@@ -1,9 +1,21 @@
-import { Rule, LintResult, RuleContext } from "./types.js";
+import {
+  LintResult,
+  RuleContext,
+  RuleWithoutConfig,
+  RuleDefinitionWithoutConfig,
+} from "./types.js";
 import { Query } from "@nomicfoundation/slang/cst";
 
-export class SortImports implements Rule {
-  public static ruleName = "sort-imports";
-  public static recommended = false;
+export const SortImports: RuleDefinitionWithoutConfig = {
+  name: "sort-imports",
+  recommended: false,
+  create: function () {
+    return new SortImportsRule(this.name);
+  },
+};
+
+class SortImportsRule implements RuleWithoutConfig {
+  constructor(public name: string) {}
 
   public run({ file }: RuleContext): LintResult[] {
     const cursor = file.createTreeCursor();
@@ -34,7 +46,7 @@ export class SortImports implements Rule {
       if (importPaths[i].cursor.node.id !== sortedPaths[i].cursor.node.id) {
         return [
           {
-            rule: SortImports.ruleName,
+            rule: this.name,
             sourceId: file.id,
             message: `Import of "${importPaths[i].path}" should come after import of "${sortedPaths[i].path}"`,
             line: importPaths[i].cursor.textRange.start.line,
