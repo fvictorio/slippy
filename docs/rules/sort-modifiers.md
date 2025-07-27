@@ -22,8 +22,10 @@ contract Example {
 
 Examples of **incorrect** code for this rule:
 
+<!-- prettier-ignore-start -->
 ```solidity
 contract Example {
-  function f() public pure virtual override myModifier {}
+  function f() myModifier public pure virtual override {}
 }
 ```
+<!-- prettier-ignore-end -->
