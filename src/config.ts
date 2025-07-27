@@ -1,25 +1,86 @@
 import { pathToFileURL } from "node:url";
+import micromatch from "micromatch";
+import { z } from "zod";
 import { findUp } from "./helpers/fs.js";
-import { RuleLevel } from "./rules/types.js";
+import { Severity, SeveritySchema } from "./rules/types.js";
 import {
   SlippyConfigLoadingError,
   SlippyConfigNotFoundError,
   SlippyInvalidConfigError,
 } from "./errors.js";
 
-type UserRuleConfig = RuleLevel | ResolvedRuleConfig;
-export type ResolvedRuleConfig = [RuleLevel, ...any[]];
+export type ResolvedRuleConfig = [Severity, ...any[]];
 
-export interface UserConfig {
-  rules?: Record<string, UserRuleConfig>;
+function validateRuleConfig(config: unknown): string | undefined {
+  const invalidSeverityMessage = `Invalid option: expected severity to be "off", "warn", or "error"`;
+  const levelAsSeverityMessage = `Invalid option: severity can't be specified as a number, use one of "off", "warn", or "error"`;
+
+  if (typeof config === "string") {
+    const parsedConfig = SeveritySchema.safeParse(config);
+    if (!parsedConfig.success) {
+      return invalidSeverityMessage;
+    }
+
+    return;
+  }
+
+  if (!Array.isArray(config)) {
+    if (typeof config === "number" && 0 <= config && config <= 2) {
+      return levelAsSeverityMessage;
+    }
+    return "Invalid option: expected a string or an array";
+  }
+
+  if (config.length === 0) {
+    return "Invalid option: expected a non-empty array";
+  }
+
+  if (config.length > 2) {
+    return "Invalid option: expected an array with at most two elements";
+  }
+
+  const severity = config[0];
+  if (typeof severity !== "string") {
+    if (typeof severity === "number" && 0 <= severity && severity <= 2) {
+      return levelAsSeverityMessage;
+    }
+    return "Invalid option: expected the first element to be a string";
+  }
+
+  const parsedSeverity = SeveritySchema.safeParse(severity);
+  if (!parsedSeverity.success) {
+    return invalidSeverityMessage;
+  }
 }
+
+const RuleConfigSchema = z.custom<Severity | [Severity, any]>(
+  (val) => {
+    const error = validateRuleConfig(val);
+    return error === undefined;
+  },
+  {
+    error: (ctx) => {
+      return {
+        message: validateRuleConfig(ctx.input) ?? "Invalid rule configuration",
+      };
+    },
+  },
+);
+
+const UserConfigSchema = z.strictObject({
+  rules: z.record(z.string(), RuleConfigSchema).optional(),
+  ignores: z.array(z.string()).optional(),
+});
+
+export type UserConfig = z.infer<typeof UserConfigSchema>;
 
 interface ResolvedConfig {
   rules: Record<string, ResolvedRuleConfig>;
+  ignores: string[];
 }
 
 export interface ConfigLoader {
-  loadConfig(filePath: string): ResolvedConfig;
+  loadConfig(filePath: string): ResolvedConfig | undefined;
 }
 
 async function loadSlippyConfig(slippyConfigPath: string): Promise<unknown> {
@@ -42,24 +103,32 @@ export async function createConfigLoader(cwd: string): Promise<ConfigLoader> {
 
   const resolvedConfig: ResolvedConfig = resolveConfig(userConfig);
 
-  return {
-    loadConfig: () => resolvedConfig,
-  };
+  return new BasicConfigLoader(resolvedConfig);
+}
+
+export class BasicConfigLoader implements ConfigLoader {
+  constructor(private config: ResolvedConfig) {}
+
+  loadConfig(filePath: string) {
+    if (
+      this.config.ignores.length > 0 &&
+      micromatch([filePath], this.config.ignores).length > 0
+    ) {
+      return undefined;
+    }
+    return this.config;
+  }
 }
 
 export function validateUserConfig(
   userConfig: unknown,
   slippyConfigPath: string,
 ): asserts userConfig is UserConfig {
-  if (typeof userConfig !== "object" || userConfig === null) {
-    const hint =
-      userConfig === undefined
-        ? "Did you forget to export the config?"
-        : undefined;
+  if (userConfig === undefined) {
     throw new SlippyInvalidConfigError(
       slippyConfigPath,
       "Configuration must be an object",
-      hint,
+      "Did you forget to export the config?",
     );
   }
 
@@ -70,42 +139,15 @@ export function validateUserConfig(
     );
   }
 
-  const validKeys = ["rules"];
-  const keys = Object.keys(userConfig).filter((x) => !validKeys.includes(x));
-
-  if (keys.length > 0) {
-    throw new SlippyInvalidConfigError(
-      slippyConfigPath,
-      `Invalid configuration ${keys.length > 1 ? "keys" : "key"}: ${keys.join(", ")}`,
-    );
+  const parsedConfig = UserConfigSchema.safeParse(userConfig);
+  if (parsedConfig.success) {
+    return;
   }
 
-  if ("rules" in userConfig) {
-    const rules = userConfig.rules;
-    if (typeof rules !== "object" || rules === null || Array.isArray(rules)) {
-      throw new SlippyInvalidConfigError(
-        slippyConfigPath,
-        "config.rules must be an object",
-      );
-    }
-
-    for (const [ruleName, ruleConfig] of Object.entries(rules)) {
-      if (typeof ruleConfig !== "string" && !Array.isArray(ruleConfig)) {
-        throw new SlippyInvalidConfigError(
-          slippyConfigPath,
-          `Invalid configuration for rule '${ruleName}': must be a string or an array`,
-        );
-      }
-
-      const severity = Array.isArray(ruleConfig) ? ruleConfig[0] : ruleConfig;
-      if (!["off", "warn", "error"].includes(severity)) {
-        throw new SlippyInvalidConfigError(
-          slippyConfigPath,
-          `Invalid severity for rule '${ruleName}': must be 'off', 'warn', or 'error'`,
-        );
-      }
-    }
-  }
+  throw new SlippyInvalidConfigError(
+    slippyConfigPath,
+    "\n\n" + z.prettifyError(parsedConfig.error),
+  );
 }
 
 export async function findSlippyConfigPath(
@@ -123,5 +165,5 @@ function resolveConfig(userConfig: UserConfig): ResolvedConfig {
       rules[ruleName] = ruleConfig;
     }
   }
-  return { rules };
+  return { rules, ignores: userConfig.ignores ?? [] };
 }

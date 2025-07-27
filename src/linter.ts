@@ -36,6 +36,10 @@ export class Linter {
   ): Promise<LintResultToReport[]> {
     const config = this.configLoader.loadConfig(filePath);
 
+    if (config === undefined) {
+      return [];
+    }
+
     const results: LintResultToReport[] = [];
 
     const unit = await compilationUnitFromContent({ content, filePath });
@@ -65,13 +69,6 @@ export class Linter {
 
       let rule;
       if ("parseConfig" in Rule) {
-        if (ruleConfig.length > 2) {
-          throw new SlippyRuleConfigError(
-            Rule.name,
-            "Rule configuration must be an array with at most two elements: [severity, config]",
-          );
-        }
-
         try {
           const config = Rule.parseConfig(ruleConfig[1]);
           rule = Rule.create(config);

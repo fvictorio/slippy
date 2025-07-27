@@ -4,6 +4,7 @@ import {
   mockEmptyConfigLoader,
   mockSingleRuleConfigLoader,
 } from "./helpers/config.js";
+import { BasicConfigLoader } from "../src/config.js";
 
 describe("linter", function () {
   it("should show parsing errors", async function () {
@@ -136,6 +137,111 @@ describe("linter", function () {
       expect(results[0].line).toBe(3);
       expect(results[1].rule).toBe("explicit-types");
       expect(results[1].line).toBe(4);
+    });
+  });
+
+  describe("ignores", function () {
+    it("should ignore files that are in the ignore list", async function () {
+      const sources = `
+        contract A {
+          uint public a;
+        }
+      `;
+
+      const configLoader = new BasicConfigLoader({
+        ignores: ["contract.sol"],
+        rules: {
+          "explicit-types": ["error"],
+        },
+      });
+      const linter = new Linter(configLoader);
+
+      const results = await linter.lintText(sources, "contract.sol");
+
+      expect(results).toHaveLength(0);
+    });
+
+    it("should not ignore files that aren't in the ignore list", async function () {
+      const sources = `
+        contract A {
+          uint public a;
+        }
+      `;
+
+      const configLoader = new BasicConfigLoader({
+        ignores: ["foo.sol", "bar.sol"],
+        rules: {
+          "explicit-types": ["error"],
+        },
+      });
+      const linter = new Linter(configLoader);
+
+      const results = await linter.lintText(sources, "contract.sol");
+
+      expect(results).toHaveLength(1);
+    });
+
+    it("should accept globs", async function () {
+      const sources = `
+        contract A {
+          uint public a;
+        }
+      `;
+
+      const configLoader = new BasicConfigLoader({
+        ignores: ["**/Mock*.sol"],
+        rules: {
+          "explicit-types": ["error"],
+        },
+      });
+      const linter = new Linter(configLoader);
+
+      const results = await linter.lintText(sources, "MockFoo.sol");
+
+      expect(results).toHaveLength(0);
+    });
+
+    it("should ignore if one of the globs matches", async function () {
+      const sources = `
+        contract A {
+          uint public a;
+        }
+      `;
+
+      const configLoader = new BasicConfigLoader({
+        ignores: ["A*.sol", "B*.sol"],
+        rules: {
+          "explicit-types": ["error"],
+        },
+      });
+      const linter = new Linter(configLoader);
+
+      const results = await linter.lintText(sources, "Asdf.sol");
+
+      expect(results).toHaveLength(0);
+    });
+
+    it("should allow negations", async function () {
+      const sources = `
+        contract A {
+          uint public a;
+        }
+      `;
+
+      const configLoader = new BasicConfigLoader({
+        ignores: ["contract/mocks/**/*.sol", "!contracts/mocks/MockFoo.sol"],
+        rules: {
+          "explicit-types": ["error"],
+        },
+      });
+      const linter = new Linter(configLoader);
+
+      const results = await linter.lintText(
+        sources,
+        "contracts/mocks/MockFoo.sol",
+      );
+
+      expect(results).toHaveLength(1);
     });
   });
 });

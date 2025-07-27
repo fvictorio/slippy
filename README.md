@@ -56,6 +56,26 @@ export default {
 };
 ```
 
+## Ignoring files
+
+You can set an array of glob patterns to ignore files in your configuration:
+
+```js
+module.exports = {
+  ignores: ["contracts/mocks/**/*.sol"],
+  // ...
+};
+```
+
+Anything supported by [micromatch](https://github.com/micromatch/micromatch) can be used here, including negated patterns:
+
+```js
+module.exports = {
+  ignores: ["contracts/mocks/**/*.sol", "!contracts/mocks/exception.sol"],
+  // ...
+};
+```
+
 # Rules
 
 - [`explicit-types`](/docs/rules/explicit-types.md): enforces or forbids the use of aliases like `uint` instead of `uint256`.

@@ -44,4 +44,115 @@ describe("config", function () {
       validateUserConfig(config, "/path/to/config.js");
     }
   });
+
+  describe("error messages", function () {
+    const parseAndReturnErrorMessage = (config: unknown) => {
+      try {
+        validateUserConfig(config, "/path/to/config.js");
+      } catch (error: any) {
+        return error;
+      }
+    };
+
+    it("undefined config", function () {
+      const error = parseAndReturnErrorMessage(undefined);
+
+      expect(error).instanceOf(SlippyInvalidConfigError);
+      expect(error.message).toMatchInlineSnapshot(
+        `"Invalid config at '/path/to/config.js': Configuration must be an object"`,
+      );
+      expect(error.hint).toMatchInlineSnapshot(
+        `"Did you forget to export the config?"`,
+      );
+    });
+
+    it("unknown key", function () {
+      const error = parseAndReturnErrorMessage({ invalidKey: {} });
+
+      expect(error).instanceOf(SlippyInvalidConfigError);
+      expect(error.message).toMatchInlineSnapshot(`
+        "Invalid config at '/path/to/config.js': 
+
+        ✖ Unrecognized key: "invalidKey""
+      `);
+    });
+
+    it("wrong severity, shorthand version", function () {
+      const error = parseAndReturnErrorMessage({
+        rules: { "some-rule": "erro" },
+      });
+
+      expect(error).instanceOf(SlippyInvalidConfigError);
+      expect(error.message).toMatchInlineSnapshot(`
+        "Invalid config at '/path/to/config.js': 
+
+        ✖ Invalid option: expected severity to be "off", "warn", or "error"
+          → at rules["some-rule"]"
+      `);
+    });
+
+    it("wrong severity, array version", function () {
+      const error = parseAndReturnErrorMessage({
+        rules: { "some-rule": ["erro"] },
+      });
+
+      expect(error).instanceOf(SlippyInvalidConfigError);
+      expect(error.message).toMatchInlineSnapshot(`
+        "Invalid config at '/path/to/config.js': 
+
+        ✖ Invalid option: expected severity to be "off", "warn", or "error"
+          → at rules["some-rule"]"
+      `);
+    });
+
+    it("rule config is empty array", function () {
+      const error = parseAndReturnErrorMessage({ rules: { "some-rule": [] } });
+
+      expect(error).instanceOf(SlippyInvalidConfigError);
+      expect(error.message).toMatchInlineSnapshot(`
+        "Invalid config at '/path/to/config.js': 
+
+        ✖ Invalid option: expected a non-empty array
+          → at rules["some-rule"]"
+      `);
+    });
+
+    it("rule config is array with more than two elements", function () {
+      const error = parseAndReturnErrorMessage({
+        rules: { "some-rule": ["error", {}, {}] },
+      });
+
+      expect(error).instanceOf(SlippyInvalidConfigError);
+      expect(error.message).toMatchInlineSnapshot(`
+        "Invalid config at '/path/to/config.js': 
+
+        ✖ Invalid option: expected an array with at most two elements
+          → at rules["some-rule"]"
+      `);
+    });
+
+    it("severity as a level, shorthand", function () {
+      const error = parseAndReturnErrorMessage({ rules: { "some-rule": 1 } });
+
+      expect(error).instanceOf(SlippyInvalidConfigError);
+      expect(error.message).toMatchInlineSnapshot(`
+        "Invalid config at '/path/to/config.js': 
+
+        ✖ Invalid option: severity can't be specified as a number, use one of "off", "warn", or "error"
+          → at rules["some-rule"]"
+      `);
+    });
+
+    it("severity as a level", function () {
+      const error = parseAndReturnErrorMessage({ rules: { "some-rule": [1] } });
+
+      expect(error).instanceOf(SlippyInvalidConfigError);
+      expect(error.message).toMatchInlineSnapshot(`
+        "Invalid config at '/path/to/config.js': 
+
+        ✖ Invalid option: severity can't be specified as a number, use one of "off", "warn", or "error"
+          → at rules["some-rule"]"
+      `);
+    });
+  });
 });

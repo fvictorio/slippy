@@ -2,6 +2,7 @@ import {
   CompilationUnit,
   File as SlangFile,
 } from "@nomicfoundation/slang/compilation";
+import * as z from "zod";
 
 export interface LintResult {
   sourceId: string;
@@ -51,4 +52,6 @@ export interface SourceFile {
   content: string;
 }
 
-export type RuleLevel = "off" | "warn" | "error";
+export const SeveritySchema = z.enum(["off", "warn", "error"]);
+
+export type Severity = z.infer<typeof SeveritySchema>;

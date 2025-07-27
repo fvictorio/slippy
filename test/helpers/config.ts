@@ -9,6 +9,7 @@ export function mockSingleRuleConfigLoader(
       const ruleConfigArray: ResolvedRuleConfig =
         ruleConfig === undefined ? ["error"] : ["error", ...ruleConfig];
       return {
+        ignores: [],
         rules: {
           [ruleName]: ruleConfigArray,
         },
@@ -20,6 +21,7 @@ export function mockSingleRuleConfigLoader(
 export function mockEmptyConfigLoader(): ConfigLoader {
   return {
     loadConfig: () => ({
+      ignores: [],
       rules: {},
     }),
   };
