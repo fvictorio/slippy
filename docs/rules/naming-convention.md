@@ -77,6 +77,8 @@ The following modifiers are available:
 - `virtual`
 - `override`
 - `abstract`
+- `noParameters`
+- `hasParameters`
 
 For example, the following configuration enforces camelCase for everything except for type-like entities, which should be in PascalCase:
 
