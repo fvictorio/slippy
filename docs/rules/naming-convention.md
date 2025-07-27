@@ -78,7 +78,21 @@ The following modifiers are available:
 - `override`
 - `abstract`
 
-For example, the following configuration uses the default naming convention explicitly:
+For example, the following configuration enforces camelCase for everything except for type-like entities, which should be in PascalCase:
+
+````json5
+[
+  {
+    "selector": "default",
+    "format": ["camelCase"],
+    "leadingUnderscore": "allow",
+    "trailingUnderscore": "allow"
+  },
+  {
+    "selector": "typeLike",
+    "format": ["PascalCase"]
+  }
+]
 
 ```js
 export default {
@@ -104,28 +118,50 @@ export default {
     ],
   },
 };
-```
+````
 
 ## Example configs
 
 ### Default config
 
-```json
+```json5
 [
   {
-    "selector": "default",
-    "format": ["camelCase"],
-    "leadingUnderscore": "allow",
-    "trailingUnderscore": "allow"
+    selector: "default",
+    format: ["camelCase"],
+    leadingUnderscore: "allow",
+    trailingUnderscore: "allow",
   },
   {
-    "selector": "typeLike",
-    "format": ["PascalCase"]
+    selector: "typeLike",
+    format: ["PascalCase"],
   },
   {
-    "selector": "enumMember",
-    "format": ["PascalCase"]
-  }
+    selector: "enumMember",
+    format: ["PascalCase"],
+  },
+  // unit tests
+  {
+    selector: "function",
+    modifiers: ["noParameters"],
+    format: null,
+    filter: "^test",
+    custom: {
+      match: true,
+      regex: "^test(Fork)?(_Revert(When|If))?_[A-Za-z0-9]+$",
+    },
+  },
+  // fuzz tests
+  {
+    selector: "function",
+    modifiers: ["hasParameters"],
+    format: null,
+    filter: "^test",
+    custom: {
+      match: true,
+      regex: "^test(Fork)?Fuzz(_Revert(When|If))?_[A-Za-z0-9]+$",
+    },
+  },
 ]
 ```
 

@@ -108,6 +108,8 @@ enum Modifiers {
   virtual = 1 << 9,
   override = 1 << 10,
   abstract = 1 << 11,
+  noParameters = 1 << 12,
+  hasParameters = 1 << 13,
 }
 
 type ModifiersString = keyof typeof Modifiers;
@@ -166,6 +168,28 @@ const DEFAULT_CONFIG: NamingConventionUserConfig = [
   {
     selector: "enumMember",
     format: ["PascalCase"],
+  },
+  // unit tests
+  {
+    selector: "function",
+    modifiers: ["noParameters"],
+    format: null,
+    filter: "^test",
+    custom: {
+      match: true,
+      regex: "^test(Fork)?(_Revert(When|If))?_[A-Za-z0-9]+$",
+    },
+  },
+  // fuzz tests
+  {
+    selector: "function",
+    modifiers: ["hasParameters"],
+    format: null,
+    filter: "^test",
+    custom: {
+      match: true,
+      regex: "^test(Fork)?Fuzz(_Revert(When|If))?_[A-Za-z0-9]+$",
+    },
   },
 ];
 
@@ -446,7 +470,7 @@ class NamingConventionRule implements RuleWithConfig<Config> {
 
           if (
             config.modifiers?.some(
-              (modifier) => !hasModifier(definitionCursor, modifier),
+              (modifier) => !hasModifier(definitionCursor.spawn(), modifier),
             )
           ) {
             // does not have the required modifiers
@@ -760,26 +784,41 @@ function normalizeOption(option: Selector): NormalizedSelector[] {
   }));
 }
 
-const modifierToTerminalKind: Record<Modifiers, TerminalKind> = {
-  [Modifiers.constant]: TerminalKind.ConstantKeyword,
-  [Modifiers.immutable]: TerminalKind.ImmutableKeyword,
-  [Modifiers.public]: TerminalKind.PublicKeyword,
-  [Modifiers.internal]: TerminalKind.InternalKeyword,
-  [Modifiers.private]: TerminalKind.PrivateKeyword,
-  [Modifiers.external]: TerminalKind.ExternalKeyword,
-  [Modifiers.view]: TerminalKind.ViewKeyword,
-  [Modifiers.pure]: TerminalKind.PureKeyword,
-  [Modifiers.payable]: TerminalKind.PayableKeyword,
-  [Modifiers.virtual]: TerminalKind.VirtualKeyword,
-  [Modifiers.override]: TerminalKind.OverrideKeyword,
-  [Modifiers.abstract]: TerminalKind.AbstractKeyword,
+function hasKeyword(cursor: Cursor, keyword: TerminalKind): boolean {
+  return cursor.goToNextTerminalWithKind(keyword);
+}
+
+const hasModifierMap: Record<Modifiers, (cursor: Cursor) => boolean> = {
+  [Modifiers.constant]: (cursor) =>
+    hasKeyword(cursor, TerminalKind.ConstantKeyword),
+  [Modifiers.immutable]: (cursor) =>
+    hasKeyword(cursor, TerminalKind.ImmutableKeyword),
+  [Modifiers.public]: (cursor) =>
+    hasKeyword(cursor, TerminalKind.PublicKeyword),
+  [Modifiers.internal]: (cursor) =>
+    hasKeyword(cursor, TerminalKind.InternalKeyword),
+  [Modifiers.private]: (cursor) =>
+    hasKeyword(cursor, TerminalKind.PrivateKeyword),
+  [Modifiers.external]: (cursor) =>
+    hasKeyword(cursor, TerminalKind.ExternalKeyword),
+  [Modifiers.view]: (cursor) => hasKeyword(cursor, TerminalKind.ViewKeyword),
+  [Modifiers.pure]: (cursor) => hasKeyword(cursor, TerminalKind.PureKeyword),
+  [Modifiers.payable]: (cursor) =>
+    hasKeyword(cursor, TerminalKind.PayableKeyword),
+  [Modifiers.virtual]: (cursor) =>
+    hasKeyword(cursor, TerminalKind.VirtualKeyword),
+  [Modifiers.override]: (cursor) =>
+    hasKeyword(cursor, TerminalKind.OverrideKeyword),
+  [Modifiers.abstract]: (cursor) =>
+    hasKeyword(cursor, TerminalKind.AbstractKeyword),
+  [Modifiers.noParameters]: (cursor) =>
+    !cursor.goToNextNonterminalWithKind(NonterminalKind.Parameter),
+  [Modifiers.hasParameters]: (cursor) =>
+    cursor.goToNextNonterminalWithKind(NonterminalKind.Parameter),
 };
 
 function hasModifier(cursor: Cursor, modifier: Modifiers): boolean {
-  const modifierCursor = cursor.spawn();
-  return modifierCursor.goToNextTerminalWithKind(
-    modifierToTerminalKind[modifier],
-  );
+  return hasModifierMap[modifier](cursor);
 }
 
 const PredefinedFormatToCheckFunction: Readonly<
