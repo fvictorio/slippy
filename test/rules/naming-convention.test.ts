@@ -100,7 +100,47 @@ const ruleName = "naming-convention";
 
 const fixtures: RuleTestFixture[] = [
   {
-    description: "naming-convention",
+    description: "default convention",
+    content: `
+    function myFunction() {
+      uint localVariable;
+    }
+
+    error MyError(string myParameter);
+    event MyEvent(string myParameter);
+    enum MyEnum {
+      MyEnumMember,
+      MyOtherEnumMember
+    }
+
+    contract MyContract {}
+    interface MyInterface {}
+    library MyLibrary {}
+
+    contract TestContract {
+      function test_Something() {}
+      function test_Multi_Part_Description() {}
+      function testFork_Something() {}
+      function testFuzz_Something(uint256 x) {}
+      function testFuzz_Multi_Part_Description(uint256 x) {}
+      function testForkFuzz_Something(uint256 x) {}
+
+      function test_RevertWhen_Something() {}
+      function test_RevertIf_Something() {}
+
+      function testFork_RevertWhen_Something() {}
+      function testFork_RevertIf_Something() {}
+
+      function testFuzz_RevertWhen_Something(uint256 x) {}
+      function testFuzz_RevertIf_Something(uint256 x) {}
+
+      function testForkFuzz_RevertWhen_Something(uint256 x) {}
+      function testForkFuzz_RevertIf_Something(uint256 x) {}
+    }
+    `,
+  },
+  {
+    description: "should allow selecting contracts",
     content: `
     contract camelCaseContract {}
              ^^^^^^^^^^^^^^^^^
@@ -1366,6 +1406,44 @@ const fixtures: RuleTestFixture[] = [
           selector: "function",
           modifiers: ["pure", "virtual", "override"],
           format: ["snake_case"],
+        },
+      ],
+    ],
+  },
+  {
+    description: "should support the noParameter modifier",
+    content: `
+          contract MyContract {
+            function NoParameters() public {}
+                     ^^^^^^^^^^^^
+            function WithParameters(uint x) public {}
+          }
+        `,
+    config: [
+      [
+        {
+          selector: "function",
+          modifiers: ["noParameters"],
+          format: ["camelCase"],
+        },
+      ],
+    ],
+  },
+  {
+    description: "should support the hasParameters modifier",
+    content: `
+          contract MyContract {
+            function NoParameters() public {}
+            function WithParameters(uint x) public {}
+                     ^^^^^^^^^^^^^^
+          }
+        `,
+    config: [
+      [
+        {
+          selector: "function",
+          modifiers: ["hasParameters"],
+          format: ["camelCase"],
         },
       ],
     ],
