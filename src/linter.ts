@@ -65,13 +65,6 @@ export class Linter {
 
       let rule;
       if ("parseConfig" in Rule) {
-        if (ruleConfig.length > 2) {
-          throw new SlippyRuleConfigError(
-            Rule.name,
-            "Rule configuration must be an array with at most two elements: [severity, config]",
-          );
-        }
-
         try {
           const config = Rule.parseConfig(ruleConfig[1]);
           rule = Rule.create(config);
