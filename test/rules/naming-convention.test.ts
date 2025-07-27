@@ -119,8 +119,10 @@ const fixtures: RuleTestFixture[] = [
 
     contract TestContract {
       function test_Something() {}
+      function test_Multi_Part_Description() {}
       function testFork_Something() {}
       function testFuzz_Something(uint256 x) {}
+      function testFuzz_Multi_Part_Description(uint256 x) {}
       function testForkFuzz_Something(uint256 x) {}
 
       function test_RevertWhen_Something() {}

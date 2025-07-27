@@ -177,7 +177,7 @@ const DEFAULT_CONFIG: NamingConventionUserConfig = [
     filter: "^test",
     custom: {
       match: true,
-      regex: "^test(Fork)?(_Revert(When|If))?_[A-Za-z0-9]+$",
+      regex: "^test(Fork)?(_Revert(When|If))?(_[A-Za-z0-9]+)+$",
     },
   },
   // fuzz tests
@@ -188,7 +188,7 @@ const DEFAULT_CONFIG: NamingConventionUserConfig = [
     filter: "^test",
     custom: {
       match: true,
-      regex: "^test(Fork)?Fuzz(_Revert(When|If))?_[A-Za-z0-9]+$",
+      regex: "^test(Fork)?Fuzz(_Revert(When|If))?(_[A-Za-z0-9]+)+$",
     },
   },
 ];
