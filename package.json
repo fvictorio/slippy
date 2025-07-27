@@ -1,6 +1,6 @@
 {
   "name": "@slippy-lint/slippy",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A simple but powerful linter for Solidity",
   "bin": {
     "slippy": "./dist/cli/cli.js"
