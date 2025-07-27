@@ -36,6 +36,10 @@ export class Linter {
   ): Promise<LintResultToReport[]> {
     const config = this.configLoader.loadConfig(filePath);
 
+    if (config === undefined) {
+      return [];
+    }
+
     const results: LintResultToReport[] = [];
 
     const unit = await compilationUnitFromContent({ content, filePath });

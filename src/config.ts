@@ -1,4 +1,5 @@
 import { pathToFileURL } from "node:url";
+import micromatch from "micromatch";
 import { z } from "zod";
 import { findUp } from "./helpers/fs.js";
 import { Severity, SeveritySchema } from "./rules/types.js";
@@ -68,16 +69,18 @@ const RuleConfigSchema = z.custom<Severity | [Severity, any]>(
 
 const UserConfigSchema = z.strictObject({
   rules: z.record(z.string(), RuleConfigSchema).optional(),
+  ignores: z.array(z.string()).optional(),
 });
 
 export type UserConfig = z.infer<typeof UserConfigSchema>;
 
 interface ResolvedConfig {
   rules: Record<string, ResolvedRuleConfig>;
+  ignores: string[];
 }
 
 export interface ConfigLoader {
-  loadConfig(filePath: string): ResolvedConfig;
+  loadConfig(filePath: string): ResolvedConfig | undefined;
 }
 
 async function loadSlippyConfig(slippyConfigPath: string): Promise<unknown> {
@@ -100,9 +103,21 @@ export async function createConfigLoader(cwd: string): Promise<ConfigLoader> {
 
   const resolvedConfig: ResolvedConfig = resolveConfig(userConfig);
 
-  return {
-    loadConfig: () => resolvedConfig,
-  };
+  return new BasicConfigLoader(resolvedConfig);
+}
+
+export class BasicConfigLoader implements ConfigLoader {
+  constructor(private config: ResolvedConfig) {}
+
+  loadConfig(filePath: string) {
+    if (
+      this.config.ignores.length > 0 &&
+      micromatch([filePath], this.config.ignores).length > 0
+    ) {
+      return undefined;
+    }
+    return this.config;
+  }
 }
 
 export function validateUserConfig(
@@ -150,5 +165,5 @@ function resolveConfig(userConfig: UserConfig): ResolvedConfig {
       rules[ruleName] = ruleConfig;
     }
   }
-  return { rules };
+  return { rules, ignores: userConfig.ignores ?? [] };
 }
