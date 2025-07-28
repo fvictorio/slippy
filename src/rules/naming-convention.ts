@@ -368,23 +368,29 @@ const MatchRegexSchema = z.object({
   regex: z.string(),
 });
 const SelectorsStringSchema = z.enum(
-  Object.keys(Selectors) as SelectorsString[],
+  Object.keys(Selectors).filter((x) => isNaN(Number(x))) as SelectorsString[],
 );
 const MetaSelectorsStringSchema = z.enum(
-  Object.keys(MetaSelectors) as MetaSelectorsString[],
+  Object.keys(MetaSelectors).filter((x) =>
+    isNaN(Number(x)),
+  ) as MetaSelectorsString[],
 );
 const IndividualAndMetaSelectorsStringSchema = z.union([
   SelectorsStringSchema,
   MetaSelectorsStringSchema,
 ]);
 const PredefinedFormatsStringSchema = z.enum(
-  Object.keys(PredefinedFormats) as PredefinedFormatsString[],
+  Object.keys(PredefinedFormats).filter((x) =>
+    isNaN(Number(x)),
+  ) as PredefinedFormatsString[],
 );
 const UnderscoreOptionsStringSchema = z.enum(
-  Object.keys(UnderscoreOptions) as UnderscoreOptionsString[],
+  Object.keys(UnderscoreOptions).filter((x) =>
+    isNaN(Number(x)),
+  ) as UnderscoreOptionsString[],
 );
 const ModifiersStringSchema = z.enum(
-  Object.keys(Modifiers) as ModifiersString[],
+  Object.keys(Modifiers).filter((x) => isNaN(Number(x))) as ModifiersString[],
 );
 
 export const Schema = z

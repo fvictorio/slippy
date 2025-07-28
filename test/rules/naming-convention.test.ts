@@ -16,10 +16,15 @@ describe("config validation", function () {
       { selector: "default", format: "camelCase" }, // format should be an array
       { selector: "defaul", format: ["camelCase"] }, // invalid selector
       { selector: "default", format: ["camelcase"] }, // invalid format
+      { selector: "1", format: ["camelCase"] }, // selector value
+      { selector: "-1", format: ["camelCase"] }, // metaselector value
+      { selector: "default", format: ["1"] }, // selector value
+      { selector: "default", format: ["camelCase"], modifiers: ["1"] }, // modifier value
+      { selector: "default", format: ["camelCase"], leadingUnderscore: "1" }, // underscore value
     ];
 
     for (const config of invalidConfigs) {
-      const result = Schema.safeParse(config);
+      const result = Schema.safeParse([config]);
       expect(result.error).toBeDefined();
     }
   });
