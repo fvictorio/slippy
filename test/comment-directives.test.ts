@@ -27,7 +27,11 @@ describe("extractCommentDirectives", function () {
         `;
       const directives = extractCommentDirectives(content, languageVersion);
       expect(directives).toEqual([
-        oc({ kind: "disable-next-line", disabledLine: 2, disabledRules: [] }),
+        oc({
+          marker: "slippy-disable-next-line",
+          disabledLine: 2,
+          disabledRules: [],
+        }),
       ]);
     });
 
@@ -43,17 +47,17 @@ describe("extractCommentDirectives", function () {
       const directives = extractCommentDirectives(content, languageVersion);
       expect(directives).toEqual([
         oc({
-          kind: "disable-next-line",
+          marker: "slippy-disable-next-line",
           disabledLine: 2,
           disabledRules: ["rule1"],
         }),
         oc({
-          kind: "disable-next-line",
+          marker: "slippy-disable-next-line",
           disabledLine: 4,
           disabledRules: [],
         }),
         oc({
-          kind: "disable-next-line",
+          marker: "slippy-disable-next-line",
           disabledLine: 6,
           disabledRules: ["rule1", "rule2"],
         }),
@@ -70,7 +74,11 @@ describe("extractCommentDirectives", function () {
       `;
       const directives = extractCommentDirectives(content, languageVersion);
       expect(directives).toEqual([
-        oc({ kind: "disable-line", disabledLine: 2, disabledRules: [] }),
+        oc({
+          marker: "slippy-disable-line",
+          disabledLine: 2,
+          disabledRules: [],
+        }),
       ]);
     });
 
@@ -84,12 +92,12 @@ describe("extractCommentDirectives", function () {
       const directives = extractCommentDirectives(content, languageVersion);
       expect(directives).toEqual([
         oc({
-          kind: "disable-line",
+          marker: "slippy-disable-line",
           disabledLine: 2,
           disabledRules: ["rule1"],
         }),
         oc({
-          kind: "disable-line",
+          marker: "slippy-disable-line",
           disabledLine: 3,
           disabledRules: ["rule2", "rule3"],
         }),
@@ -108,7 +116,7 @@ describe("extractCommentDirectives", function () {
       const directives = extractCommentDirectives(content, languageVersion);
       expect(directives).toEqual([
         oc({
-          kind: "disable-previous-line",
+          marker: "slippy-disable-previous-line",
           disabledLine: 2,
           disabledRules: [],
         }),
@@ -127,14 +135,133 @@ describe("extractCommentDirectives", function () {
       const directives = extractCommentDirectives(content, languageVersion);
       expect(directives).toEqual([
         oc({
-          kind: "disable-previous-line",
+          marker: "slippy-disable-previous-line",
           disabledLine: 2,
           disabledRules: ["rule1"],
         }),
         oc({
-          kind: "disable-previous-line",
+          marker: "slippy-disable-previous-line",
           disabledLine: 4,
           disabledRules: ["rule2", "rule3"],
+        }),
+      ]);
+    });
+  });
+
+  describe("slippy-disable and slippy-enable", function () {
+    it("should extract line comment disable directives without rules", () => {
+      const content = `
+        // slippy-disable
+        contract A {
+            uint public a;
+        }
+      `;
+      const directives = extractCommentDirectives(content, languageVersion);
+      expect(directives).toEqual([
+        oc({
+          marker: "slippy-disable",
+          endLine: 1,
+          endColumn: 25,
+          disabledRules: [],
+        }),
+      ]);
+    });
+
+    it("should extract multiline comment disable directives without rules", () => {
+      const content = `
+        /* slippy-disable */
+        contract A {
+            uint public a;
+        }
+      `;
+      const directives = extractCommentDirectives(content, languageVersion);
+      expect(directives).toEqual([
+        oc({ marker: "slippy-disable", endLine: 1, disabledRules: [] }),
+      ]);
+    });
+
+    it("should extract line comment disable directives with rules", () => {
+      const content = `
+        // slippy-disable rule1
+        contract A {
+            uint public a;
+        }
+      `;
+      const directives = extractCommentDirectives(content, languageVersion);
+      expect(directives).toEqual([
+        oc({ marker: "slippy-disable", endLine: 1, disabledRules: ["rule1"] }),
+      ]);
+    });
+
+    it("should extract multiline comment disable directives with rules", () => {
+      const content = `
+        /* slippy-disable rule1,rule2 */
+        contract A {
+            uint public a;
+        }
+      `;
+      const directives = extractCommentDirectives(content, languageVersion);
+      expect(directives).toEqual([
+        oc({
+          marker: "slippy-disable",
+          endLine: 1,
+          disabledRules: ["rule1", "rule2"],
+        }),
+      ]);
+    });
+
+    it("should extract line comment enable directives without rules", () => {
+      const content = `
+        contract A {
+          // slippy-enable
+            uint public a;
+        }
+      `;
+      const directives = extractCommentDirectives(content, languageVersion);
+      expect(directives).toEqual([
+        oc({ marker: "slippy-enable", endLine: 2, enabledRules: [] }),
+      ]);
+    });
+
+    it("should extract multiline comment enable directives without rules", () => {
+      const content = `
+        /* slippy-enable */
+        contract A {
+            uint public a;
+        }
+      `;
+      const directives = extractCommentDirectives(content, languageVersion);
+      expect(directives).toEqual([
+        oc({ marker: "slippy-enable", endLine: 1, enabledRules: [] }),
+      ]);
+    });
+
+    it("should extract line comment enable directives with rules", () => {
+      const content = `
+        // slippy-enable rule1
+        contract A {
+            uint public a;
+        }
+      `;
+      const directives = extractCommentDirectives(content, languageVersion);
+      expect(directives).toEqual([
+        oc({ marker: "slippy-enable", endLine: 1, enabledRules: ["rule1"] }),
+      ]);
+    });
+
+    it("should extract multiline comment enable directives with rules", () => {
+      const content = `
+        /* slippy-enable rule1,	rule2 */
+        contract A {
+            uint public a;
+        }
+      `;
+      const directives = extractCommentDirectives(content, languageVersion);
+      expect(directives).toEqual([
+        oc({
+          marker: "slippy-enable",
+          endLine: 1,
+          enabledRules: ["rule1", "rule2"],
         }),
       ]);
     });

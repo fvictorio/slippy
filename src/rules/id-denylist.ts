@@ -11,6 +11,7 @@ import {
   StateVariableDefinition,
   StructDefinition,
   UserDefinedValueTypeDefinition,
+  VariableDeclarationStatement,
 } from "@nomicfoundation/slang/ast";
 import {
   LintResult,
@@ -66,6 +67,7 @@ class IdDenylistRule implements RuleWithConfig<Config> {
         NonterminalKind.EventDefinition,
         NonterminalKind.UserDefinedValueTypeDefinition,
         NonterminalKind.ErrorDefinition,
+        NonterminalKind.VariableDeclarationStatement,
       ])
     ) {
       assertNonterminalNode(cursor.node);
@@ -96,6 +98,10 @@ class IdDenylistRule implements RuleWithConfig<Config> {
         nameNode = new UserDefinedValueTypeDefinition(cursor.node).name;
       } else if (cursor.node.kind === NonterminalKind.ErrorDefinition) {
         nameNode = new ErrorDefinition(cursor.node).name;
+      } else if (
+        cursor.node.kind === NonterminalKind.VariableDeclarationStatement
+      ) {
+        nameNode = new VariableDeclarationStatement(cursor.node).name;
       } else {
         throw new AssertionError(`Unexpected node kind: ${cursor.node.kind}`);
       }
