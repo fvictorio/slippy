@@ -313,7 +313,7 @@ describe("linter", function () {
       expect(results[0].line).toBe(1);
     });
 
-    it("should report unused disable directive without rules followed by another disable directive wihout rules", async function () {
+    it("should report unused disable directive without rules followed by another disable directive without rules", async function () {
       const sources = `
         // slippy-disable
         // slippy-disable
