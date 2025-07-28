@@ -14,6 +14,7 @@ const tagColorizer: Colorizer = {
   red: (text: string) => `<red>${text}</red>`,
   dim: (text: string) => `<dim>${text}</dim>`,
   underline: (text: string) => `<und>${text}</und>`,
+  bold: (text: string) => `<bol>${text}</bol>`,
 };
 
 describe("formatter", function () {
@@ -53,10 +54,11 @@ describe("formatter", function () {
     );
 
     expect(consoleLogMock.logs.join("\n")).toMatchInlineSnapshot(`
-      "<und>/absolute/path/to/file.sol</und>
+      "
+      <und>/absolute/path/to/file.sol</und>
         <dim>2:3</dim>  <red>error</red>  Some message  <dim>[some-rule]</dim>
 
-      <red>✖ 1 problem (1 error, 0 warnings)</red>"
+      <red><bol>✖ 1 problem (1 error, 0 warnings)</bol></red>"
     `);
   });
 
@@ -86,10 +88,11 @@ describe("formatter", function () {
     );
 
     expect(consoleLogMock.logs.join("\n")).toMatchInlineSnapshot(`
-      "<und>/absolute/path/to/file.sol</und>
+      "
+      <und>/absolute/path/to/file.sol</und>
         <dim>2:3</dim>  <yel>warning</yel>  Some message  <dim>[some-rule]</dim>
 
-      <yel>✖ 1 problem (0 errors, 1 warning)</yel>"
+      <yel><bol>✖ 1 problem (0 errors, 1 warning)</bol></yel>"
     `);
   });
 
@@ -127,11 +130,12 @@ describe("formatter", function () {
     );
 
     expect(consoleLogMock.logs.join("\n")).toMatchInlineSnapshot(`
-      "<und>/absolute/path/to/file.sol</und>
+      "
+      <und>/absolute/path/to/file.sol</und>
         <dim>2:3</dim>  <red>error  </red>  Some message        <dim>[some-rule]</dim>
         <dim>4:5</dim>  <yel>warning</yel>  Some other message  <dim>[some-other-rule]</dim>
 
-      <red>✖ 2 problems (1 error, 1 warning)</red>"
+      <red><bol>✖ 2 problems (1 error, 1 warning)</bol></red>"
     `);
   });
 
@@ -170,13 +174,14 @@ describe("formatter", function () {
     );
 
     expect(consoleLogMock.logs.join("\n")).toMatchInlineSnapshot(`
-      "<und>/absolute/path/to/file1.sol</und>
+      "
+      <und>/absolute/path/to/file1.sol</und>
         <dim>2:3</dim>  <red>error</red>  Error in file1  <dim>[rule1]</dim>
 
       <und>/absolute/path/to/file2.sol</und>
         <dim>4:5</dim>  <yel>warning</yel>  Warning in file2  <dim>[rule2]</dim>
 
-      <red>✖ 2 problems (1 error, 1 warning)</red>"
+      <red><bol>✖ 2 problems (1 error, 1 warning)</bol></red>"
     `);
   });
 });

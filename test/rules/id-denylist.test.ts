@@ -98,6 +98,17 @@ const fixtures: RuleTestFixture[] = [
     `,
   },
   {
+    description: "should warn on forbidden names for local variables",
+    content: `
+    contract Foo {
+      function f() public {
+        uint I;
+             ^
+      }
+    }
+    `,
+  },
+  {
     description: "should accept a custom list of forbidden names",
     content: `
     contract Foo {}

@@ -18,6 +18,19 @@ export function mockSingleRuleConfigLoader(
   };
 }
 
+export function mockConfigLoaderWithRules(ruleNames: string[]): ConfigLoader {
+  return {
+    loadConfig: () => {
+      const ruleEntries = ruleNames.map((name) => [name, ["error"]]);
+      const rules = Object.fromEntries(ruleEntries);
+      return {
+        ignores: [],
+        rules,
+      };
+    },
+  };
+}
+
 export function mockEmptyConfigLoader(): ConfigLoader {
   return {
     loadConfig: () => ({

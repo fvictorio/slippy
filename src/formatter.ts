@@ -6,6 +6,7 @@ export interface Colorizer {
   red: (text: string) => string;
   dim: (text: string) => string;
   underline: (text: string) => string;
+  bold: (text: string) => string;
 }
 
 export function formatAndPrintResults(
@@ -18,6 +19,7 @@ export function formatAndPrintResults(
     return;
   }
 
+  consoleLog();
   const groupedResults: Record<string, LintResultToReport[]> = {};
 
   for (const result of results) {
@@ -95,7 +97,9 @@ export function formatAndPrintResults(
   const warningFragment =
     warningCount === 1 ? `${warningCount} warning` : `${warningCount} warnings`;
 
-  const summary = `✖ ${problemsFragment} (${errorFragment}, ${warningFragment})`;
+  const summary = colorizer.bold(
+    `✖ ${problemsFragment} (${errorFragment}, ${warningFragment})`,
+  );
 
   if (errorCount > 0) {
     consoleLog(colorizer.red(summary));
