@@ -169,28 +169,6 @@ const DEFAULT_CONFIG: NamingConventionUserConfig = [
     selector: "enumMember",
     format: ["PascalCase"],
   },
-  // unit tests
-  {
-    selector: "function",
-    modifiers: ["noParameters"],
-    format: null,
-    filter: "^test",
-    custom: {
-      match: true,
-      regex: "^test(Fork)?(_Revert(When|If))?(_[A-Za-z0-9]+)+$",
-    },
-  },
-  // fuzz tests
-  {
-    selector: "function",
-    modifiers: ["hasParameters"],
-    format: null,
-    filter: "^test",
-    custom: {
-      match: true,
-      regex: "^test(Fork)?Fuzz(_Revert(When|If))?(_[A-Za-z0-9]+)+$",
-    },
-  },
 ];
 
 type PartialRecord<TKey extends PropertyKey, TValue> = {
@@ -414,7 +392,7 @@ type Config = z.infer<typeof Schema>;
 
 export const NamingConvention: RuleDefinition<Config> = {
   name: "naming-convention",
-  recommended: true,
+  recommended: false,
   parseConfig: (config: unknown) => {
     return Schema.parse(config);
   },

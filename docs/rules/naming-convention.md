@@ -124,7 +124,7 @@ export default {
 
 ## Example configs
 
-### Default config
+### Simple config
 
 ```json5
 [
@@ -141,28 +141,6 @@ export default {
   {
     selector: "enumMember",
     format: ["PascalCase"],
-  },
-  // unit tests
-  {
-    selector: "function",
-    modifiers: ["noParameters"],
-    format: null,
-    filter: "^test",
-    custom: {
-      match: true,
-      regex: "^test(Fork)?(_Revert(When|If))?_[A-Za-z0-9]+$",
-    },
-  },
-  // fuzz tests
-  {
-    selector: "function",
-    modifiers: ["hasParameters"],
-    format: null,
-    filter: "^test",
-    custom: {
-      match: true,
-      regex: "^test(Fork)?Fuzz(_Revert(When|If))?_[A-Za-z0-9]+$",
-    },
   },
 ]
 ```
@@ -200,3 +178,30 @@ export default {
 ```
 
 > ⚠️ A name must match all modifiers in an entry, that's why we need two separate entries for `constant` and `immutable` in the example above.
+
+### Unit tests start with `test_` and fuzz tests start with `testFuzz_`
+
+```js
+[
+  {
+    selector: 'function',
+    filter: '^test',
+    format: null,
+    custom: {
+      match: true,
+      regex: '^test_',
+    },
+    modifiers: ['noParameters'],
+  },
+  {
+    selector: 'function',
+    filter: '^test',
+    format: null,
+    custom: {
+      match: true,
+      regex: '^testFuzz_',
+    },
+    modifiers: ['hasParameters'],
+  },
+],
+```

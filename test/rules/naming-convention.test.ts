@@ -121,27 +121,6 @@ const fixtures: RuleTestFixture[] = [
     contract MyContract {}
     interface MyInterface {}
     library MyLibrary {}
-
-    contract TestContract {
-      function test_Something() {}
-      function test_Multi_Part_Description() {}
-      function testFork_Something() {}
-      function testFuzz_Something(uint256 x) {}
-      function testFuzz_Multi_Part_Description(uint256 x) {}
-      function testForkFuzz_Something(uint256 x) {}
-
-      function test_RevertWhen_Something() {}
-      function test_RevertIf_Something() {}
-
-      function testFork_RevertWhen_Something() {}
-      function testFork_RevertIf_Something() {}
-
-      function testFuzz_RevertWhen_Something(uint256 x) {}
-      function testFuzz_RevertIf_Something(uint256 x) {}
-
-      function testForkFuzz_RevertWhen_Something(uint256 x) {}
-      function testForkFuzz_RevertIf_Something(uint256 x) {}
-    }
     `,
   },
   {
