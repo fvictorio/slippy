@@ -19,7 +19,7 @@ npx slippy --init
 Run it:
 
 ```bash
-npx slippy contracts/**/*.sol
+npx slippy "contracts/**/*.sol"
 ```
 
 # Why Slippy?
@@ -34,47 +34,18 @@ You can read a more detailed [comparison between Slippy and Solhint](/docs/slipp
 
 # Configuration
 
-Slippy's configuration lives in a `slippy.config.js` file that exports a configuration object:
+Slippy's configuration lives in a `slippy.config.js` file, which exports the configuration that Slippy will use to lint your code. Here’s a minimal example:
 
 ```js
 module.exports = {
   rules: {
-    "explicit-types": "error",
-    "max-state-vars": ["warn", 10],
+    "no-console": "warn",
+    "no-unused-vars": ["error", { ignorePattern: "^_" }],
   },
 };
 ```
 
-If your project uses ESM, the content of the file should look like this:
-
-```js
-export default {
-  rules: {
-    "explicit-types": "error",
-    "max-state-vars": ["warn", 10],
-  },
-};
-```
-
-## Ignoring files
-
-You can set an array of glob patterns to ignore files in your configuration:
-
-```js
-module.exports = {
-  ignores: ["contracts/mocks/**/*.sol"],
-  // ...
-};
-```
-
-Anything supported by [micromatch](https://github.com/micromatch/micromatch) can be used here, including negated patterns:
-
-```js
-module.exports = {
-  ignores: ["contracts/mocks/**/*.sol", "!contracts/mocks/exception.sol"],
-  // ...
-};
-```
+For more details on configuring Slippy, including advanced features like cascading configurations, file ignores, and comment directives, see the [configuration documentation](/docs/config.md).
 
 # Rules
 
@@ -102,7 +73,6 @@ Don't see a rule you need? [Open an issue](https://github.com/fvictorio/slippy/i
 
 What’s next for Slippy:
 
-- Support for an eslint-like flat config, to allow specifying different settings for different folders
 - More rules
 - Support for plugins
 - Browser build
