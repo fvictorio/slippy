@@ -577,7 +577,7 @@ describe("linter", function () {
         }
       `;
 
-      const configLoader = new BasicConfigLoader({
+      const configLoader = BasicConfigLoader.create({
         ignores: ["contract.sol"],
         rules: {
           "explicit-types": ["error"],
@@ -597,7 +597,7 @@ describe("linter", function () {
         }
       `;
 
-      const configLoader = new BasicConfigLoader({
+      const configLoader = BasicConfigLoader.create({
         ignores: ["foo.sol", "bar.sol"],
         rules: {
           "explicit-types": ["error"],
@@ -617,7 +617,7 @@ describe("linter", function () {
         }
       `;
 
-      const configLoader = new BasicConfigLoader({
+      const configLoader = BasicConfigLoader.create({
         ignores: ["**/Mock*.sol"],
         rules: {
           "explicit-types": ["error"],
@@ -637,7 +637,7 @@ describe("linter", function () {
         }
       `;
 
-      const configLoader = new BasicConfigLoader({
+      const configLoader = BasicConfigLoader.create({
         ignores: ["A*.sol", "B*.sol"],
         rules: {
           "explicit-types": ["error"],
@@ -657,7 +657,7 @@ describe("linter", function () {
         }
       `;
 
-      const configLoader = new BasicConfigLoader({
+      const configLoader = BasicConfigLoader.create({
         ignores: ["contract/mocks/**/*.sol", "!contracts/mocks/MockFoo.sol"],
         rules: {
           "explicit-types": ["error"],

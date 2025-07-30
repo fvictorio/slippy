@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { validateUserConfig } from "../src/config.js";
+import {
+  BasicConfigLoader,
+  UserConfig,
+  validateUserConfig,
+} from "../src/config.js";
 import { SlippyInvalidConfigError } from "../src/errors.js";
 
 describe("config", function () {
@@ -38,6 +42,11 @@ describe("config", function () {
       { rules: { "some-rule": ["warn", { option: true }] } },
       { rules: { "some-rule": ["error", { option: true }] } },
       { rules: { "some-rule": ["off", { option: true }] } },
+      [{ rules: { "some-rule": "off" } }],
+      [
+        { rules: { "some-rule": "off" } },
+        { rules: { "some-other-rule": "error" } },
+      ],
     ];
 
     for (const config of validConfigs) {
@@ -153,6 +162,120 @@ describe("config", function () {
         ✖ Invalid option: severity can't be specified as a number, use one of "off", "warn", or "error"
           → at rules["some-rule"]"
       `);
+    });
+  });
+
+  describe("loadConfig", function () {
+    it("should work with an object", function () {
+      const userConfig: UserConfig = { rules: { "some-rule": "off" } };
+      const configLoader = BasicConfigLoader.create(userConfig);
+
+      const config = configLoader.loadConfig("/path/to/file.js");
+
+      expect(config).toEqual({
+        rules: { "some-rule": ["off"] },
+      });
+    });
+
+    it("should work with an object with matching files", function () {
+      const userConfig: UserConfig = {
+        files: ["/path/**/*.js"],
+        rules: { "some-rule": "off" },
+      };
+      const configLoader = BasicConfigLoader.create(userConfig);
+
+      const config = configLoader.loadConfig("/path/to/file.js");
+
+      expect(config).toEqual({
+        rules: { "some-rule": ["off"] },
+      });
+    });
+
+    it("should work with an object with no matching files", function () {
+      const userConfig: UserConfig = {
+        files: ["/path/**/*.js"],
+        rules: { "some-rule": "off" },
+      };
+      const configLoader = BasicConfigLoader.create(userConfig);
+
+      const config = configLoader.loadConfig("/other/to/file.js");
+
+      expect(config).toEqual({
+        rules: {},
+      });
+    });
+
+    it("should work with an object with matching ignores", function () {
+      const userConfig: UserConfig = {
+        ignores: ["/path/**/*.js"],
+        rules: { "some-rule": "off" },
+      };
+      const configLoader = BasicConfigLoader.create(userConfig);
+
+      const config = configLoader.loadConfig("/path/to/file.js");
+
+      expect(config).toEqual({
+        rules: {},
+      });
+    });
+
+    it("should work with an object with no matching ignores", function () {
+      const userConfig: UserConfig = {
+        ignores: ["/path/**/*.js"],
+        rules: { "some-rule": "off" },
+      };
+      const configLoader = BasicConfigLoader.create(userConfig);
+
+      const config = configLoader.loadConfig("/other/to/file.js");
+
+      expect(config).toEqual({
+        rules: { "some-rule": ["off"] },
+      });
+    });
+
+    it("should match the right object when there are two", function () {
+      const userConfig: UserConfig = [
+        { files: ["/path/**/*.js"], rules: { "some-rule": "error" } },
+        { files: ["/other/**/*.js"], rules: { "some-rule": "off" } },
+      ];
+
+      const configLoader = BasicConfigLoader.create(userConfig);
+
+      const config = configLoader.loadConfig("/other/to/file.js");
+
+      expect(config).toEqual({
+        rules: { "some-rule": ["off"] },
+      });
+    });
+
+    it("should merge the objects when there are multiple matches", function () {
+      const userConfig: UserConfig = [
+        { files: ["/path/**/*.js"], rules: { "some-rule": "error" } },
+        { files: ["/path/to/**/*.js"], rules: { "some-other-rule": "error" } },
+      ];
+
+      const configLoader = BasicConfigLoader.create(userConfig);
+
+      const config = configLoader.loadConfig("/path/to/file.js");
+
+      expect(config).toEqual({
+        rules: { "some-rule": ["error"], "some-other-rule": ["error"] },
+      });
+    });
+
+    it("shouldn't merge rule options", function () {
+      const userConfig: UserConfig = [
+        { rules: { "some-rule": ["error", { a: 1 }] } },
+        { rules: { "some-rule": ["error", { b: 2 }] } },
+      ];
+
+      const configLoader = BasicConfigLoader.create(userConfig);
+
+      const config = configLoader.loadConfig("/path/to/file.js");
+
+      expect(config).toEqual({
+        rules: { "some-rule": ["error", { b: 2 }] },
+      });
     });
   });
 });

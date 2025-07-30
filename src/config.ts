@@ -8,8 +8,54 @@ import {
   SlippyConfigNotFoundError,
   SlippyInvalidConfigError,
 } from "./errors.js";
+import { conditionalUnionType } from "./zod.js";
+
+type EffectiveConfig = Pick<ResolvedConfigObject, "rules">;
+
+export interface ConfigLoader {
+  loadConfig(filePath: string): EffectiveConfig;
+}
 
 export type ResolvedRuleConfig = [Severity, ...any[]];
+
+const RuleConfigSchema = z.custom<Severity | [Severity, any?]>(
+  (val) => {
+    const error = validateRuleConfig(val);
+    return error === undefined;
+  },
+  {
+    error: (ctx) => {
+      return {
+        message: validateRuleConfig(ctx.input) ?? "Invalid rule configuration",
+      };
+    },
+  },
+);
+
+const UserConfigObjectSchema = z.strictObject({
+  rules: z.record(z.string(), RuleConfigSchema).optional(),
+  files: z.array(z.string()).optional(),
+  ignores: z.array(z.string()).optional(),
+});
+type UserConfigObject = z.infer<typeof UserConfigObjectSchema>;
+
+const UserConfigSchema = conditionalUnionType(
+  [
+    [(x) => Array.isArray(x), z.array(UserConfigObjectSchema).nonempty()],
+    [(x) => typeof x === "object" && x !== null, UserConfigObjectSchema],
+  ],
+  "Configuration must be an object or an array of objects",
+);
+
+export type UserConfig = z.infer<typeof UserConfigSchema>;
+
+type ResolvedConfigObject = {
+  rules: Record<string, ResolvedRuleConfig>;
+  files: string[];
+  ignores: string[];
+};
+
+type ResolvedConfig = Array<ResolvedConfigObject>;
 
 function validateRuleConfig(config: unknown): string | undefined {
   const invalidSeverityMessage = `Invalid option: expected severity to be "off", "warn", or "error"`;
@@ -53,36 +99,6 @@ function validateRuleConfig(config: unknown): string | undefined {
   }
 }
 
-const RuleConfigSchema = z.custom<Severity | [Severity, any]>(
-  (val) => {
-    const error = validateRuleConfig(val);
-    return error === undefined;
-  },
-  {
-    error: (ctx) => {
-      return {
-        message: validateRuleConfig(ctx.input) ?? "Invalid rule configuration",
-      };
-    },
-  },
-);
-
-const UserConfigSchema = z.strictObject({
-  rules: z.record(z.string(), RuleConfigSchema).optional(),
-  ignores: z.array(z.string()).optional(),
-});
-
-export type UserConfig = z.infer<typeof UserConfigSchema>;
-
-interface ResolvedConfig {
-  rules: Record<string, ResolvedRuleConfig>;
-  ignores: string[];
-}
-
-export interface ConfigLoader {
-  loadConfig(filePath: string): ResolvedConfig | undefined;
-}
-
 async function loadSlippyConfig(slippyConfigPath: string): Promise<unknown> {
   try {
     return (await import(pathToFileURL(slippyConfigPath).href)).default;
@@ -101,22 +117,44 @@ export async function createConfigLoader(cwd: string): Promise<ConfigLoader> {
 
   validateUserConfig(userConfig, slippyConfigPath);
 
-  const resolvedConfig: ResolvedConfig = resolveConfig(userConfig);
-
-  return new BasicConfigLoader(resolvedConfig);
+  return BasicConfigLoader.create(userConfig);
 }
 
 export class BasicConfigLoader implements ConfigLoader {
-  constructor(private config: ResolvedConfig) {}
+  private constructor(private config: ResolvedConfig) {}
 
-  loadConfig(filePath: string) {
-    if (
-      this.config.ignores.length > 0 &&
-      micromatch([filePath], this.config.ignores).length > 0
-    ) {
-      return undefined;
+  static create(userConfig: UserConfig): BasicConfigLoader {
+    const resolvedConfig: ResolvedConfig = resolveConfig(userConfig);
+
+    return new BasicConfigLoader(resolvedConfig);
+  }
+
+  loadConfig(filePath: string): EffectiveConfig {
+    const mergedConfig: EffectiveConfig = {
+      rules: {},
+    };
+
+    for (const configObject of this.config) {
+      if (
+        configObject.ignores.length > 0 &&
+        micromatch([filePath], configObject.ignores).length > 0
+      ) {
+        continue;
+      }
+
+      if (configObject.files.length > 0) {
+        if (micromatch([filePath], configObject.files).length === 0) {
+          continue;
+        }
+      }
+
+      mergedConfig.rules = {
+        ...mergedConfig.rules,
+        ...configObject.rules,
+      };
     }
-    return this.config;
+
+    return mergedConfig;
   }
 }
 
@@ -129,13 +167,6 @@ export function validateUserConfig(
       slippyConfigPath,
       "Configuration must be an object",
       "Did you forget to export the config?",
-    );
-  }
-
-  if (Array.isArray(userConfig)) {
-    throw new SlippyInvalidConfigError(
-      slippyConfigPath,
-      "Configurations as arrays are not supported yet",
     );
   }
 
@@ -157,13 +188,40 @@ export async function findSlippyConfigPath(
 }
 
 function resolveConfig(userConfig: UserConfig): ResolvedConfig {
+  if (Array.isArray(userConfig)) {
+    return userConfig.map(resolveConfigObject);
+  }
+
+  return [resolveConfigObject(userConfig)];
+}
+
+function resolveConfigObject(
+  userConfigObject: UserConfigObject,
+): ResolvedConfigObject {
   const rules: Record<string, ResolvedRuleConfig> = {};
-  for (const [ruleName, ruleConfig] of Object.entries(userConfig.rules ?? {})) {
+  for (const [ruleName, ruleConfig] of Object.entries(
+    userConfigObject.rules ?? {},
+  )) {
     if (typeof ruleConfig === "string") {
       rules[ruleName] = [ruleConfig];
     } else {
       rules[ruleName] = ruleConfig;
     }
   }
-  return { rules, ignores: userConfig.ignores ?? [] };
+
+  if (
+    userConfigObject.files !== undefined &&
+    userConfigObject.files.length === 0
+  ) {
+    throw new SlippyInvalidConfigError(
+      "slippy.config.js",
+      "If a configuration includes a `files` property, it must not be an empty array",
+    );
+  }
+
+  return {
+    rules,
+    ignores: userConfigObject.ignores ?? [],
+    files: userConfigObject.files ?? [],
+  };
 }
