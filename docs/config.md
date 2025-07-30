@@ -56,8 +56,8 @@ You can also specify which files the configuration applies to and which files to
 
 ```js
 module.exports = {
-  files: ["contracts/**/*.js"],
-  ignores: ["contracts/mocks/**/*.js"],
+  files: ["contracts/**/*.sol"],
+  ignores: ["contracts/mocks/**/*.sol"],
   rules: {
     // ...your rules...
   },
@@ -81,7 +81,7 @@ module.exports = [
     },
   },
   {
-    files: ["test/**/*.js"],
+    files: ["test/**/*.sol"],
     rules: {
       "no-default-visibility": "off",
     },
