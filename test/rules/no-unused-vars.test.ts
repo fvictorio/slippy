@@ -241,6 +241,33 @@ contract Foo {
     }
     `,
   },
+  {
+    description:
+      "should not report unused imports if the file only has imports",
+    content: `
+    pragma solidity ^0.8.0;
+
+    import { Foo } from "./Foo.sol";
+    import { Bar } from "./Bar.sol";
+    import { Baz } from "./Baz.sol";
+    `,
+  },
+  {
+    description:
+      "should report unused imports if the file has something besides imports",
+    content: `
+    pragma solidity ^0.8.0;
+
+    import { Foo } from "./Foo.sol";
+             ^^^
+    import { Bar } from "./Bar.sol";
+             ^^^
+    import { Baz } from "./Baz.sol";
+             ^^^
+
+    contract Qux {}
+    `,
+  },
 ];
 
 describe(ruleName, async () => {

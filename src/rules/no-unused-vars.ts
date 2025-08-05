@@ -17,6 +17,11 @@ import {
 } from "@nomicfoundation/slang/cst";
 import { Definition } from "@nomicfoundation/slang/bindings";
 import * as z from "zod";
+import {
+  ImportDirective,
+  PragmaDirective,
+  SourceUnitMember,
+} from "@nomicfoundation/slang/ast";
 
 const Schema = z
   .object({
@@ -296,6 +301,12 @@ function findUnusedImportedNames(
 ): UnusedVar[] {
   const definitions: UnusedVar[] = [];
 
+  const fileHasOnlyImports = checkFileHasOnlyImports(cursor.spawn());
+
+  if (fileHasOnlyImports) {
+    return [];
+  }
+
   while (
     cursor.goToNextNonterminalWithKinds([
       NonterminalKind.PathImport,
@@ -410,4 +421,19 @@ function findInheritDocComments(file: SlangFile): string[] {
   }
 
   return results;
+}
+
+function checkFileHasOnlyImports(cursor: Cursor): boolean {
+  while (cursor.goToNextNonterminalWithKind(NonterminalKind.SourceUnitMember)) {
+    assertNonterminalNode(cursor.node);
+    const sourceUnitMember = new SourceUnitMember(cursor.node);
+
+    const isPragma = sourceUnitMember.variant instanceof PragmaDirective;
+    const isImport = sourceUnitMember.variant instanceof ImportDirective;
+    if (!isPragma && !isImport) {
+      return false;
+    }
+  }
+
+  return true;
 }
