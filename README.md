@@ -49,6 +49,7 @@ For more details on configuring Slippy, including advanced features like cascadi
 
 # Rules
 
+- [`curly`](/docs/rules/curly.md): enforces the use of curly braces for all control structures.
 - [`explicit-types`](/docs/rules/explicit-types.md): enforces or forbids the use of aliases like `uint` instead of `uint256`.
 - [`id-denylist`](/docs/rules/id-denylist.md): allows you to specify a list of forbidden identifiers.
 - [`imports-on-top`](/docs/rules/imports-on-top.md): enforces that all import statements are at the top of the file.

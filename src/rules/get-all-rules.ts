@@ -16,9 +16,11 @@ import { NoDefaultVisibility } from "./no-default-visibility.js";
 import { RequireRevertReason } from "./require-revert-reason.js";
 import { NoEmptyBlocks } from "./no-empty-blocks.js";
 import { RuleDefinition } from "./types.js";
+import { Curly } from "./curly.js";
 
 export function getAllRules(): Array<RuleDefinition<any>> {
   return [
+    Curly,
     ExplicitTypes,
     IdDenylist,
     ImportsOnTop,
