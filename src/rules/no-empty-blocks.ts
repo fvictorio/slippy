@@ -79,6 +79,14 @@ const handlers: QueryHandler[] = [
 ]
 `,
     handler: (file: SlangFile, match: QueryMatch): LintResult[] => {
+      const hasInheritanceSpecifiers = checkHasInheritanceSpecifier(
+        match.root.clone(),
+      );
+
+      if (hasInheritanceSpecifiers) {
+        return [];
+      }
+
       const openBrace = match.captures.openBrace[0];
       const members = match.captures.members[0];
       const closeBrace = match.captures.closeBrace[0];
@@ -99,6 +107,14 @@ const handlers: QueryHandler[] = [
 ]
 `,
     handler: (file: SlangFile, match: QueryMatch): LintResult[] => {
+      const hasInheritanceSpecifiers = checkHasInheritanceSpecifier(
+        match.root.clone(),
+      );
+
+      if (hasInheritanceSpecifiers) {
+        return [];
+      }
+
       const openBrace = match.captures.openBrace[0];
       const members = match.captures.members[0];
       const closeBrace = match.captures.closeBrace[0];
@@ -140,9 +156,7 @@ const handlers: QueryHandler[] = [
 `,
     handler: (file: SlangFile, match: QueryMatch): LintResult[] => {
       const isVirtual = checkIsVirtual(match.root.clone());
-      const isConstructorWithBase = checkIsConstructorWithBase(
-        match.root.clone(),
-      );
+      const isConstructorWithBase = checkIsValidConstructor(match.root.clone());
       const isFallbackOrReceive = checkIsFallbackOrReceive(match.root.clone());
 
       if (isVirtual || isConstructorWithBase || isFallbackOrReceive) {
@@ -232,7 +246,12 @@ function checkIsVirtual(cursor: Cursor): boolean {
   );
 }
 
-function checkIsConstructorWithBase(cursor: Cursor): boolean {
+/**
+ * Checks if the constructor is valid, meaning:
+ * - It has a base constructor call
+ * - It has modifiers other than `public`
+ */
+function checkIsValidConstructor(cursor: Cursor): boolean {
   // constructor definition
   if (!cursor.goToParent()) {
     return false;
@@ -248,8 +267,11 @@ function checkIsConstructorWithBase(cursor: Cursor): boolean {
   const attributes = new ConstructorAttributes(cursor.node);
 
   return (
-    attributes.items.filter((x) => x.variant instanceof ModifierInvocation)
-      .length > 0
+    attributes.items.filter(
+      (x) =>
+        x.variant instanceof ModifierInvocation ||
+        x.variant.kind !== TerminalKind.PublicKeyword,
+    ).length > 0
   );
 }
 
@@ -264,5 +286,11 @@ function checkIsFallbackOrReceive(cursor: Cursor): boolean {
   return (
     cursor.node.kind === NonterminalKind.FallbackFunctionDefinition ||
     cursor.node.kind === NonterminalKind.ReceiveFunctionDefinition
+  );
+}
+
+function checkHasInheritanceSpecifier(cursor: Cursor): boolean {
+  return cursor.goToNextNonterminalWithKind(
+    NonterminalKind.InheritanceSpecifier,
   );
 }
