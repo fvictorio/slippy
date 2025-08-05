@@ -137,6 +137,31 @@ const fixtures: RuleTestFixture[] = [
     }
     `,
   },
+  {
+    description: "should ignore empty payable constructors",
+    content: `
+    contract Foo {
+      constructor() payable {}
+    }
+    `,
+  },
+  {
+    description: "should not ignore empty constructors with public modifier",
+    content: `
+    contract Foo {
+      constructor() public {}
+                           ^^
+    }
+    `,
+  },
+  {
+    description:
+      "should ignore empty contracts and interfaces that inherit other contracts",
+    content: `
+      contract Foo is Bar, Baz {}
+      interface IFoo is IBar, IBaz {}
+    `,
+  },
 ];
 
 describe(ruleName, async () => {
