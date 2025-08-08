@@ -8,6 +8,7 @@ import { mockSingleRuleConfigLoader } from "./helpers/config.js";
 interface Example {
   source: string;
   correct: boolean;
+  config: any;
 }
 
 describe("rules examples", async function () {
@@ -33,7 +34,12 @@ describe("rules examples", async function () {
 
     for (const example of examples) {
       it(`${example.correct ? "correct" : "incorrect"} example for rule ${rule.name}`, async function () {
-        const linter = new Linter(mockSingleRuleConfigLoader(rule.name));
+        const linter = new Linter(
+          mockSingleRuleConfigLoader(
+            rule.name,
+            example.config !== undefined ? [example.config] : undefined,
+          ),
+        );
 
         const results = await linter.lintText(example.source, "contract.sol");
 
@@ -50,13 +56,24 @@ describe("rules examples", async function () {
 function extractExamples(content: string): Example[] {
   const EXAMPLES_REGEX =
     /Examples of \*\*(correct|incorrect)\*\* code[\s\S]*?```solidity([\s\S]*?)```/g;
+  const CONFIG_REGEX = /^\s*\/\/\s*config:\s*(.+)\n?/;
+
   const examples: Example[] = [];
 
   let match;
   while ((match = EXAMPLES_REGEX.exec(content)) !== null) {
+    const source = match[2].trim();
+    const configMatch = CONFIG_REGEX.exec(source);
+
+    let config: any;
+    if (configMatch) {
+      config = eval(configMatch[1]);
+    }
+
     examples.push({
-      source: match[2].trim(),
+      source,
       correct: match[1] === "correct",
+      config,
     });
   }
 
