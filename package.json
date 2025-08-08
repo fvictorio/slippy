@@ -1,6 +1,6 @@
 {
   "name": "@slippy-lint/slippy",
-  "version": "0.0.10-rc.0",
+  "version": "0.0.10-rc.1",
   "description": "A simple but powerful linter for Solidity",
   "repository": {
     "type": "git",
