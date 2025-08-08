@@ -77,7 +77,6 @@ These are rules that are not currently supported by Slippy, but that have an ope
 | `func-named-parameters`    | [#37](https://github.com/fvictorio/slippy/issues/37) |
 | `function-max-lines`       | [#40](https://github.com/fvictorio/slippy/issues/40) |
 | `gas-named-return-values`  | [#37](https://github.com/fvictorio/slippy/issues/37) |
-| `multiple-sends`           | [#45](https://github.com/fvictorio/slippy/issues/45) |
 | `named-parameters-mapping` | [#32](https://github.com/fvictorio/slippy/issues/32) |
 | `no-inline-assembly`       | [#43](https://github.com/fvictorio/slippy/issues/43) |
 | `one-contract-per-file`    | [#29](https://github.com/fvictorio/slippy/issues/29) |
@@ -107,17 +106,18 @@ These are rules that I'm not sure about adding, but where I could change my mind
 
 ### Solhint rules that won't be added to Slippy
 
-These are rules I'm 99% sure won't be added to Slippy. If you disagree with any of these, please [open an issue](https://github.com/fvictorio/slippy/issues/new).
+These are rules I'm 99% sure won't be added to Slippy. This can be due to being obsolete, out of scope, or because it's unclear if they are useful. If you disagree with any of these, please [open an issue](https://github.com/fvictorio/slippy/issues/new).
 
-| Solhint rule         | Reason          |
-| -------------------- | --------------- |
-| `avoid-sha3`         | Obsolete        |
-| `avoid-suicide`      | Obsolete        |
-| `avoid-throw`        | Obsolete        |
-| `constructor-syntax` | Obsolete        |
-| `func-visibility`    | Obsolete        |
-| `gas-multitoken1155` | Out of scope    |
-| `import-path-check`  | Out of scope    |
-| `max-line-length`    | Formatting rule |
-| `quotes`             | Formatting rule |
-| `reentrancy`         | Out of scope    |
+| Solhint rule         |
+| -------------------- |
+| `avoid-sha3`         |
+| `avoid-suicide`      |
+| `avoid-throw`        |
+| `constructor-syntax` |
+| `func-visibility`    |
+| `gas-multitoken1155` |
+| `import-path-check`  |
+| `max-line-length`    |
+| `quotes`             |
+| `reentrancy`         |
+| `multiple-sends`     |
