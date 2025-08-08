@@ -17,6 +17,7 @@ import { RequireRevertReason } from "./require-revert-reason.js";
 import { NoEmptyBlocks } from "./no-empty-blocks.js";
 import { RuleDefinition } from "./types.js";
 import { Curly } from "./curly.js";
+import { NoSend } from "./no-send.js";
 
 export function getAllRules(): Array<RuleDefinition<any>> {
   return [
@@ -31,6 +32,7 @@ export function getAllRules(): Array<RuleDefinition<any>> {
     NoDuplicateImports,
     NoEmptyBlocks,
     NoGlobalImports,
+    NoSend,
     NoTxOrigin,
     NoUninitializedImmutableReference,
     NoUnusedVars,
