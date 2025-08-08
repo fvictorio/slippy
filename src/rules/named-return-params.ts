@@ -20,13 +20,13 @@ const RETURN_PARAMS_QUERY = Query.create(`
   ]
 ]`);
 
-const DEFAULT_MAX = 1;
+const DEFAULT_MIN_PARAMS = 2;
 
 const ConfigSchema = z
   .strictObject({
-    max: z.number().default(DEFAULT_MAX),
+    minParams: z.number().default(DEFAULT_MIN_PARAMS),
   })
-  .default({ max: DEFAULT_MAX });
+  .default({ minParams: DEFAULT_MIN_PARAMS });
 type Config = z.infer<typeof ConfigSchema>;
 
 export const NamedReturnParams: RuleDefinitionWithConfig<Config> = {
@@ -56,7 +56,7 @@ class NamedReturnParamsRule implements RuleWithConfig<Config> {
       assertNonterminalNode(paramsCursor.node, NonterminalKind.Parameters);
       const params = new Parameters(paramsCursor.node);
 
-      if (params.items.length <= this.config.max) {
+      if (params.items.length < this.config.minParams) {
         continue;
       }
 

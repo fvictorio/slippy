@@ -22,7 +22,7 @@ const fixtures: RuleTestFixture[] = [
     `,
   },
   {
-    description: "should take the max option into account",
+    description: "should take the min params option into account",
     content: `
     contract A {
       function f() public view returns(uint) {}
@@ -31,7 +31,7 @@ const fixtures: RuleTestFixture[] = [
                                                ^^^^^^^
     }
     `,
-    config: [{ max: 2 }],
+    config: [{ minParams: 3 }],
   },
 ];
 
