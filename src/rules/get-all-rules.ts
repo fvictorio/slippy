@@ -19,6 +19,7 @@ import { RuleDefinition } from "./types.js";
 import { Curly } from "./curly.js";
 import { NoSend } from "./no-send.js";
 import { NamedReturnParams } from "./named-return-params.js";
+import { NoRestrictedSyntax } from "./no-restricted-syntax.js";
 
 export function getAllRules(): Array<RuleDefinition<any>> {
   return [
@@ -34,6 +35,7 @@ export function getAllRules(): Array<RuleDefinition<any>> {
     NoDuplicateImports,
     NoEmptyBlocks,
     NoGlobalImports,
+    NoRestrictedSyntax,
     NoSend,
     NoTxOrigin,
     NoUninitializedImmutableReference,
