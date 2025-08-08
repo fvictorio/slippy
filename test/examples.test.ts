@@ -8,7 +8,6 @@ import { mockSingleRuleConfigLoader } from "./helpers/config.js";
 interface Example {
   source: string;
   correct: boolean;
-  config: [];
 }
 
 describe("rules examples", async function () {
@@ -49,16 +48,15 @@ describe("rules examples", async function () {
 });
 
 function extractExamples(content: string): Example[] {
-  const regex =
+  const EXAMPLES_REGEX =
     /Examples of \*\*(correct|incorrect)\*\* code[\s\S]*?```solidity([\s\S]*?)```/g;
   const examples: Example[] = [];
 
   let match;
-  while ((match = regex.exec(content)) !== null) {
+  while ((match = EXAMPLES_REGEX.exec(content)) !== null) {
     examples.push({
       source: match[2].trim(),
       correct: match[1] === "correct",
-      config: [],
     });
   }
 
