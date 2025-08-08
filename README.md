@@ -26,7 +26,8 @@ npx slippy "contracts/**/*.sol"
 
 You can read a more detailed [comparison between Slippy and Solhint](/docs/slippy-vs-solhint.md), but here's a summary:
 
-- A single [`naming-convention`](/docs/rules/naming-convention.md) rule
+- A single, flexible configuration that lets you easily enable or disable rules for specific parts of your codebase
+- A unified [`naming-convention`](/docs/rules/naming-convention.md) rule
 - A more accurate [`no-unused-vars`](/docs/rules/no-unused-vars.md) rule
 - Unused comment directives like `// slippy-disable-line` are reported
 - No formatting rules
