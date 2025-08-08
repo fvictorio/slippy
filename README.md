@@ -54,6 +54,7 @@ For more details on configuring Slippy, including advanced features like cascadi
 - [`id-denylist`](/docs/rules/id-denylist.md): allows you to specify a list of forbidden identifiers.
 - [`imports-on-top`](/docs/rules/imports-on-top.md): enforces that all import statements are at the top of the file.
 - [`max-state-vars`](/docs/rules/max-state-vars.md): limits the number of state variables in a contract.
+- [`named-return-params`](/docs/rules/named-return-params.md): enforces that functions with multiple return parameters use named return parameters.
 - [`naming-convention`](/docs/rules/naming-convention.md): enforces a naming convention across the codebase.
 - [`no-console`](/docs/rules/no-console.md): forbids the use of `console.log` and the import of `console.sol`.
 - [`no-default-visibility`](/docs/rules/no-default-visibility.md): forbids the use of default visibility for state variables.
