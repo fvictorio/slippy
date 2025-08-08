@@ -1,14 +1,11 @@
+import { ignoreLeadingTrivia } from "../slang/trivia.js";
 import {
   LintResult,
   RuleContext,
   RuleWithoutConfig,
   RuleDefinitionWithoutConfig,
 } from "./types.js";
-import {
-  Cursor,
-  Query,
-  TerminalKindExtensions,
-} from "@nomicfoundation/slang/cst";
+import { Query } from "@nomicfoundation/slang/cst";
 
 const TRANSFER_QUERY = Query.create(`
 [FunctionCallExpression
@@ -63,15 +60,5 @@ class NoSendRule implements RuleWithoutConfig {
     }
 
     return results;
-  }
-}
-
-function ignoreLeadingTrivia(cursor: Cursor) {
-  while (
-    cursor.goToNextTerminal() &&
-    cursor.node.isTerminalNode() &&
-    TerminalKindExtensions.isTrivia(cursor.node.kind)
-  ) {
-    // ignore trivia
   }
 }
