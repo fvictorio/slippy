@@ -38,6 +38,7 @@ This section details the differences between Slippy and Solhint rules.
 | `func-name-mixedcase`             | [`naming-convention`](/docs/rules/naming-convention.md)         |
 | `func-param-name-mixedcase`       | [`naming-convention`](/docs/rules/naming-convention.md)         |
 | `gas-custom-errors`               | [`require-revert-reason`](/docs/rules/require-revert-reason.md) |
+| `gas-named-return-values`         | [`named-return-params`](/docs/rules/named-return-params.md)     |
 | `immutable-vars-naming`           | [`naming-convention`](/docs/rules/naming-convention.md)         |
 | `imports-on-top`                  | [`imports-on-top`](/docs/rules/imports-on-top.md)               |
 | `imports-order`                   | [`sort-imports`](/docs/rules/sort-imports.md)                   |
@@ -77,7 +78,6 @@ These are rules that are not currently supported by Slippy, but that have an ope
 | `comprehensive-interface`  | [#42](https://github.com/fvictorio/slippy/issues/42) |
 | `func-named-parameters`    | [#37](https://github.com/fvictorio/slippy/issues/37) |
 | `function-max-lines`       | [#40](https://github.com/fvictorio/slippy/issues/40) |
-| `gas-named-return-values`  | [#37](https://github.com/fvictorio/slippy/issues/37) |
 | `named-parameters-mapping` | [#32](https://github.com/fvictorio/slippy/issues/32) |
 | `no-inline-assembly`       | [#43](https://github.com/fvictorio/slippy/issues/43) |
 | `one-contract-per-file`    | [#29](https://github.com/fvictorio/slippy/issues/29) |
