@@ -14,19 +14,19 @@ contract Example {
     } else {
       baz();
     }
-  }
 
-  for (uint i = 0; i < 10; i++) {
-    qux++;
-  }
+    for (uint i = 0; i < 10; i++) {
+      qux++;
+    }
 
-  while (condition) {
-    qux--;
-  }
+    while (condition) {
+      qux--;
+    }
 
-  do {
-    something();
-  } while (condition);
+    do {
+      something();
+    } while (condition);
+  }
 }
 ```
 
