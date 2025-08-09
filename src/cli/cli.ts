@@ -43,12 +43,13 @@ async function main() {
 interface Argv {
   help: boolean;
   init: boolean;
+  version: boolean;
 }
 
 async function runCli(): Promise<number> {
   const unknownArgs: string[] = [];
   const argv = minimist<Argv>(process.argv.slice(2), {
-    boolean: ["help", "init"],
+    boolean: ["help", "init", "version"],
     alias: { h: "help" },
     unknown: (arg) => {
       if (arg.startsWith("-")) {
@@ -88,12 +89,22 @@ async function runCli(): Promise<number> {
     return 1;
   }
 
+  if (argv.help) {
+    printHelp({ error: false });
+    return 0;
+  }
+
+  if (argv.version) {
+    await printVersion();
+    return 0;
+  }
+
   if (argv.init) {
     await initConfig();
     return 0;
   }
 
-  if (argv.help || sourceIds.length === 0) {
+  if (sourceIds.length === 0) {
     printHelp({ error: false });
     return 0;
   }
@@ -182,8 +193,14 @@ function printHelp({ error }: { error: boolean }) {
 ${chalk.bold("Options")}:
   --help, -h        Show this help message
   --init            Initialize a new Slippy configuration
+  --version         Print version
 `.trimEnd(),
   );
+}
+
+async function printVersion() {
+  const version = await getSlippyVersion();
+  console.log(`slippy ${version}`);
 }
 
 await main();
