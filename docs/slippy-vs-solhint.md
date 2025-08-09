@@ -66,6 +66,7 @@ To the best of my knowledge, the following Slippy rules are not supported by Sol
 | [`curly`](/docs/rules/curly.md)                                                                 |
 | [`no-send`](/docs/rules/no-send.md)                                                             |
 | [`no-restricted-syntax`](/docs/rules/no-restricted-syntax.md)                                   |
+| [`no-unchecked-calls`](/docs/rules/no-unchecked-calls.md)                                       |
 | [`no-uninitialized-immutable-references`](/docs/rules/no-uninitialized-immutable-references.md) |
 
 ### Solhint rules that will be added to Slippy
