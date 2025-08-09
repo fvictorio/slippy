@@ -65,6 +65,7 @@ For more details on configuring Slippy, including advanced features like cascadi
 - [`no-restricted-syntax`](/docs/rules/no-restricted-syntax.md): disallow certain syntax patterns using [Slang queries](https://nomicfoundation.github.io/slang/latest/user-guide/06-query-language/01-query-syntax/).
 - [`no-send`](/docs/rules/no-send.md): forbids the use of `send` and `transfer` for sending value, in favor of using `call` with value.
 - [`no-tx-origin`](/docs/rules/no-tx-origin.md): forbids the use of `tx.origin`.
+- [`no-unchecked-calls`](/docs/rules/no-unchecked-calls.md): disallows low-level calls like `call`, `staticcall`, and `delegatecall` that don't use their return values.
 - [`no-uninitialized-immutable-references`](/docs/rules/no-uninitialized-immutable-references.md): forbids using immutable references before they are initialized.
 - [`no-unused-vars`](/docs/rules/no-unused-vars.md): detects unused variables, imports and functions.
 - [`private-vars`](/docs/rules/private-vars.md): enforces that all state variables are private.

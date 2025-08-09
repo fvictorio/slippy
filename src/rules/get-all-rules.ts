@@ -20,6 +20,7 @@ import { Curly } from "./curly.js";
 import { NoSend } from "./no-send.js";
 import { NamedReturnParams } from "./named-return-params.js";
 import { NoRestrictedSyntax } from "./no-restricted-syntax.js";
+import { NoUncheckedCalls } from "./no-unchecked-calls.js";
 
 export function getAllRules(): Array<RuleDefinition<any>> {
   return [
@@ -38,6 +39,7 @@ export function getAllRules(): Array<RuleDefinition<any>> {
     NoRestrictedSyntax,
     NoSend,
     NoTxOrigin,
+    NoUncheckedCalls,
     NoUninitializedImmutableReference,
     NoUnusedVars,
     PrivateVars,
