@@ -42,6 +42,19 @@ const fixtures: RuleTestFixture[] = [
       }
     `,
   },
+  {
+    description:
+      "shouldn't warn about transfers that have more than one argument",
+    content: `
+      contract Example {
+        address payable owner;
+
+        function withdraw(IERC20 token, uint amount) public {
+          token.transfer(owner, amount);
+        }
+      }
+    `,
+  },
 ];
 
 describe(ruleName, () => {
