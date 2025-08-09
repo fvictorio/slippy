@@ -19,7 +19,7 @@ export async function initConfig() {
   let isEsm = false;
   if (packageJsonPath !== undefined) {
     const packageJsonContents = await fs.readFile(packageJsonPath, "utf8");
-    const packageJson = JSON.parse(packageJsonContents);
+    const packageJson = JSON.parse(packageJsonContents) as { type?: string };
     isEsm = packageJson.type === "module";
   }
 

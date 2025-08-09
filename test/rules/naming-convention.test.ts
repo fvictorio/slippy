@@ -31,7 +31,7 @@ describe("config validation", function () {
 });
 
 describe("config normalization", function () {
-  it("should give individual selectors higher priority than to meta selectors", async () => {
+  it("should give individual selectors higher priority than to meta selectors", () => {
     expect(
       normalizeConfig([
         {
@@ -72,7 +72,7 @@ describe("config normalization", function () {
     ).toEqual([Selectors.contract, MetaSelectors.variableLike]);
   });
 
-  it("should sort individual selectors by higher enum position", async () => {
+  it("should sort individual selectors by higher enum position", () => {
     expect(
       normalizeConfig([
         {
@@ -1434,7 +1434,7 @@ const fixtures: RuleTestFixture[] = [
   },
 ];
 
-describe(ruleName, async () => {
+describe(ruleName, () => {
   const ruleTester = new RuleTester(ruleName);
   ruleTester.runFixtures(fixtures);
 });

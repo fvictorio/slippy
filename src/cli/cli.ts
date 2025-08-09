@@ -40,9 +40,14 @@ async function main() {
   }
 }
 
+interface Argv {
+  help: boolean;
+  init: boolean;
+}
+
 async function runCli(): Promise<number> {
   const unknownArgs: string[] = [];
-  const argv = minimist(process.argv.slice(2), {
+  const argv = minimist<Argv>(process.argv.slice(2), {
     boolean: ["help", "init"],
     alias: { h: "help" },
     unknown: (arg) => {
@@ -111,7 +116,16 @@ async function runCli(): Promise<number> {
         throw new SlippyError(result.message, result.code, result.hint);
       }
     }),
-  ).finally(() => pool.terminate());
+  ).then(
+    async (x) => {
+      await pool.terminate();
+      return x;
+    },
+    async (e) => {
+      await pool.terminate();
+      throw e;
+    },
+  );
 
   const sortedResults = results
     .flatMap((x) => x.lintResults)
@@ -150,7 +164,7 @@ async function getSlippyVersion(): Promise<string> {
 
   const packageJsonContents = await fs.readFile(packageJsonPath, "utf8");
 
-  const packageJson = JSON.parse(packageJsonContents);
+  const packageJson = JSON.parse(packageJsonContents) as { version?: string };
 
   return packageJson.version ?? "unknown";
 }
@@ -172,4 +186,4 @@ ${chalk.bold("Options")}:
   );
 }
 
-main();
+await main();
