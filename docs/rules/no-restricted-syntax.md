@@ -20,3 +20,58 @@ This rule receives an array of objects with two required properties:
 - `message`: A string that describes the violation.
 
 You can experiment with Slang queries using [this online playground](https://fvictorio.github.io/slang-playground/).
+
+## Examples
+
+### Forbid using `block.timestamp`
+
+Suppose you want to disallow the use of `block.timestamp` but there's no Slippy rule for that. You can easily do it yourself with a query:
+
+```js
+const blockTimestampQuery = `
+[MemberAccessExpression
+  operand: [Expression ["block"]]
+  member: ["timestamp"]
+]
+`;
+
+export default {
+  rules: {
+    "no-restricted-syntax": [
+      "error",
+      [
+        {
+          query: blockTimestampQuery,
+          message: "Using 'block.timestamp' is not allowed",
+        },
+      ],
+    ],
+    // ...other rules...
+  },
+};
+```
+
+### Forbid public state variables
+
+If you wanted to forbid public state variables, you could use a query like this:
+
+```js
+const publicStateVariableQuery = `
+[StateVariableDefinition [StateVariableAttributes [StateVariableAttribute [PublicKeyword]]]]
+`;
+
+export default {
+  rules: {
+    "no-restricted-syntax": [
+      "error",
+      [
+        {
+          query: publicStateVariableQuery,
+          message: "Public state variables are not allowed",
+        },
+      ],
+    ],
+    // ...other rules...
+  },
+};
+```
