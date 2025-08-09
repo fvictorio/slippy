@@ -7,22 +7,18 @@ import {
 } from "./types.js";
 import { Query } from "@nomicfoundation/slang/cst";
 
-const TRANSFER_QUERY = Query.create(`
+const TRANSFER_OR_SEND_QUERY = Query.create(`
 [FunctionCallExpression
   operand: [Expression
     [MemberAccessExpression
-      member: ["transfer"]
+      @method (member: ["transfer"] | member: ["send"])
     ]
   ]
-]`);
-
-const SEND_QUERY = Query.create(`
-[FunctionCallExpression
-  operand: [Expression
-    [MemberAccessExpression
-      member: ["send"]
-    ]
-  ]
+  arguments: [ArgumentsDeclaration [PositionalArgumentsDeclaration [PositionalArguments
+    .
+    [Expression]
+    .
+  ]]]
 ]`);
 
 export const NoSend: RuleDefinitionWithoutConfig = {
@@ -41,14 +37,14 @@ class NoSendRule implements RuleWithoutConfig {
 
     const cursor = file.createTreeCursor();
 
-    const matches = cursor.query([TRANSFER_QUERY, SEND_QUERY]);
+    const matches = cursor.query([TRANSFER_OR_SEND_QUERY]);
 
     for (const match of matches) {
       const textRangeCursor = match.root.spawn();
       ignoreLeadingTrivia(textRangeCursor);
       const textRange = textRangeCursor.textRange;
 
-      const method = match.queryIndex === 0 ? "transfer" : "send";
+      const method = match.captures.method[0].node.unparse().trim();
 
       results.push({
         rule: this.name,

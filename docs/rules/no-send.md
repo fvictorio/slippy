@@ -29,5 +29,9 @@ contract Example {
   function withdraw(uint amount) public {
     owner.call{ value: amount }("");
   }
+
+  function withdrawToken(IERC20 token, uint amount) public {
+    token.transfer(owner, amount);
+  }
 }
 ```
