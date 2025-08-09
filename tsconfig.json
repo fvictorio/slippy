@@ -11,5 +11,5 @@
     "declaration": true,
     "sourceMap": true
   },
-  "include": ["src", "test"]
+  "include": ["src", "test", "eslint.config.ts", "vitest.config.ts"]
 }

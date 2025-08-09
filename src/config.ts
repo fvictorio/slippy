@@ -85,13 +85,14 @@ function validateRuleConfig(config: unknown): string | undefined {
     return "Invalid option: expected an array with at most two elements";
   }
 
-  const severity = config[0];
-  if (typeof severity !== "string") {
-    if (typeof severity === "number" && 0 <= severity && severity <= 2) {
+  if (typeof config[0] !== "string") {
+    if (typeof config[0] === "number" && 0 <= config[0] && config[0] <= 2) {
       return levelAsSeverityMessage;
     }
     return "Invalid option: expected the first element to be a string";
   }
+
+  const severity = config[0];
 
   const parsedSeverity = SeveritySchema.safeParse(severity);
   if (!parsedSeverity.success) {
@@ -101,9 +102,14 @@ function validateRuleConfig(config: unknown): string | undefined {
 
 async function loadSlippyConfig(slippyConfigPath: string): Promise<unknown> {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return (await import(pathToFileURL(slippyConfigPath).href)).default;
-  } catch (error: any) {
-    throw new SlippyConfigLoadingError(slippyConfigPath, error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new SlippyConfigLoadingError(slippyConfigPath, error.message);
+    }
+
+    throw error;
   }
 }
 

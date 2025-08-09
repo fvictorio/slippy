@@ -455,7 +455,7 @@ class NamingConventionRule implements RuleWithConfig<Config> {
           if (
             config.modifiers?.some(
               (modifier) => !hasModifier(definitionCursor.spawn(), modifier),
-            )
+            ) === true
           ) {
             // does not have the required modifiers
             continue;
@@ -539,7 +539,7 @@ class NamingConventionRule implements RuleWithConfig<Config> {
       position === "leading"
         ? config.leadingUnderscore
         : config.trailingUnderscore;
-    if (!option) {
+    if (option === null) {
       return name;
     }
 
@@ -673,7 +673,7 @@ class NamingConventionRule implements RuleWithConfig<Config> {
     originalName: string,
   ): LintResult | undefined {
     const formats = config.format;
-    if (!formats?.length) {
+    if (formats === null || formats.length === 0) {
       return;
     }
 
@@ -716,7 +716,7 @@ function normalizeOption(option: Selector): NormalizedSelector[] {
   });
 
   // give selectors with a filter the _highest_ priority
-  if (option.filter) {
+  if (option.filter !== undefined) {
     weight |= 1 << 30;
   }
 

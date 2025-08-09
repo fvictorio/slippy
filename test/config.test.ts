@@ -58,15 +58,21 @@ describe("config", function () {
     const parseAndReturnErrorMessage = (config: unknown) => {
       try {
         validateUserConfig(config, "/path/to/config.js");
-      } catch (error: any) {
-        return error;
+      } catch (error: unknown) {
+        if (error instanceof SlippyInvalidConfigError) {
+          return error;
+        }
+
+        throw error;
       }
     };
 
     it("undefined config", function () {
       const error = parseAndReturnErrorMessage(undefined);
 
-      expect(error).instanceOf(SlippyInvalidConfigError);
+      if (error === undefined) {
+        expect.fail();
+      }
       expect(error.message).toMatchInlineSnapshot(
         `"Invalid config at '/path/to/config.js': Configuration must be an object"`,
       );
@@ -78,7 +84,9 @@ describe("config", function () {
     it("unknown key", function () {
       const error = parseAndReturnErrorMessage({ invalidKey: {} });
 
-      expect(error).instanceOf(SlippyInvalidConfigError);
+      if (error === undefined) {
+        expect.fail();
+      }
       expect(error.message).toMatchInlineSnapshot(`
         "Invalid config at '/path/to/config.js': 
 
@@ -91,7 +99,9 @@ describe("config", function () {
         rules: { "some-rule": "erro" },
       });
 
-      expect(error).instanceOf(SlippyInvalidConfigError);
+      if (error === undefined) {
+        expect.fail();
+      }
       expect(error.message).toMatchInlineSnapshot(`
         "Invalid config at '/path/to/config.js': 
 
@@ -105,7 +115,9 @@ describe("config", function () {
         rules: { "some-rule": ["erro"] },
       });
 
-      expect(error).instanceOf(SlippyInvalidConfigError);
+      if (error === undefined) {
+        expect.fail();
+      }
       expect(error.message).toMatchInlineSnapshot(`
         "Invalid config at '/path/to/config.js': 
 
@@ -117,7 +129,9 @@ describe("config", function () {
     it("rule config is empty array", function () {
       const error = parseAndReturnErrorMessage({ rules: { "some-rule": [] } });
 
-      expect(error).instanceOf(SlippyInvalidConfigError);
+      if (error === undefined) {
+        expect.fail();
+      }
       expect(error.message).toMatchInlineSnapshot(`
         "Invalid config at '/path/to/config.js': 
 
@@ -131,7 +145,9 @@ describe("config", function () {
         rules: { "some-rule": ["error", {}, {}] },
       });
 
-      expect(error).instanceOf(SlippyInvalidConfigError);
+      if (error === undefined) {
+        expect.fail();
+      }
       expect(error.message).toMatchInlineSnapshot(`
         "Invalid config at '/path/to/config.js': 
 
@@ -143,7 +159,9 @@ describe("config", function () {
     it("severity as a level, shorthand", function () {
       const error = parseAndReturnErrorMessage({ rules: { "some-rule": 1 } });
 
-      expect(error).instanceOf(SlippyInvalidConfigError);
+      if (error === undefined) {
+        expect.fail();
+      }
       expect(error.message).toMatchInlineSnapshot(`
         "Invalid config at '/path/to/config.js': 
 
@@ -155,7 +173,9 @@ describe("config", function () {
     it("severity as a level", function () {
       const error = parseAndReturnErrorMessage({ rules: { "some-rule": [1] } });
 
-      expect(error).instanceOf(SlippyInvalidConfigError);
+      if (error === undefined) {
+        expect.fail();
+      }
       expect(error.message).toMatchInlineSnapshot(`
         "Invalid config at '/path/to/config.js': 
 

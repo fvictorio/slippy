@@ -164,7 +164,7 @@ const fixtures: RuleTestFixture[] = [
   },
 ];
 
-describe(ruleName, async () => {
+describe(ruleName, () => {
   const ruleTester = new RuleTester(ruleName);
   ruleTester.runFixtures(fixtures);
 });

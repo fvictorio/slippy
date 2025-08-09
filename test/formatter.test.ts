@@ -23,7 +23,12 @@ describe("formatter", function () {
 
     const results: LintResultToReport[] = [];
 
-    formatAndPrintResults(results, {}, consoleLogMock.log, tagColorizer);
+    formatAndPrintResults(
+      results,
+      {},
+      consoleLogMock.log.bind(consoleLogMock),
+      tagColorizer,
+    );
 
     expect(consoleLogMock.logs).toEqual([]);
   });

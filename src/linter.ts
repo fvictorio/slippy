@@ -85,7 +85,7 @@ export class Linter {
         }
         rule = Rule.create();
       }
-      const ruleResults: LintResult[] = await rule.run({
+      const ruleResults: LintResult[] = rule.run({
         unit,
         file,
       });

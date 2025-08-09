@@ -27,7 +27,7 @@ export async function compilationUnitFromContent({
   const builder = CompilationBuilder.create({
     languageVersion,
     readFile,
-    resolveImport: async () => undefined,
+    resolveImport: () => Promise.resolve(undefined),
   });
 
   await builder.addFile(filePath);

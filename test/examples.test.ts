@@ -11,7 +11,7 @@ interface Example {
   config: any;
 }
 
-describe("rules examples", async function () {
+describe("rules examples", function () {
   const rules = getAllRules();
 
   for (const rule of rules) {
