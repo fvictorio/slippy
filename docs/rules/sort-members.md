@@ -127,3 +127,61 @@ contract ExampleContract {
     fallback() external {}
 }
 ```
+
+## Options
+
+This rule can receive an object option with two optional fields:
+
+- `file`: An array of strings representing the custom order for top-level elements.
+- `contract`: An array of strings representing the custom order for contract members.
+
+The default value for `file` is:
+
+```json
+[
+  "PragmaDirective",
+  "ImportDirective",
+  "UserDefinedValueTypeDefinition",
+  "UsingDirective",
+  "ConstantDefinition",
+  "EnumDefinition",
+  "StructDefinition",
+  "EventDefinition",
+  "ErrorDefinition",
+  "FunctionDefinition",
+  "InterfaceDefinition",
+  "LibraryDefinition",
+  "ContractDefinition"
+]
+```
+
+The default value for `contract` is:
+
+```json
+[
+  "UserDefinedValueTypeDefinition",
+  "UsingDirective",
+  "EnumDefinition",
+  "StructDefinition",
+  "EventDefinition",
+  "ErrorDefinition",
+  "StateVariableDefinition",
+  "ConstructorDefinition",
+  "ModifierDefinition",
+  "FunctionDefinition",
+  "ReceiveFunctionDefinition",
+  "FallbackFunctionDefinition",
+  "UnnamedFunctionDefinition"
+]
+```
+
+Custom orders don't have to be exhaustive. For example, if you only care about having state variable before functions, you can define your custom order like this:
+
+```
+"sort-members": [
+  "error",
+  {
+    "contract": ["StateVariableDefinition", "FunctionDefinition"]
+  }
+]
+```

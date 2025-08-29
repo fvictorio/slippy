@@ -69,6 +69,35 @@ const fixtures: RuleTestFixture[] = [
     }
     `,
   },
+  {
+    description: "should allow configuring the order of file members",
+    content: `
+    contract C {}
+    enum MyEnum {}
+    `,
+    config: [{ file: ["ContractDefinition", "EnumDefinition"] }],
+  },
+  {
+    description: "should allow configuring the order of contract members",
+    content: `
+    contract C {
+      modifier m() { _; }
+
+      constructor() {}
+    }
+    `,
+    config: [{ contract: ["ModifierDefinition", "ConstructorDefinition"] }],
+  },
+  {
+    description: "should allow non-exhaustive custom orders",
+    content: `
+    library L1 {}
+    interface I {}
+    contract C {}
+    library L2 {}
+    `,
+    config: [{ file: ["InterfaceDefinition", "ContractDefinition"] }],
+  },
 ];
 
 describe(ruleName, () => {

@@ -1,10 +1,10 @@
 import { ContractMember, SourceUnitMember } from "@nomicfoundation/slang/ast";
-import { AssertionError } from "../errors.js";
+import * as z from "zod";
 import {
   LintResult,
   RuleContext,
-  RuleWithoutConfig,
-  RuleDefinitionWithoutConfig,
+  RuleWithConfig,
+  RuleDefinitionWithConfig,
 } from "./types.js";
 import {
   assertNonterminalNode,
@@ -15,16 +15,77 @@ import {
 import { ignoreLeadingTrivia } from "../slang/trivia.js";
 import { File as SlangFile } from "@nomicfoundation/slang/compilation";
 
-export const SortMembers: RuleDefinitionWithoutConfig = {
+const fileMembersOrder = [
+  "PragmaDirective",
+  "ImportDirective",
+  "UserDefinedValueTypeDefinition",
+  "UsingDirective",
+  "ConstantDefinition",
+  "EnumDefinition",
+  "StructDefinition",
+  "EventDefinition",
+  "ErrorDefinition",
+  "FunctionDefinition",
+  "InterfaceDefinition",
+  "LibraryDefinition",
+  "ContractDefinition",
+];
+
+const FileMemberSchema = z.enum(fileMembersOrder);
+
+const contractMembersOrder = [
+  "UserDefinedValueTypeDefinition",
+  "UsingDirective",
+  "EnumDefinition",
+  "StructDefinition",
+  "EventDefinition",
+  "ErrorDefinition",
+  "StateVariableDefinition",
+  "ConstructorDefinition",
+  "ModifierDefinition",
+  "FunctionDefinition",
+  "ReceiveFunctionDefinition",
+  "FallbackFunctionDefinition",
+  "UnnamedFunctionDefinition",
+];
+
+const ContractMemberSchema = z.enum(contractMembersOrder);
+
+function uniqueMembers(a: string[]): boolean {
+  return a.length === new Set(a).size;
+}
+
+const Schema = z
+  .object({
+    file: z
+      .array(FileMemberSchema)
+      .nonempty()
+      .refine(uniqueMembers, "Custom order must not contain duplicates")
+      .default(fileMembersOrder),
+    contract: z
+      .array(ContractMemberSchema)
+      .nonempty()
+      .refine(uniqueMembers, "Custom order must not contain duplicates")
+      .default(contractMembersOrder),
+  })
+  .default({ file: fileMembersOrder, contract: contractMembersOrder });
+
+type Config = z.infer<typeof Schema>;
+
+export const SortMembers: RuleDefinitionWithConfig<Config> = {
   name: "sort-members",
   recommended: false,
-  create: function () {
-    return new SortMembersRule(this.name);
+  parseConfig: (config: unknown) => Schema.parse(config),
+  create: function (config) {
+    return new SortMembersRule(this.name, config);
   },
 };
 
-class SortMembersRule implements RuleWithoutConfig {
-  constructor(public name: string) {}
+class SortMembersRule implements RuleWithConfig<Config> {
+  constructor(
+    public name: string,
+    public config: Config,
+  ) {}
 
   public run({ file }: RuleContext): LintResult[] {
     const results: LintResult[] = [];
@@ -37,7 +98,7 @@ class SortMembersRule implements RuleWithoutConfig {
         "Source unit member",
         SourceUnitMember,
         NonterminalKind.SourceUnitMember,
-        compareSourceUnitMembers,
+        this.config.file,
       ),
     );
 
@@ -54,7 +115,7 @@ class SortMembersRule implements RuleWithoutConfig {
           "Contract member",
           ContractMember,
           NonterminalKind.ContractMember,
-          compareContractMembers,
+          this.config.contract,
         ),
       );
     }
@@ -72,7 +133,7 @@ class SortMembersRule implements RuleWithoutConfig {
           "Interface member",
           ContractMember,
           NonterminalKind.ContractMember,
-          compareContractMembers,
+          this.config.contract,
         ),
       );
     }
@@ -90,7 +151,7 @@ class SortMembersRule implements RuleWithoutConfig {
           "Library member",
           ContractMember,
           NonterminalKind.ContractMember,
-          compareContractMembers,
+          this.config.contract,
         ),
       );
     }
@@ -104,14 +165,20 @@ class SortMembersRule implements RuleWithoutConfig {
     label: string,
     AstConstructor: { new (node: NonterminalNode): T },
     memberKind: NonterminalKind,
-    compareFunction: (a: NonterminalKind, b: NonterminalKind) => number,
+    order: string[],
   ): LintResult[] {
     const members: Array<{ kind: NonterminalKind; cursor: Cursor }> = [];
+
+    const compareFunction = buildCompareMembers(order);
 
     while (cursor.goToNextNonterminalWithKind(memberKind)) {
       assertNonterminalNode(cursor.node, memberKind);
       const astNode = new AstConstructor(cursor.node);
-      members.push({ kind: astNode.variant.cst.kind, cursor: cursor.spawn() });
+      const kind = astNode.variant.cst.kind;
+
+      if (order.includes(kind)) {
+        members.push({ kind, cursor: cursor.spawn() });
+      }
     }
 
     const sortedMembers = [...members].sort((a, b) => {
@@ -150,67 +217,11 @@ class SortMembersRule implements RuleWithoutConfig {
   }
 }
 
-function compareMembers(
-  order: NonterminalKind[],
-  label: string,
-  a: NonterminalKind,
-  b: NonterminalKind,
-): number {
-  const indexA = order.indexOf(a);
-  if (indexA === -1) {
-    throw new AssertionError(`Unrecognized ${label} member ${a}`);
-  }
+function buildCompareMembers(order: string[]) {
+  return (a: NonterminalKind, b: NonterminalKind) => {
+    const indexA = order.indexOf(a);
+    const indexB = order.indexOf(b);
 
-  const indexB = order.indexOf(b);
-  if (indexB === -1) {
-    throw new AssertionError(`Unrecognized ${label} member ${b}`);
-  }
-
-  return indexA - indexB;
-}
-
-const sourceUnitMembersOrder = [
-  NonterminalKind.PragmaDirective,
-  NonterminalKind.ImportDirective,
-  NonterminalKind.UserDefinedValueTypeDefinition,
-  NonterminalKind.UsingDirective,
-  NonterminalKind.ConstantDefinition,
-  NonterminalKind.EnumDefinition,
-  NonterminalKind.StructDefinition,
-  NonterminalKind.EventDefinition,
-  NonterminalKind.ErrorDefinition,
-  NonterminalKind.FunctionDefinition,
-  NonterminalKind.InterfaceDefinition,
-  NonterminalKind.LibraryDefinition,
-  NonterminalKind.ContractDefinition,
-];
-
-const contractMembersOrder = [
-  NonterminalKind.UserDefinedValueTypeDefinition,
-  NonterminalKind.UsingDirective,
-  NonterminalKind.EnumDefinition,
-  NonterminalKind.StructDefinition,
-  NonterminalKind.EventDefinition,
-  NonterminalKind.ErrorDefinition,
-  NonterminalKind.StateVariableDefinition,
-  NonterminalKind.ConstructorDefinition,
-  NonterminalKind.ModifierDefinition,
-  NonterminalKind.FunctionDefinition,
-  NonterminalKind.ReceiveFunctionDefinition,
-  NonterminalKind.FallbackFunctionDefinition,
-  NonterminalKind.UnnamedFunctionDefinition,
-];
-
-function compareSourceUnitMembers(
-  a: NonterminalKind,
-  b: NonterminalKind,
-): number {
-  return compareMembers(sourceUnitMembersOrder, "source unit", a, b);
-}
-
-function compareContractMembers(
-  a: NonterminalKind,
-  b: NonterminalKind,
-): number {
-  return compareMembers(contractMembersOrder, "contract", a, b);
+    return indexA - indexB;
+  };
 }
