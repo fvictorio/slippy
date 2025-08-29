@@ -19,6 +19,7 @@ export interface LintResultToReport extends LintResult {
 export interface RuleContext {
   unit: CompilationUnit;
   file: SlangFile;
+  content: string;
 }
 
 export type RuleDefinition<Config> =

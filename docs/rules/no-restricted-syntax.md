@@ -1,6 +1,6 @@
 # no-restricted-syntax
 
-Disallow certain syntax patterns using [Slang queries](https://nomicfoundation.github.io/slang/latest/user-guide/06-query-language/01-query-syntax/).
+Disallows certain syntax patterns using [Slang queries](https://nomicfoundation.github.io/slang/latest/user-guide/06-query-language/01-query-syntax/).
 
 ## Rule details
 

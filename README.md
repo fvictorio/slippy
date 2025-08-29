@@ -50,6 +50,7 @@ For more details on configuring Slippy, including advanced features like cascadi
 
 # Rules
 
+- [`compatible-pragma`](/docs/rules/compatible-pragma.md): checks that the minimum supported pragma version is compatible with the features used in the file.
 - [`curly`](/docs/rules/curly.md): enforces the use of curly braces for all control structures.
 - [`explicit-types`](/docs/rules/explicit-types.md): enforces or forbids the use of aliases like `uint` instead of `uint256`.
 - [`id-denylist`](/docs/rules/id-denylist.md): allows you to specify a list of forbidden identifiers.
@@ -62,7 +63,7 @@ For more details on configuring Slippy, including advanced features like cascadi
 - [`no-duplicate-imports`](/docs/rules/no-duplicate-imports.md): forbids importing the same file multiple times.
 - [`no-empty-blocks`](/docs/rules/no-empty-blocks.md): forbids blocks without statements.
 - [`no-global-imports`](/docs/rules/no-global-imports.md): forbids global imports like `import "./foo.sol"`.
-- [`no-restricted-syntax`](/docs/rules/no-restricted-syntax.md): disallow certain syntax patterns using [Slang queries](https://nomicfoundation.github.io/slang/latest/user-guide/06-query-language/01-query-syntax/).
+- [`no-restricted-syntax`](/docs/rules/no-restricted-syntax.md): disallows certain syntax patterns using [Slang queries](https://nomicfoundation.github.io/slang/latest/user-guide/06-query-language/01-query-syntax/).
 - [`no-send`](/docs/rules/no-send.md): forbids the use of `send` and `transfer` for sending value, in favor of using `call` with value.
 - [`no-tx-origin`](/docs/rules/no-tx-origin.md): forbids the use of `tx.origin`.
 - [`no-unchecked-calls`](/docs/rules/no-unchecked-calls.md): disallows low-level calls like `call`, `staticcall`, and `delegatecall` that don't use their return values.
