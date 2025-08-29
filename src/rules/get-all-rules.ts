@@ -23,9 +23,11 @@ import { NoRestrictedSyntax } from "./no-restricted-syntax.js";
 import { NoUncheckedCalls } from "./no-unchecked-calls.js";
 import { SortMembers } from "./sort-members.js";
 import { OneContractPerFile } from "./one-contract-per-file.js";
+import { CompatiblePragma } from "./compatible-pragma.js";
 
 export function getAllRules(): Array<RuleDefinition<any>> {
   return [
+    CompatiblePragma,
     Curly,
     ExplicitTypes,
     IdDenylist,

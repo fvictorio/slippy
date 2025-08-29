@@ -65,6 +65,7 @@ To the best of my knowledge, the following Slippy rules are not supported by Sol
 
 | Slippy rule                                                                                     |
 | ----------------------------------------------------------------------------------------------- |
+| [`compatible-pragma`](/docs/rules/compatible-pragma.md)                                         |
 | [`curly`](/docs/rules/curly.md)                                                                 |
 | [`no-send`](/docs/rules/no-send.md)                                                             |
 | [`no-restricted-syntax`](/docs/rules/no-restricted-syntax.md)                                   |

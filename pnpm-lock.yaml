@@ -23,6 +23,9 @@ importers:
       minimist:
         specifier: ^1.2.8
         version: 1.2.8
+      semver:
+        specifier: ^7.7.2
+        version: 7.7.2
       workerpool:
         specifier: ^9.3.3
         version: 9.3.3
@@ -45,6 +48,9 @@ importers:
       '@types/node':
         specifier: ^24.0.13
         version: 24.0.13
+      '@types/semver':
+        specifier: ^7.7.0
+        version: 7.7.0
       '@vitest/coverage-v8':
         specifier: ^3.2.4
         version: 3.2.4(vitest@3.2.4)
@@ -614,6 +620,9 @@ packages:
 
   '@types/node@24.0.13':
     resolution: {integrity: sha512-Qm9OYVOFHFYg3wJoTSrz80hoec5Lia/dPp84do3X7dZvLikQvM1YpmvTBEdIr/e+U8HTkFjLHLnl78K/qjf+jQ==}
+
+  '@types/semver@7.7.0':
+    resolution: {integrity: sha512-k107IF4+Xr7UHjwDc7Cfd6PRQfbdkiRabXGRjo07b4WyPahFBZCZ1sE+BNxYIJPPg73UkfOsVOLwqVc/6ETrIA==}
 
   '@typescript-eslint/eslint-plugin@8.36.0':
     resolution: {integrity: sha512-lZNihHUVB6ZZiPBNgOQGSxUASI7UJWhT8nHyUGCnaQ28XFCw98IfrMCG3rUl1uwUWoAvodJQby2KTs79UTcrAg==}
@@ -1882,6 +1891,8 @@ snapshots:
   '@types/node@24.0.13':
     dependencies:
       undici-types: 7.8.0
+
+  '@types/semver@7.7.0': {}
 
   '@typescript-eslint/eslint-plugin@8.36.0(@typescript-eslint/parser@8.36.0(eslint@9.31.0(jiti@2.4.2))(typescript@5.8.3))(eslint@9.31.0(jiti@2.4.2))(typescript@5.8.3)':
     dependencies:

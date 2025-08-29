@@ -88,6 +88,7 @@ export class Linter {
       const ruleResults: LintResult[] = rule.run({
         unit,
         file,
+        content,
       });
 
       const ruleResultsToReport: LintResultToReport[] = ruleResults.map(
