@@ -15,38 +15,58 @@ import {
 import { ignoreLeadingTrivia } from "../slang/trivia.js";
 import { File as SlangFile } from "@nomicfoundation/slang/compilation";
 
-const fileMembersOrder = [
-  "PragmaDirective",
-  "ImportDirective",
-  "UserDefinedValueTypeDefinition",
-  "UsingDirective",
-  "ConstantDefinition",
-  "EnumDefinition",
-  "StructDefinition",
-  "EventDefinition",
-  "ErrorDefinition",
-  "FunctionDefinition",
-  "InterfaceDefinition",
-  "LibraryDefinition",
-  "ContractDefinition",
+const memberToSlangKind: Record<string, NonterminalKind> = {
+  pragma: NonterminalKind.PragmaDirective,
+  import: NonterminalKind.ImportDirective,
+  userDefinedValueType: NonterminalKind.UserDefinedValueTypeDefinition,
+  usingFor: NonterminalKind.UsingDirective,
+  constant: NonterminalKind.ConstantDefinition,
+  enum: NonterminalKind.EnumDefinition,
+  struct: NonterminalKind.StructDefinition,
+  event: NonterminalKind.EventDefinition,
+  error: NonterminalKind.ErrorDefinition,
+  function: NonterminalKind.FunctionDefinition,
+  interface: NonterminalKind.InterfaceDefinition,
+  library: NonterminalKind.LibraryDefinition,
+  contract: NonterminalKind.ContractDefinition,
+  stateVariable: NonterminalKind.StateVariableDefinition,
+  constructor: NonterminalKind.ConstructorDefinition,
+  modifier: NonterminalKind.ModifierDefinition,
+  receive: NonterminalKind.ReceiveFunctionDefinition,
+  fallback: NonterminalKind.FallbackFunctionDefinition,
+};
+
+const fileMembersOrder: Array<keyof typeof memberToSlangKind> = [
+  "pragma",
+  "import",
+  "userDefinedValueType",
+  "usingFor",
+  "constant",
+  "enum",
+  "struct",
+  "event",
+  "error",
+  "function",
+  "interface",
+  "library",
+  "contract",
 ];
 
 const FileMemberSchema = z.enum(fileMembersOrder);
 
-const contractMembersOrder = [
-  "UserDefinedValueTypeDefinition",
-  "UsingDirective",
-  "EnumDefinition",
-  "StructDefinition",
-  "EventDefinition",
-  "ErrorDefinition",
-  "StateVariableDefinition",
-  "ConstructorDefinition",
-  "ModifierDefinition",
-  "FunctionDefinition",
-  "ReceiveFunctionDefinition",
-  "FallbackFunctionDefinition",
-  "UnnamedFunctionDefinition",
+const contractMembersOrder: Array<keyof typeof memberToSlangKind> = [
+  "userDefinedValueType",
+  "usingFor",
+  "enum",
+  "struct",
+  "event",
+  "error",
+  "stateVariable",
+  "constructor",
+  "modifier",
+  "function",
+  "receive",
+  "fallback",
 ];
 
 const ContractMemberSchema = z.enum(contractMembersOrder);
@@ -59,12 +79,10 @@ const Schema = z
   .object({
     file: z
       .array(FileMemberSchema)
-      .nonempty()
       .refine(uniqueMembers, "Custom order must not contain duplicates")
       .default(fileMembersOrder),
     contract: z
       .array(ContractMemberSchema)
-      .nonempty()
       .refine(uniqueMembers, "Custom order must not contain duplicates")
       .default(contractMembersOrder),
   })
@@ -165,9 +183,13 @@ class SortMembersRule implements RuleWithConfig<Config> {
     label: string,
     AstConstructor: { new (node: NonterminalNode): T },
     memberKind: NonterminalKind,
-    order: string[],
+    membersOrder: string[],
   ): LintResult[] {
     const members: Array<{ kind: NonterminalKind; cursor: Cursor }> = [];
+
+    const order = membersOrder.map((x) => {
+      return memberToSlangKind[x];
+    });
 
     const compareFunction = buildCompareMembers(order);
 
