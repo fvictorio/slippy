@@ -22,6 +22,7 @@ import { NamedReturnParams } from "./named-return-params.js";
 import { NoRestrictedSyntax } from "./no-restricted-syntax.js";
 import { NoUncheckedCalls } from "./no-unchecked-calls.js";
 import { SortMembers } from "./sort-members.js";
+import { OneContractPerFile } from "./one-contract-per-file.js";
 
 export function getAllRules(): Array<RuleDefinition<any>> {
   return [
@@ -43,6 +44,7 @@ export function getAllRules(): Array<RuleDefinition<any>> {
     NoUncheckedCalls,
     NoUninitializedImmutableReference,
     NoUnusedVars,
+    OneContractPerFile,
     PrivateVars,
     RequireRevertReason,
     SortImports,

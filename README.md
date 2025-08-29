@@ -68,6 +68,7 @@ For more details on configuring Slippy, including advanced features like cascadi
 - [`no-unchecked-calls`](/docs/rules/no-unchecked-calls.md): disallows low-level calls like `call`, `staticcall`, and `delegatecall` that don't use their return values.
 - [`no-uninitialized-immutable-references`](/docs/rules/no-uninitialized-immutable-references.md): forbids using immutable references before they are initialized.
 - [`no-unused-vars`](/docs/rules/no-unused-vars.md): detects unused variables, imports and functions.
+- [`one-contract-per-file`](/docs/rules/one-contract-per-file.md): enforces that a file contains at most one contract/interface/library definition.
 - [`private-vars`](/docs/rules/private-vars.md): enforces that all state variables are private.
 - [`require-revert-reason`](/docs/rules/require-revert-reason.md): enforces that all reverts have a reason.
 - [`sort-imports`](/docs/rules/sort-imports.md): enforces a specific order for import statements.
