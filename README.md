@@ -71,6 +71,7 @@ For more details on configuring Slippy, including advanced features like cascadi
 - [`private-vars`](/docs/rules/private-vars.md): enforces that all state variables are private.
 - [`require-revert-reason`](/docs/rules/require-revert-reason.md): enforces that all reverts have a reason.
 - [`sort-imports`](/docs/rules/sort-imports.md): enforces a specific order for import statements.
+- [`sort-members`](/docs/rules/sort-members.md): enforces a specific order for top-level elements and contract members.
 - [`sort-modifiers`](/docs/rules/sort-modifiers.md): enforces a specific order for modifiers.
 
 Don't see a rule you need? [Open an issue](https://github.com/fvictorio/slippy/issues/new).

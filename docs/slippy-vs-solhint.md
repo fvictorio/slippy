@@ -50,6 +50,7 @@ This section details the differences between Slippy and Solhint rules.
 | `no-global-import`                | [`no-global-imports`](/docs/rules/no-global-imports.md)         |
 | `no-unused-import`                | [`no-unused-vars`](/docs/rules/no-unused-vars.md)               |
 | `no-unused-vars`                  | [`no-unused-vars`](/docs/rules/no-unused-vars.md)               |
+| `ordering`                        | [`sort-members`](/docs/rules/sort-members.md)                   |
 | `private-vars-leading-underscore` | [`naming-convention`](/docs/rules/naming-convention.md)         |
 | `reason-string`                   | [`require-revert-reason`](/docs/rules/require-revert-reason.md) |
 | `state-visibility`                | [`no-default-visibility`](/docs/rules/no-default-visibility.md) |
@@ -75,7 +76,6 @@ These are rules that are not currently supported by Slippy, but that have an ope
 
 | Solhint rule               | GitHub issue                                         |
 | -------------------------- | ---------------------------------------------------- |
-| `check-send-result`        | [#44](https://github.com/fvictorio/slippy/issues/44) |
 | `code-complexity`          | [#41](https://github.com/fvictorio/slippy/issues/41) |
 | `comprehensive-interface`  | [#42](https://github.com/fvictorio/slippy/issues/42) |
 | `func-named-parameters`    | [#37](https://github.com/fvictorio/slippy/issues/37) |
@@ -83,7 +83,6 @@ These are rules that are not currently supported by Slippy, but that have an ope
 | `named-parameters-mapping` | [#32](https://github.com/fvictorio/slippy/issues/32) |
 | `no-inline-assembly`       | [#43](https://github.com/fvictorio/slippy/issues/43) |
 | `one-contract-per-file`    | [#29](https://github.com/fvictorio/slippy/issues/29) |
-| `ordering`                 | [#30](https://github.com/fvictorio/slippy/issues/30) |
 | `payable-fallback`         | [#39](https://github.com/fvictorio/slippy/issues/39) |
 | `use-natspec`              | [#38](https://github.com/fvictorio/slippy/issues/38) |
 
