@@ -75,7 +75,7 @@ const fixtures: RuleTestFixture[] = [
     contract C {}
     enum MyEnum {}
     `,
-    config: [{ file: ["ContractDefinition", "EnumDefinition"] }],
+    config: [{ file: ["contract", "enum"] }],
   },
   {
     description: "should allow configuring the order of contract members",
@@ -86,7 +86,7 @@ const fixtures: RuleTestFixture[] = [
       constructor() {}
     }
     `,
-    config: [{ contract: ["ModifierDefinition", "ConstructorDefinition"] }],
+    config: [{ contract: ["modifier", "constructor"] }],
   },
   {
     description: "should allow non-exhaustive custom orders",
@@ -96,7 +96,7 @@ const fixtures: RuleTestFixture[] = [
     contract C {}
     library L2 {}
     `,
-    config: [{ file: ["InterfaceDefinition", "ContractDefinition"] }],
+    config: [{ file: ["interface", "contract"] }],
   },
 ];
 

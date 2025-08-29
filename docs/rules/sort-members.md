@@ -139,19 +139,19 @@ The default value for `file` is:
 
 ```json
 [
-  "PragmaDirective",
-  "ImportDirective",
-  "UserDefinedValueTypeDefinition",
-  "UsingDirective",
-  "ConstantDefinition",
-  "EnumDefinition",
-  "StructDefinition",
-  "EventDefinition",
-  "ErrorDefinition",
-  "FunctionDefinition",
-  "InterfaceDefinition",
-  "LibraryDefinition",
-  "ContractDefinition"
+  "pragma",
+  "import",
+  "userDefinedValueType",
+  "usingFor",
+  "constant",
+  "enum",
+  "struct",
+  "event",
+  "error",
+  "function",
+  "interface",
+  "library",
+  "contract"
 ]
 ```
 
@@ -159,19 +159,18 @@ The default value for `contract` is:
 
 ```json
 [
-  "UserDefinedValueTypeDefinition",
-  "UsingDirective",
-  "EnumDefinition",
-  "StructDefinition",
-  "EventDefinition",
-  "ErrorDefinition",
-  "StateVariableDefinition",
-  "ConstructorDefinition",
-  "ModifierDefinition",
-  "FunctionDefinition",
-  "ReceiveFunctionDefinition",
-  "FallbackFunctionDefinition",
-  "UnnamedFunctionDefinition"
+  "userDefinedValueType",
+  "usingFor",
+  "enum",
+  "struct",
+  "event",
+  "error",
+  "stateVariable",
+  "constructor",
+  "modifier",
+  "function",
+  "receive",
+  "fallback"
 ]
 ```
 
@@ -181,7 +180,7 @@ Custom orders don't have to be exhaustive. For example, if you only care about h
 "sort-members": [
   "error",
   {
-    "contract": ["StateVariableDefinition", "FunctionDefinition"]
+    "contract": ["stateVariable", "function"]
   }
 ]
 ```
