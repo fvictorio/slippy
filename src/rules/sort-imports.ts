@@ -44,11 +44,19 @@ class SortImportsRule implements RuleWithoutConfig {
 
     for (let i = 0; i < importPaths.length; i++) {
       if (importPaths[i].cursor.node.id !== sortedPaths[i].cursor.node.id) {
+        let correctPosition = sortedPaths[i];
+
+        for (const sortedPath of sortedPaths) {
+          if (compareImportPaths(importPaths[i].path, sortedPath.path) === 1) {
+            correctPosition = sortedPath;
+          }
+        }
+
         return [
           {
             rule: this.name,
             sourceId: file.id,
-            message: `Import of "${importPaths[i].path}" should come after import of "${sortedPaths[i].path}"`,
+            message: `Import of "${importPaths[i].path}" should come after import of "${correctPosition.path}"`,
             line: importPaths[i].cursor.textRange.start.line,
             column: importPaths[i].cursor.textRange.start.column,
           },
