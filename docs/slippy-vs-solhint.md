@@ -50,6 +50,7 @@ This section details the differences between Slippy and Solhint rules.
 | `no-global-import`                | [`no-global-imports`](/docs/rules/no-global-imports.md)         |
 | `no-unused-import`                | [`no-unused-vars`](/docs/rules/no-unused-vars.md)               |
 | `no-unused-vars`                  | [`no-unused-vars`](/docs/rules/no-unused-vars.md)               |
+| `one-contract-per-file`           | [`one-contract-per-file`](/docs/rules/one-contract-per-file.md) |
 | `ordering`                        | [`sort-members`](/docs/rules/sort-members.md)                   |
 | `private-vars-leading-underscore` | [`naming-convention`](/docs/rules/naming-convention.md)         |
 | `reason-string`                   | [`require-revert-reason`](/docs/rules/require-revert-reason.md) |
@@ -82,7 +83,6 @@ These are rules that are not currently supported by Slippy, but that have an ope
 | `function-max-lines`       | [#40](https://github.com/fvictorio/slippy/issues/40) |
 | `named-parameters-mapping` | [#32](https://github.com/fvictorio/slippy/issues/32) |
 | `no-inline-assembly`       | [#43](https://github.com/fvictorio/slippy/issues/43) |
-| `one-contract-per-file`    | [#29](https://github.com/fvictorio/slippy/issues/29) |
 | `payable-fallback`         | [#39](https://github.com/fvictorio/slippy/issues/39) |
 | `use-natspec`              | [#38](https://github.com/fvictorio/slippy/issues/38) |
 
