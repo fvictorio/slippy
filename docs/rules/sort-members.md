@@ -1,6 +1,6 @@
 # sort-members
 
-Enforces a specific order for top-level elements and contract members.
+Enforces a specific order for top-level elements and contract/interface/library members.
 
 ## Rule details
 
@@ -133,7 +133,7 @@ contract ExampleContract {
 This rule can receive an object option with two optional fields:
 
 - `file`: An array of strings representing the custom order for top-level elements.
-- `contract`: An array of strings representing the custom order for contract members.
+- `contract`: An array of strings representing the custom order for members of contracts, interfaces, and libraries.
 
 The default value for `file` is:
 
