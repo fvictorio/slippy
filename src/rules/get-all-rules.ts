@@ -21,6 +21,7 @@ import { NoSend } from "./no-send.js";
 import { NamedReturnParams } from "./named-return-params.js";
 import { NoRestrictedSyntax } from "./no-restricted-syntax.js";
 import { NoUncheckedCalls } from "./no-unchecked-calls.js";
+import { SortMembers } from "./sort-members.js";
 
 export function getAllRules(): Array<RuleDefinition<any>> {
   return [
@@ -45,6 +46,7 @@ export function getAllRules(): Array<RuleDefinition<any>> {
     PrivateVars,
     RequireRevertReason,
     SortImports,
+    SortMembers,
     SortModifiers,
   ];
 }
