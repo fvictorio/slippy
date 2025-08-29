@@ -71,40 +71,33 @@ To the best of my knowledge, the following Slippy rules are not supported by Sol
 | [`no-unchecked-calls`](/docs/rules/no-unchecked-calls.md)                                       |
 | [`no-uninitialized-immutable-references`](/docs/rules/no-uninitialized-immutable-references.md) |
 
-### Solhint rules that will be added to Slippy
-
-These are rules that are not currently supported by Slippy, but that have an open issue for adding them. Please upvote the relevant issue if you want to see it implemented.
-
-| Solhint rule               | GitHub issue                                         |
-| -------------------------- | ---------------------------------------------------- |
-| `code-complexity`          | [#41](https://github.com/fvictorio/slippy/issues/41) |
-| `comprehensive-interface`  | [#42](https://github.com/fvictorio/slippy/issues/42) |
-| `func-named-parameters`    | [#37](https://github.com/fvictorio/slippy/issues/37) |
-| `function-max-lines`       | [#40](https://github.com/fvictorio/slippy/issues/40) |
-| `named-parameters-mapping` | [#32](https://github.com/fvictorio/slippy/issues/32) |
-| `no-inline-assembly`       | [#43](https://github.com/fvictorio/slippy/issues/43) |
-| `payable-fallback`         | [#39](https://github.com/fvictorio/slippy/issues/39) |
-| `use-natspec`              | [#38](https://github.com/fvictorio/slippy/issues/38) |
-
 ### Solhint rules that could be added to Slippy
 
 These are rules that I'm not sure about adding, but where I could change my mind. Please [open an issue](https://github.com/fvictorio/slippy/issues/new) if you think one of these should be included.
 
-| Solhint rule              |
-| ------------------------- |
-| `avoid-call-value`        |
-| `avoid-low-level-calls`   |
-| `compiler-version`        |
-| `gas-calldata-parameters` |
-| `gas-increment-by-one`    |
-| `gas-indexed-events`      |
-| `gas-length-in-loops`     |
-| `gas-small-strings`       |
-| `gas-strict-inequalities` |
-| `gas-struct-packing`      |
-| `no-complex-fallback`     |
-| `not-rely-on-block-hash`  |
-| `not-rely-on-time`        |
+| Solhint rule               |
+| -------------------------- |
+| `avoid-call-value`         |
+| `avoid-low-level-calls`    |
+| `code-complexity`          |
+| `compiler-version`         |
+| `comprehensive-interface`  |
+| `func-named-parameters`    |
+| `function-max-lines`       |
+| `gas-calldata-parameters`  |
+| `gas-increment-by-one`     |
+| `gas-indexed-events`       |
+| `gas-length-in-loops`      |
+| `gas-small-strings`        |
+| `gas-strict-inequalities`  |
+| `gas-struct-packing`       |
+| `named-parameters-mapping` |
+| `no-complex-fallback`      |
+| `no-inline-assembly`       |
+| `not-rely-on-block-hash`   |
+| `not-rely-on-time`         |
+| `payable-fallback`         |
+| `use-natspec`              |
 
 ### Solhint rules that won't be added to Slippy
 
