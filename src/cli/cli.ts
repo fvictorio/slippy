@@ -2,6 +2,7 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import process from "node:process";
+import url from "node:url";
 import fg from "fast-glob";
 import minimist from "minimist";
 import { formatAndPrintResults } from "../formatter.js";
@@ -110,7 +111,7 @@ async function runCli(): Promise<number> {
   }
 
   const pool = workerpool.pool(
-    new URL("./worker.js", import.meta.url).pathname,
+    url.fileURLToPath(new URL("./worker.js", import.meta.url)),
   );
 
   const results: RunLinterSuccess[] = await Promise.all(
