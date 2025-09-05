@@ -1432,6 +1432,81 @@ const fixtures: RuleTestFixture[] = [
       ],
     ],
   },
+  {
+    description: "should support the contract modifier",
+    content: `
+          contract MyContract {
+            function PascalCase() public {}
+          }
+
+          interface MyInterface {
+            function camelCase() public {}
+          }
+        `,
+    config: [
+      [
+        {
+          selector: "function",
+          format: ["camelCase"],
+        },
+        {
+          selector: "function",
+          modifiers: ["contract"],
+          format: ["PascalCase"],
+        },
+      ],
+    ],
+  },
+  {
+    description: "should support the interface modifier",
+    content: `
+          contract MyContract {
+            function camelCase() public {}
+          }
+
+          interface MyInterface {
+            function PascalCase() public {}
+          }
+        `,
+    config: [
+      [
+        {
+          selector: "function",
+          format: ["camelCase"],
+        },
+        {
+          selector: "function",
+          modifiers: ["interface"],
+          format: ["PascalCase"],
+        },
+      ],
+    ],
+  },
+  {
+    description: "should support the library modifier",
+    content: `
+          contract MyContract {
+            function camelCase() public {}
+          }
+
+          library MyLibrary {
+            function PascalCase() public {}
+          }
+        `,
+    config: [
+      [
+        {
+          selector: "function",
+          format: ["camelCase"],
+        },
+        {
+          selector: "function",
+          modifiers: ["library"],
+          format: ["PascalCase"],
+        },
+      ],
+    ],
+  },
 ];
 
 describe(ruleName, () => {
