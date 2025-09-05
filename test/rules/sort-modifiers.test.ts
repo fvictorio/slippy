@@ -111,6 +111,36 @@ const fixtures: RuleTestFixture[] = [
     }
     `,
   },
+  {
+    description: "should report constant before visibility",
+    content: `
+    contract Foo {
+      uint constant public x = 1;
+           ^^^^^^^^
+      uint public constant y = 1;
+    }
+    `,
+  },
+  {
+    description: "should report immutable before visibility",
+    content: `
+    contract Foo {
+      uint immutable private x = 1;
+           ^^^^^^^^^
+      uint private immutable y = 1;
+    }
+    `,
+  },
+  {
+    description: "should report transient before visibility",
+    content: `
+    contract Foo {
+      uint transient internal x;
+           ^^^^^^^^^
+      uint internal transient y;
+    }
+    `,
+  },
 ];
 
 describe(ruleName, () => {
