@@ -82,7 +82,7 @@ Don't see a rule you need? [Open an issue](https://github.com/fvictorio/slippy/i
 
 What’s next for Slippy:
 
-- More rules
-- Support for plugins
-- Browser build
 - Autofix
+- IDE support
+- Browser build
+- Support for plugins
