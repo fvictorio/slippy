@@ -14,17 +14,27 @@ import {
   TerminalKindExtensions,
   TextRange,
 } from "@nomicfoundation/slang/cst";
-import { FunctionAttribute } from "@nomicfoundation/slang/ast";
+import {
+  FunctionAttribute,
+  StateVariableAttribute,
+} from "@nomicfoundation/slang/ast";
 
-type ModifierKind =
+type FunctionModifierKind =
   | "visibility"
   | "mutability"
   | "virtual"
   | "override"
   | "custom";
 
-interface ModifierPosition {
-  kind: ModifierKind;
+interface FunctionModifierPosition {
+  kind: FunctionModifierKind;
+  textRange: TextRange;
+}
+
+type StateVarModifierKind = "visibility" | "mutability";
+
+interface StateVarModifierPosition {
+  kind: StateVarModifierKind;
   textRange: TextRange;
 }
 
@@ -44,6 +54,27 @@ class SortModifiersRule implements RuleWithoutConfig {
 
     const cursor = file.createTreeCursor();
 
+    const functionModifiersResults = this._checkFunctionModifiers(
+      file,
+      cursor.clone(),
+    );
+    results.push(...functionModifiersResults);
+
+    const stateVarModifiersResults = this._checkStateVarModifiers(
+      file,
+      cursor.clone(),
+    );
+    results.push(...stateVarModifiersResults);
+
+    return results;
+  }
+
+  private _checkFunctionModifiers(
+    file: SlangFile,
+    cursor: Cursor,
+  ): LintResult[] {
+    const results: LintResult[] = [];
+
     while (
       cursor.goToNextNonterminalWithKinds([
         NonterminalKind.FunctionDefinition,
@@ -61,7 +92,7 @@ class SortModifiersRule implements RuleWithoutConfig {
       }
       const functionCursor = cursor.spawn();
 
-      const modifiers: ModifierPosition[] = [];
+      const modifiers: FunctionModifierPosition[] = [];
 
       while (
         functionCursor.goToNextNonterminalWithKind(
@@ -147,25 +178,117 @@ class SortModifiersRule implements RuleWithoutConfig {
         },
       ];
 
-      for (let i = 0; i < modifiersIndices.length - 1; i++) {
-        for (let k = i + 1; k < modifiersIndices.length; k++) {
-          const first = modifiersIndices[i];
-          const second = modifiersIndices[k];
+      results.push(
+        ...this._checkModifiersOrder(file, modifiers, modifiersIndices),
+      );
+    }
 
-          if (
-            first.index !== -1 &&
-            second.index !== -1 &&
-            first.index > second.index
-          ) {
-            return [
-              this._buildError(
-                file,
-                first.kind,
-                second.kind,
-                modifiers[second.index].textRange,
-              ),
-            ];
+    return results;
+  }
+
+  private _checkStateVarModifiers(
+    file: SlangFile,
+    cursor: Cursor,
+  ): LintResult[] {
+    const results: LintResult[] = [];
+
+    while (
+      cursor.goToNextNonterminalWithKind(
+        NonterminalKind.StateVariableDefinition,
+      )
+    ) {
+      const stateVarTextRangeCursor = cursor.spawn();
+      while (
+        stateVarTextRangeCursor.goToNextTerminal() &&
+        stateVarTextRangeCursor.node.isTerminalNode() &&
+        TerminalKindExtensions.isTrivia(stateVarTextRangeCursor.node.kind)
+      ) {
+        // skip trivia nodes
+      }
+      const stateVarCursor = cursor.spawn();
+
+      const modifiers: StateVarModifierPosition[] = [];
+
+      while (
+        stateVarCursor.goToNextNonterminalWithKind(
+          NonterminalKind.StateVariableAttribute,
+        )
+      ) {
+        assertNonterminalNode(stateVarCursor.node);
+        const variant = new StateVariableAttribute(stateVarCursor.node).variant;
+
+        if ("kind" in variant) {
+          // we know it's a terminal node
+          assertTerminalNode(variant);
+          switch (variant.kind) {
+            case TerminalKind.InternalKeyword:
+            case TerminalKind.PublicKeyword:
+            case TerminalKind.PrivateKeyword:
+              ignoreTrivia(stateVarCursor);
+              modifiers.push({
+                kind: "visibility",
+                textRange: stateVarCursor.textRange,
+              });
+              break;
+            case TerminalKind.ConstantKeyword:
+            case TerminalKind.ImmutableKeyword:
+            case TerminalKind.TransientKeyword:
+              ignoreTrivia(stateVarCursor);
+              modifiers.push({
+                kind: "mutability",
+                textRange: stateVarCursor.textRange,
+              });
+              break;
           }
+        }
+      }
+
+      const modifiersIndices = [
+        {
+          kind: "visibility",
+          index: modifiers.findIndex((m) => m.kind === "visibility"),
+        },
+        {
+          kind: "mutability",
+          index: modifiers.findIndex((m) => m.kind === "mutability"),
+        },
+      ];
+
+      results.push(
+        ...this._checkModifiersOrder(file, modifiers, modifiersIndices),
+      );
+    }
+
+    return results;
+  }
+
+  private _checkModifiersOrder(
+    file: SlangFile,
+    modifiers:
+      | Array<FunctionModifierPosition>
+      | Array<StateVarModifierPosition>,
+    modifiersIndices: Array<{ kind: string; index: number }>,
+  ): LintResult[] {
+    const results: LintResult[] = [];
+
+    for (let i = 0; i < modifiersIndices.length - 1; i++) {
+      for (let k = i + 1; k < modifiersIndices.length; k++) {
+        const first = modifiersIndices[i];
+        const second = modifiersIndices[k];
+
+        if (
+          first.index !== -1 &&
+          second.index !== -1 &&
+          first.index > second.index
+        ) {
+          return [
+            this._buildError(
+              file,
+              first.kind,
+              second.kind,
+              modifiers[second.index].textRange,
+            ),
+          ];
         }
       }
     }
