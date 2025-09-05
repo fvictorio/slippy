@@ -10,10 +10,27 @@ export interface RuleTestFixture {
   config?: any[];
 }
 
-type MinimalLintResult = Omit<LintResult, "message" | "severity">;
+type MinimalLintResult = {
+  sourceId: string;
+  line: number;
+  column: number;
+  rule: string | null;
+  message?: string;
+};
+
+interface RuleTesterOptions {
+  includeMessage?: boolean;
+}
 
 export class RuleTester {
-  constructor(private ruleName: string) {}
+  private includeMessage = false;
+
+  constructor(
+    private ruleName: string,
+    options: RuleTesterOptions = {},
+  ) {
+    this.includeMessage = options.includeMessage ?? false;
+  }
 
   public runFixtures(fixtures: RuleTestFixture[]) {
     for (const fixture of fixtures) {
@@ -66,12 +83,18 @@ export class RuleTester {
   private compareResults(actual: LintResult[], expected: MinimalLintResult[]) {
     expect(
       actual.map((result) => {
-        return {
+        const resultToCompare: MinimalLintResult = {
           sourceId: result.sourceId,
           line: result.line,
           column: result.column,
           rule: result.rule,
         };
+
+        if (this.includeMessage) {
+          resultToCompare.message = result.message;
+        }
+
+        return resultToCompare;
       }),
     ).toEqual(expected);
   }

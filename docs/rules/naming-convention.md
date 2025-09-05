@@ -65,20 +65,23 @@ The following group selectors are available:
 
 The following modifiers are available:
 
-- `constant`
-- `immutable`
-- `public`
-- `internal`
-- `private`
-- `external`
-- `view`
-- `pure`
-- `payable`
-- `virtual`
-- `override`
-- `abstract`
-- `noParameters`
-- `hasParameters`
+- `constant`: the variable is marked as constant
+- `immutable`: the variable is marked as immutable
+- `public`: the variable or function is marked as public
+- `internal`: the variable or function is marked as internal
+- `private`: the variable or function is marked as private
+- `external`: the function is marked as external
+- `view`: the function is marked as view
+- `pure`: the function is marked as pure
+- `payable`: the function is marked as payable
+- `virtual`: the function is marked as virtual
+- `override`: the function overrides a function in a parent contract
+- `abstract`: the contract is marked as abstract
+- `noParameters`: the function has no parameters
+- `hasParameters`: the function has at least one parameter
+- `contract`: the function is defined in a contract
+- `interface`: the function is defined in an interface
+- `library`: the function is defined in a library
 
 For example, the following configuration enforces camelCase for everything except for type-like entities, which should be in PascalCase:
 

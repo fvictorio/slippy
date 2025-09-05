@@ -110,6 +110,9 @@ enum Modifiers {
   abstract = 1 << 11,
   noParameters = 1 << 12,
   hasParameters = 1 << 13,
+  contract = 1 << 14,
+  interface = 1 << 15,
+  library = 1 << 16,
 }
 
 type ModifiersString = keyof typeof Modifiers;
@@ -454,7 +457,7 @@ class NamingConventionRule implements RuleWithConfig<Config> {
 
           if (
             config.modifiers?.some(
-              (modifier) => !hasModifier(definitionCursor.spawn(), modifier),
+              (modifier) => !hasModifier(definitionCursor.clone(), modifier),
             ) === true
           ) {
             // does not have the required modifiers
@@ -769,7 +772,8 @@ function normalizeOption(option: Selector): NormalizedSelector[] {
 }
 
 function hasKeyword(cursor: Cursor, keyword: TerminalKind): boolean {
-  return cursor.goToNextTerminalWithKind(keyword);
+  const spawned = cursor.spawn();
+  return spawned.goToNextTerminalWithKind(keyword);
 }
 
 const hasModifierMap: Record<Modifiers, (cursor: Cursor) => boolean> = {
@@ -796,10 +800,30 @@ const hasModifierMap: Record<Modifiers, (cursor: Cursor) => boolean> = {
   [Modifiers.abstract]: (cursor) =>
     hasKeyword(cursor, TerminalKind.AbstractKeyword),
   [Modifiers.noParameters]: (cursor) =>
-    !cursor.goToNextNonterminalWithKind(NonterminalKind.Parameter),
+    !hasDescendant(cursor, NonterminalKind.Parameter),
   [Modifiers.hasParameters]: (cursor) =>
-    cursor.goToNextNonterminalWithKind(NonterminalKind.Parameter),
+    hasDescendant(cursor, NonterminalKind.Parameter),
+  [Modifiers.contract]: (cursor) =>
+    hasAncestor(cursor, NonterminalKind.ContractDefinition),
+  [Modifiers.interface]: (cursor) =>
+    hasAncestor(cursor, NonterminalKind.InterfaceDefinition),
+  [Modifiers.library]: (cursor) =>
+    hasAncestor(cursor, NonterminalKind.LibraryDefinition),
 };
+
+function hasAncestor(cursor: Cursor, kind: NonterminalKind): boolean {
+  while (cursor.goToParent()) {
+    if (cursor.node.kind === kind) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function hasDescendant(cursor: Cursor, kind: NonterminalKind): boolean {
+  const spawned = cursor.spawn();
+  return spawned.goToNextNonterminalWithKind(kind);
+}
 
 function hasModifier(cursor: Cursor, modifier: Modifiers): boolean {
   return hasModifierMap[modifier](cursor);
