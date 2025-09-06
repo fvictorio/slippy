@@ -29,7 +29,7 @@ type Config = z.infer<typeof Schema>;
 
 export const OneContractPerFile: RuleDefinitionWithConfig<Config> = {
   name: "one-contract-per-file",
-  recommended: true,
+  recommended: false,
   parseConfig: (config: unknown) => Schema.parse(config),
   create: function (config: Config) {
     return new OneContractPerFileRule(this.name, config);

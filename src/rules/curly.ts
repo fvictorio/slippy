@@ -25,7 +25,7 @@ const name = "curly";
 
 export const Curly: RuleDefinitionWithoutConfig = {
   name,
-  recommended: true,
+  recommended: false,
   create: function () {
     return new CurlyRule(this.name);
   },
