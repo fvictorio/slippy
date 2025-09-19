@@ -16,6 +16,7 @@ export enum SlippyErrorCode {
   SlippyErrorLoadingConfig = "SLIPPY_ERROR_LOADING_CONFIG",
   SlippyInvalidConfig = "SLIPPY_INVALID_CONFIG",
   SlippyRuleConfigError = "SLIPPY_RULE_CONFIG_ERROR",
+  SlippyNonexistentConfigPath = "SLIPPY_NONEXISTENT_CONFIG_PATH",
 }
 
 export class SlippyError extends Error {
@@ -110,5 +111,12 @@ export class SlippyRuleConfigError extends SlippyError {
     super(`Error in configuration for rule '${ruleName}': ${problem}`);
 
     this.code = SlippyErrorCode.SlippyRuleConfigError;
+  }
+}
+
+export class SlippyNonexistentConfigPathError extends SlippyError {
+  constructor(configPath: string) {
+    super(`The specified config path does not exist: '${configPath}'`);
+    this.code = SlippyErrorCode.SlippyNonexistentConfigPath;
   }
 }

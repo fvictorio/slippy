@@ -113,15 +113,12 @@ async function loadSlippyConfig(slippyConfigPath: string): Promise<unknown> {
   }
 }
 
-export async function createConfigLoader(cwd: string): Promise<ConfigLoader> {
-  const slippyConfigPath = await findSlippyConfigPath(cwd);
-  if (slippyConfigPath === undefined) {
-    throw new SlippyConfigNotFoundError();
-  }
+export async function createConfigLoader(
+  configPath: string,
+): Promise<ConfigLoader> {
+  const userConfig = await loadSlippyConfig(configPath);
 
-  const userConfig = await loadSlippyConfig(slippyConfigPath);
-
-  validateUserConfig(userConfig, slippyConfigPath);
+  validateUserConfig(userConfig, configPath);
 
   return BasicConfigLoader.create(userConfig);
 }
@@ -187,10 +184,13 @@ export function validateUserConfig(
   );
 }
 
-export async function findSlippyConfigPath(
-  cwd: string,
-): Promise<string | undefined> {
-  return findUp("slippy.config.js", cwd);
+export async function findSlippyConfigPath(cwd: string): Promise<string> {
+  const configPath = await findUp("slippy.config.js", cwd);
+  if (configPath === undefined) {
+    throw new SlippyConfigNotFoundError();
+  }
+
+  return configPath;
 }
 
 function resolveConfig(userConfig: UserConfig): ResolvedConfig {

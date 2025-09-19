@@ -1,6 +1,6 @@
 import path from "node:path";
 import fs from "node:fs/promises";
-import { createConfigLoader } from "../config.js";
+import { createConfigLoader, findSlippyConfigPath } from "../config.js";
 import { Linter } from "../linter.js";
 import { LintResultToReport, SourceFile } from "../rules/types.js";
 import {
@@ -25,9 +25,14 @@ export type RunLinterResult = RunLinterSuccess | RunLinterError;
 
 export default async function runLinter(
   sourceId: string,
+  customConfigPath?: string,
 ): Promise<RunLinterResult> {
   try {
-    return await internalRunLinter(sourceId);
+    let configPath = customConfigPath;
+    if (configPath === undefined) {
+      configPath = await findSlippyConfigPath(process.cwd());
+    }
+    return await internalRunLinter(sourceId, configPath);
   } catch (error) {
     if (SlippyError.isSlippyError(error)) {
       return {
@@ -40,8 +45,11 @@ export default async function runLinter(
   }
 }
 
-async function internalRunLinter(sourceId: string): Promise<RunLinterSuccess> {
-  const configLoader = await createConfigLoader(process.cwd());
+async function internalRunLinter(
+  sourceId: string,
+  configPath: string,
+): Promise<RunLinterSuccess> {
+  const configLoader = await createConfigLoader(configPath);
 
   const sourceIdToAbsolutePath: Record<string, string> = {};
   const runner = new Linter(configLoader);
