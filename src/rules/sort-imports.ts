@@ -82,9 +82,6 @@ export function compareImportPaths(a: string, b: string): number {
   if (aIsRelative && !bIsRelative) {
     return 1;
   }
-  if (!aIsRelative && !bIsRelative) {
-    return a.localeCompare(b);
-  }
 
   const aParts = a.split("/");
   const bParts = b.split("/");
@@ -103,8 +100,16 @@ export function compareImportPaths(a: string, b: string): number {
   const minLength = Math.min(aParts.length, bParts.length);
   for (let i = 0; i < minLength; i++) {
     if (aParts[i] !== bParts[i]) {
-      return aParts[i].localeCompare(bParts[i]);
+      return compareImportPathParts(aParts[i], bParts[i]);
     }
+  }
+
+  // Compare the pending part
+  const aLast = aParts[minLength];
+  const bLast = bParts[minLength];
+
+  if (aLast !== bLast) {
+    return compareImportPathParts(aLast, bLast);
   }
 
   // If all compared segments are equal, the shorter path is "less than" the longer one
@@ -115,4 +120,25 @@ export function compareImportPaths(a: string, b: string): number {
   // If the segments are equal in length and content, they are equal
   // and we should not reach here
   throw new Error("Unreachable code: paths are equal but not caught earlier");
+}
+
+function compareImportPathParts(a: string, b: string): number {
+  const aIsFile = a.endsWith(".sol");
+  const bIsFile = b.endsWith(".sol");
+
+  if (aIsFile && !bIsFile) {
+    return 1;
+  }
+  if (!aIsFile && bIsFile) {
+    return -1;
+  }
+
+  if (a === ".." && b !== "..") {
+    return -1;
+  }
+  if (a !== ".." && b === "..") {
+    return 1;
+  }
+
+  return a.localeCompare(b);
 }
