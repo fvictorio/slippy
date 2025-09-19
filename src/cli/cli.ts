@@ -10,12 +10,14 @@ import chalk from "chalk";
 import {
   SlippyDirectoriesNotSupportedError,
   SlippyError,
+  SlippyNonexistentConfigPathError,
   SlippyUnmatchedPatternError,
 } from "../errors.js";
 import { exists, findUp, isDirectory } from "../helpers/fs.js";
 import { RunLinterSuccess, RunLinterWorker } from "./worker.js";
 import { initConfig } from "./init.js";
 import workerpool from "workerpool";
+import { existsSync } from "node:fs";
 
 async function main() {
   try {
@@ -45,6 +47,7 @@ interface Argv {
   help: boolean;
   init: boolean;
   version: boolean;
+  config: string | undefined;
 }
 
 async function runCli(): Promise<number> {
@@ -52,6 +55,7 @@ async function runCli(): Promise<number> {
   const argv = minimist<Argv>(process.argv.slice(2), {
     boolean: ["help", "init", "version"],
     alias: { h: "help" },
+    string: ["config"],
     unknown: (arg) => {
       if (arg.startsWith("-")) {
         unknownArgs.push(arg);
@@ -61,6 +65,7 @@ async function runCli(): Promise<number> {
       return true;
     },
   });
+
   const rawSourceIds: string[] = (
     await Promise.all(
       argv._.map(async (arg) => {
@@ -110,13 +115,20 @@ async function runCli(): Promise<number> {
     return 0;
   }
 
+  // validate that the config path exists
+  const configPath =
+    argv.config !== undefined ? resolveConfigPath(argv.config) : undefined;
+
   const pool = workerpool.pool(
     url.fileURLToPath(new URL("./worker.js", import.meta.url)),
   );
 
   const results: RunLinterSuccess[] = await Promise.all(
     sourceIds.map(async (sourceId) => {
-      const result = await pool.exec<RunLinterWorker>("runLinter", [sourceId]);
+      const result = await pool.exec<RunLinterWorker>("runLinter", [
+        sourceId,
+        configPath,
+      ]);
       if ("lintResults" in result) {
         return result;
       } else {
@@ -192,6 +204,7 @@ function printHelp({ error }: { error: boolean }) {
   console[error ? "error" : "log"](
     `
 ${chalk.bold("Options")}:
+  --config <path>   Use the specified config file
   --help, -h        Show this help message
   --init            Initialize a new Slippy configuration
   --version         Print version
@@ -202,6 +215,16 @@ ${chalk.bold("Options")}:
 async function printVersion() {
   const version = await getSlippyVersion();
   console.log(`slippy ${version}`);
+}
+
+function resolveConfigPath(configPath: string): string {
+  const asAbsolutePath = path.resolve(process.cwd(), configPath);
+
+  if (!existsSync(asAbsolutePath)) {
+    throw new SlippyNonexistentConfigPathError(configPath);
+  }
+
+  return asAbsolutePath;
 }
 
 await main();
