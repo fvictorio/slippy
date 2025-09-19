@@ -25,6 +25,26 @@ const fixtures: RuleTestFixture[] = [
     import "./e.sol";
     `,
   },
+  {
+    description: "Issue #78: directories should come before files",
+    content: `
+    import { NonFungibleTokenEnumerable } from './enumerable/NonFungibleTokenEnumerable.sol';
+    import { _NonFungibleTokenMetadata } from './metadata/_NonFungibleTokenMetadata.sol';
+    import { NonFungibleTokenMetadata } from './metadata/NonFungibleTokenMetadata.sol';
+    import { _NonFungibleToken } from './_NonFungibleToken.sol';
+    import { _SolidstateNonFungibleToken } from './_SolidstateNonFungibleToken.sol';
+    import { ISolidstateNonFungibleToken } from './ISolidstateNonFungibleToken.sol';
+    import { NonFungibleToken } from './NonFungibleToken.sol';
+    `,
+  },
+  {
+    description: "Issue #78: paths further up the tree should come first",
+    content: `
+    import { _IERC4626 } from '../../../interfaces/_IERC4626.sol';
+    import { _IFungibleTokenMetadata } from '../metadata/_IFungibleTokenMetadata.sol';
+    import { _IFungibleToken } from '../_IFungibleToken.sol';
+    `,
+  },
 ];
 
 describe(ruleName, () => {
@@ -67,5 +87,30 @@ describe("compareImportPaths", () => {
     expect(compareImportPaths("./b", "a")).toBe(1);
     expect(compareImportPaths("a/b", "./c/d")).toBe(-1);
     expect(compareImportPaths("./c/d", "a/b")).toBe(1);
+  });
+
+  it("should put directories before files", () => {
+    expect(compareImportPaths("a/a.sol", "a/b")).toBe(1);
+    expect(compareImportPaths("a/b", "a/a.sol")).toBe(-1);
+    expect(compareImportPaths("a/a.sol", "a/b.sol")).toBe(-1);
+    expect(compareImportPaths("a/b.sol", "a/a.sol")).toBe(1);
+
+    expect(compareImportPaths("./a/a.sol", "./a/b")).toBe(1);
+    expect(compareImportPaths("./a/b", "./a/a.sol")).toBe(-1);
+    expect(compareImportPaths("./a/a.sol", "./a/b.sol")).toBe(-1);
+    expect(compareImportPaths("./a/b.sol", "./a/a.sol")).toBe(1);
+  });
+
+  it("should put paths that are further up the tree first", () => {
+    expect(compareImportPaths("../b", "./a")).toBe(-1);
+    expect(compareImportPaths("./a", "../b")).toBe(1);
+    expect(compareImportPaths("../../b", "../a")).toBe(-1);
+    expect(compareImportPaths("../a", "../../b")).toBe(1);
+    expect(compareImportPaths("../../a", "../../b")).toBe(-1);
+    expect(compareImportPaths("../../b", "../../a")).toBe(1);
+    expect(compareImportPaths("../../a", "../../a")).toBe(0);
+
+    expect(compareImportPaths("../../../b", "../_a")).toBe(-1);
+    expect(compareImportPaths("../b/c.sol", "../a.sol")).toBe(-1);
   });
 });
