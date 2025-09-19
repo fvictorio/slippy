@@ -104,14 +104,6 @@ export function compareImportPaths(a: string, b: string): number {
     }
   }
 
-  // Compare the pending part
-  const aLast = aParts[minLength];
-  const bLast = bParts[minLength];
-
-  if (aLast !== bLast) {
-    return compareImportPathParts(aLast, bLast);
-  }
-
   // If all compared segments are equal, the shorter path is "less than" the longer one
   if (aParts.length !== bParts.length) {
     return aParts.length - bParts.length;

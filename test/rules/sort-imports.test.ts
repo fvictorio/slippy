@@ -89,6 +89,10 @@ describe("compareImportPaths", () => {
     expect(compareImportPaths("./c/d", "a/b")).toBe(1);
   });
 
+  it("should put shorter paths first", () => {
+    expect(compareImportPaths("a", "a/b")).toBe(-1);
+  });
+
   it("should put directories before files", () => {
     expect(compareImportPaths("a/a.sol", "a/b")).toBe(1);
     expect(compareImportPaths("a/b", "a/a.sol")).toBe(-1);
