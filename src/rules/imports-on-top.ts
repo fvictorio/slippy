@@ -1,5 +1,5 @@
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleDefinitionWithoutConfig,
   RuleWithoutConfig,
@@ -17,8 +17,8 @@ export const ImportsOnTop: RuleDefinitionWithoutConfig = {
 class ImportsOnTopRule implements RuleWithoutConfig {
   constructor(public name: string) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -33,7 +33,7 @@ class ImportsOnTopRule implements RuleWithoutConfig {
         if (hasSeenNonImport) {
           cursor.goToNextTerminalWithKind(TerminalKind.ImportKeyword);
           // If we have seen a non-import directive before this import,
-          results.push({
+          diagnostics.push({
             rule: this.name,
             message: "Imports should be at the top of the file.",
             sourceId: file.id,
@@ -46,6 +46,6 @@ class ImportsOnTopRule implements RuleWithoutConfig {
       }
     }
 
-    return results;
+    return diagnostics;
   }
 }

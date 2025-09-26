@@ -1,6 +1,6 @@
 import { File as SlangFile } from "@nomicfoundation/slang/compilation";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleDefinitionWithoutConfig,
   RuleWithoutConfig,
@@ -28,20 +28,20 @@ export const NoConsole: RuleDefinitionWithoutConfig = {
 class NoConsoleRule implements RuleWithoutConfig {
   constructor(public readonly name: string) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const consoleImports = this.getConsoleImports(file);
-    results.push(...consoleImports);
+    diagnostics.push(...consoleImports);
 
     const memberUsages = this.getConsoleMemberUsages(file);
-    results.push(...memberUsages);
+    diagnostics.push(...memberUsages);
 
-    return results;
+    return diagnostics;
   }
 
-  private getConsoleMemberUsages(file: SlangFile): LintResult[] {
-    const results: LintResult[] = [];
+  private getConsoleMemberUsages(file: SlangFile): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
     const cursor = file.createTreeCursor();
     const matches = [
       ...cursor.query([
@@ -58,7 +58,7 @@ class NoConsoleRule implements RuleWithoutConfig {
       const operand = match.captures.operand[0];
       const member = match.captures.member[0];
       if (member.node.unparse().trim().startsWith("log")) {
-        results.push({
+        diagnostics.push({
           sourceId: file.id,
           rule: this.name,
           message: "Unexpected console.* usage",
@@ -68,11 +68,11 @@ class NoConsoleRule implements RuleWithoutConfig {
       }
     }
 
-    return results;
+    return diagnostics;
   }
 
-  private getConsoleImports(file: SlangFile): LintResult[] {
-    const results: LintResult[] = [];
+  private getConsoleImports(file: SlangFile): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
     const cursor = file.createTreeCursor();
     const matches = [
       ...cursor.query([
@@ -93,7 +93,7 @@ class NoConsoleRule implements RuleWithoutConfig {
         .slice(1, -1);
 
       if (forbiddenImportPaths.includes(importPath)) {
-        results.push({
+        diagnostics.push({
           sourceId: file.id,
           rule: this.name,
           message: "Unexpected import of console",
@@ -103,6 +103,6 @@ class NoConsoleRule implements RuleWithoutConfig {
       }
     }
 
-    return results;
+    return diagnostics;
   }
 }

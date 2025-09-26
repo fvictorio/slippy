@@ -1,6 +1,6 @@
 import { StateVariableDefinition } from "@nomicfoundation/slang/ast";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleDefinitionWithoutConfig,
   RuleWithoutConfig,
@@ -19,8 +19,8 @@ export const NoUninitializedImmutableReference: RuleDefinitionWithoutConfig = {
 class NoUninitializedImmutableReferenceRule implements RuleWithoutConfig {
   constructor(public name: string) {}
 
-  public run({ file, unit }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file, unit }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -69,7 +69,7 @@ class NoUninitializedImmutableReferenceRule implements RuleWithoutConfig {
         const referencedOffset = definiens.cursor.textOffset.utf8;
 
         if (referencedOffset > definedOffset) {
-          results.push({
+          diagnostics.push({
             rule: this.name,
             sourceId: file.id,
             message: `Immutable variable '${valueCursor.node.unparse()}' cannot be referenced before it is initialized`,
@@ -80,6 +80,6 @@ class NoUninitializedImmutableReferenceRule implements RuleWithoutConfig {
       }
     }
 
-    return results;
+    return diagnostics;
   }
 }

@@ -1,4 +1,4 @@
-import { LintResultToReport } from "./rules/types.js";
+import { DiagnosticToReport } from "./rules/types.js";
 import chalk from "chalk";
 
 export interface Colorizer {
@@ -9,23 +9,23 @@ export interface Colorizer {
   bold: (text: string) => string;
 }
 
-export function formatAndPrintResults(
-  results: LintResultToReport[],
+export function formatAndPrintDiagnostics(
+  diagnostics: DiagnosticToReport[],
   sourceIdToAbsolutePath: Record<string, string>,
   consoleLog: (...args: string[]) => void = console.log,
   colorizer: Colorizer = chalk,
 ): void {
-  if (results.length === 0) {
+  if (diagnostics.length === 0) {
     return;
   }
 
   consoleLog();
-  const groupedResults: Record<string, LintResultToReport[]> = {};
+  const groupedDiagnostics: Record<string, DiagnosticToReport[]> = {};
 
-  for (const result of results) {
-    const absolutePath = sourceIdToAbsolutePath[result.sourceId];
-    groupedResults[absolutePath] ||= [];
-    groupedResults[absolutePath].push(result);
+  for (const diagnostic of diagnostics) {
+    const absolutePath = sourceIdToAbsolutePath[diagnostic.sourceId];
+    groupedDiagnostics[absolutePath] ||= [];
+    groupedDiagnostics[absolutePath].push(diagnostic);
   }
 
   let errorCount = 0;
@@ -35,7 +35,9 @@ export function formatAndPrintResults(
   let maxMessageLength = 0;
   let maxSeverityLength = 0;
   let firstIteration = true;
-  for (const [absolutePath, results] of Object.entries(groupedResults)) {
+  for (const [absolutePath, diagnostics] of Object.entries(
+    groupedDiagnostics,
+  )) {
     if (!firstIteration) {
       consoleLog();
     }
@@ -48,25 +50,25 @@ export function formatAndPrintResults(
       message: string;
       rule: string | null;
     }> = [];
-    for (const result of results) {
-      if (result.severity === "error") {
+    for (const diagnostic of diagnostics) {
+      if (diagnostic.severity === "error") {
         errorCount++;
       } else {
         warningCount++;
       }
 
-      const position = `${result.line + 1}:${result.column + 1}`;
+      const position = `${diagnostic.line + 1}:${diagnostic.column + 1}`;
       maxPositionLength = Math.max(maxPositionLength, position.length);
-      maxMessageLength = Math.max(maxMessageLength, result.message.length);
+      maxMessageLength = Math.max(maxMessageLength, diagnostic.message.length);
 
-      const severity = result.severity === "error" ? "error" : "warning";
+      const severity = diagnostic.severity === "error" ? "error" : "warning";
       maxSeverityLength = Math.max(maxSeverityLength, severity.length);
 
       errorLines.push({
         position,
         severity,
-        message: result.message,
-        rule: result.rule,
+        message: diagnostic.message,
+        rule: diagnostic.rule,
       });
     }
 
@@ -91,7 +93,7 @@ export function formatAndPrintResults(
   consoleLog();
 
   const problemsFragment =
-    results.length === 1 ? "1 problem" : `${results.length} problems`;
+    diagnostics.length === 1 ? "1 problem" : `${diagnostics.length} problems`;
   const errorFragment =
     errorCount === 1 ? `${errorCount} error` : `${errorCount} errors`;
   const warningFragment =

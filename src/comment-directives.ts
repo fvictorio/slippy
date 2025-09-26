@@ -1,5 +1,5 @@
 import { Parser } from "@nomicfoundation/slang/parser";
-import { LintResultToReport } from "./rules/types.js";
+import { DiagnosticToReport } from "./rules/types.js";
 import { TerminalKind, TextRange } from "@nomicfoundation/slang/cst";
 import { File as SlangFile } from "@nomicfoundation/slang/compilation";
 
@@ -54,88 +54,93 @@ type CommentDirective =
 
 export function filterByCommentDirectives(
   content: string,
-  results: LintResultToReport[],
+  diagnostics: DiagnosticToReport[],
   file: SlangFile,
   languageVersion: string,
-): LintResultToReport[] {
+): DiagnosticToReport[] {
   const directives = extractCommentDirectives(content, languageVersion);
 
-  const resultsAndStatus: Array<{
-    result: LintResultToReport;
+  const diagnosticsAndStatus: Array<{
+    diagnostic: DiagnosticToReport;
     disabledBy: CommentDirective | null;
-  }> = results.map((result) => {
+  }> = diagnostics.map((diagnostic) => {
     return {
-      result,
+      diagnostic,
       disabledBy: null,
     };
   });
 
-  for (const resultAndStatus of resultsAndStatus) {
+  for (const diagnosticAndStatus of diagnosticsAndStatus) {
     for (const directive of directives) {
       if (
         directive.marker === "slippy-disable-next-line" ||
         directive.marker === "slippy-disable-line" ||
         directive.marker === "slippy-disable-previous-line"
       ) {
-        if (resultAndStatus.result.line === directive.disabledLine) {
+        if (diagnosticAndStatus.diagnostic.line === directive.disabledLine) {
           if (
             directive.disabledRules.length === 0 ||
-            (resultAndStatus.result.rule !== null &&
-              directive.disabledRules.includes(resultAndStatus.result.rule))
+            (diagnosticAndStatus.diagnostic.rule !== null &&
+              directive.disabledRules.includes(
+                diagnosticAndStatus.diagnostic.rule,
+              ))
           ) {
-            resultAndStatus.disabledBy = directive;
+            diagnosticAndStatus.disabledBy = directive;
           }
         }
       } else if (directive.marker === "slippy-disable") {
         if (
-          resultAndStatus.result.line > directive.endLine ||
-          (resultAndStatus.result.line === directive.endLine &&
-            resultAndStatus.result.column >= directive.endColumn)
+          diagnosticAndStatus.diagnostic.line > directive.endLine ||
+          (diagnosticAndStatus.diagnostic.line === directive.endLine &&
+            diagnosticAndStatus.diagnostic.column >= directive.endColumn)
         ) {
           if (
             directive.disabledRules.length === 0 ||
-            (resultAndStatus.result.rule !== null &&
-              directive.disabledRules.includes(resultAndStatus.result.rule))
+            (diagnosticAndStatus.diagnostic.rule !== null &&
+              directive.disabledRules.includes(
+                diagnosticAndStatus.diagnostic.rule,
+              ))
           ) {
-            resultAndStatus.disabledBy = directive;
+            diagnosticAndStatus.disabledBy = directive;
           }
         }
       } else if (directive.marker === "slippy-enable") {
         if (
-          resultAndStatus.result.line > directive.endLine ||
-          (resultAndStatus.result.line === directive.endLine &&
-            resultAndStatus.result.column >= directive.endColumn)
+          diagnosticAndStatus.diagnostic.line > directive.endLine ||
+          (diagnosticAndStatus.diagnostic.line === directive.endLine &&
+            diagnosticAndStatus.diagnostic.column >= directive.endColumn)
         ) {
           if (
             directive.enabledRules.length === 0 ||
-            (resultAndStatus.result.rule !== null &&
-              directive.enabledRules.includes(resultAndStatus.result.rule))
+            (diagnosticAndStatus.diagnostic.rule !== null &&
+              directive.enabledRules.includes(
+                diagnosticAndStatus.diagnostic.rule,
+              ))
           ) {
-            resultAndStatus.disabledBy = null;
+            diagnosticAndStatus.disabledBy = null;
           }
         }
       }
     }
   }
 
-  const filteredResults: LintResultToReport[] = resultsAndStatus.flatMap(
-    (resultAndStatus) => {
-      if (resultAndStatus.disabledBy === null) {
-        return [resultAndStatus.result];
+  const filteredDiagnostics: DiagnosticToReport[] =
+    diagnosticsAndStatus.flatMap((diagnosticAndStatus) => {
+      if (diagnosticAndStatus.disabledBy === null) {
+        return [diagnosticAndStatus.diagnostic];
       }
       return [];
-    },
-  );
+    });
 
   const usedDirectives = new Map<CommentDirective, string[]>();
-  for (const resultAndStatus of resultsAndStatus) {
+  for (const diagnosticAndStatus of diagnosticsAndStatus) {
     if (
-      resultAndStatus.disabledBy !== null &&
-      resultAndStatus.result.rule !== null
+      diagnosticAndStatus.disabledBy !== null &&
+      diagnosticAndStatus.diagnostic.rule !== null
     ) {
-      const usedBy = usedDirectives.get(resultAndStatus.disabledBy) ?? [];
-      usedBy.push(resultAndStatus.result.rule);
-      usedDirectives.set(resultAndStatus.disabledBy, usedBy);
+      const usedBy = usedDirectives.get(diagnosticAndStatus.disabledBy) ?? [];
+      usedBy.push(diagnosticAndStatus.diagnostic.rule);
+      usedDirectives.set(diagnosticAndStatus.disabledBy, usedBy);
     }
   }
 
@@ -204,7 +209,7 @@ export function filterByCommentDirectives(
 
       if (directive.enabledRules.length === 0) {
         if (usedBy === undefined) {
-          filteredResults.push({
+          filteredDiagnostics.push({
             sourceId: file.id,
             line: directive.textRange.start.line,
             column: directive.textRange.start.column,
@@ -231,7 +236,7 @@ export function filterByCommentDirectives(
           rulesFragment += ` or '${unusedRules[unusedRules.length - 1]}'`;
         }
 
-        filteredResults.push({
+        filteredDiagnostics.push({
           sourceId: file.id,
           line: directive.textRange.start.line,
           column: directive.textRange.start.column,
@@ -248,7 +253,7 @@ export function filterByCommentDirectives(
 
     if (directive.disabledRules.length === 0) {
       if (usedBy.length === 0) {
-        filteredResults.push({
+        filteredDiagnostics.push({
           sourceId: file.id,
           line: directive.textRange.start.line,
           column: directive.textRange.start.column,
@@ -271,7 +276,7 @@ export function filterByCommentDirectives(
           rulesFragment += ` or '${unusedRules[unusedRules.length - 1]}'`;
         }
 
-        filteredResults.push({
+        filteredDiagnostics.push({
           sourceId: file.id,
           line: directive.textRange.start.line,
           column: directive.textRange.start.column,
@@ -283,7 +288,7 @@ export function filterByCommentDirectives(
     }
   }
 
-  return filteredResults;
+  return filteredDiagnostics;
 }
 
 export function extractCommentDirectives(

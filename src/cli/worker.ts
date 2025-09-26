@@ -2,7 +2,7 @@ import path from "node:path";
 import fs from "node:fs/promises";
 import { createConfigLoader, findSlippyConfigPath } from "../config.js";
 import { Linter } from "../linter.js";
-import { LintResultToReport, SourceFile } from "../rules/types.js";
+import { DiagnosticToReport, SourceFile } from "../rules/types.js";
 import {
   SlippyError,
   SlippyErrorCode,
@@ -11,7 +11,7 @@ import {
 import workerpool from "workerpool";
 
 export interface RunLinterSuccess {
-  lintResults: LintResultToReport[];
+  diagnostics: DiagnosticToReport[];
   sourceIdToAbsolutePath: Record<string, string>;
 }
 
@@ -60,10 +60,10 @@ async function internalRunLinter(
       filePath: sourceId,
       content: await fs.readFile(absolutePath, "utf8"),
     };
-    const results = await runner.lintFiles([file]);
+    const diagnostics = await runner.lintFiles([file]);
 
     return {
-      lintResults: results,
+      diagnostics,
       sourceIdToAbsolutePath,
     };
   } catch (error) {

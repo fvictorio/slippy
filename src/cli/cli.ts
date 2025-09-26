@@ -5,7 +5,7 @@ import process from "node:process";
 import url from "node:url";
 import fg from "fast-glob";
 import minimist from "minimist";
-import { formatAndPrintResults } from "../formatter.js";
+import { formatAndPrintDiagnostics } from "../formatter.js";
 import chalk from "chalk";
 import {
   SlippyDirectoriesNotSupportedError,
@@ -129,7 +129,7 @@ async function runCli(): Promise<number> {
         sourceId,
         configPath,
       ]);
-      if ("lintResults" in result) {
+      if ("diagnostics" in result) {
         return result;
       } else {
         // This can cause non-deterministic behavior if two files throw different errors:
@@ -151,8 +151,8 @@ async function runCli(): Promise<number> {
     },
   );
 
-  const sortedResults = results
-    .flatMap((x) => x.lintResults)
+  const sortedDiagnostics = results
+    .flatMap((x) => x.diagnostics)
     .sort((a, b) => {
       if (a.sourceId !== b.sourceId) {
         return a.sourceId.localeCompare(b.sourceId);
@@ -171,9 +171,11 @@ async function runCli(): Promise<number> {
     };
   }
 
-  formatAndPrintResults(sortedResults, sourceIdToAbsolutePath);
+  formatAndPrintDiagnostics(sortedDiagnostics, sourceIdToAbsolutePath);
 
-  const exitCode = sortedResults.some((result) => result.severity === "error")
+  const exitCode = sortedDiagnostics.some(
+    (diagnostic) => diagnostic.severity === "error",
+  )
     ? 1
     : 0;
 

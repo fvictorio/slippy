@@ -3,7 +3,7 @@ import {
   File as SlangFile,
 } from "@nomicfoundation/slang/compilation";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleWithConfig,
   RuleDefinitionWithConfig,
@@ -53,8 +53,8 @@ class NoUnusedVarsRule implements RuleWithConfig<Config> {
         : undefined;
   }
 
-  public run({ file, unit }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file, unit }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const inheritDocComments = findInheritDocComments(file);
     const unusedVars = findUnusedVarsInFile(unit, file, inheritDocComments);
@@ -68,7 +68,7 @@ class NoUnusedVarsRule implements RuleWithConfig<Config> {
           continue;
         }
 
-        results.push({
+        diagnostics.push({
           rule: this.name,
           sourceId: unusedVar.definition.definiensLocation.fileId,
           message: `'${unusedVar.name}' is defined but never used`,
@@ -78,7 +78,7 @@ class NoUnusedVarsRule implements RuleWithConfig<Config> {
       }
     }
 
-    return results;
+    return diagnostics;
   }
 }
 interface UnusedVar {
@@ -403,7 +403,7 @@ function getFunctionNameDefinition(
 }
 
 function findInheritDocComments(file: SlangFile): string[] {
-  const results: string[] = [];
+  const diagnostics: string[] = [];
   const cursor = file.createTreeCursor();
 
   while (
@@ -416,11 +416,11 @@ function findInheritDocComments(file: SlangFile): string[] {
     const inheritDocMatch = commentText.match(/@inheritdoc\s+([$\w]+)/);
 
     if (inheritDocMatch) {
-      results.push(inheritDocMatch[1]);
+      diagnostics.push(inheritDocMatch[1]);
     }
   }
 
-  return results;
+  return diagnostics;
 }
 
 function checkFileHasOnlyImports(cursor: Cursor): boolean {

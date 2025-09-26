@@ -1,5 +1,5 @@
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleWithoutConfig,
   RuleDefinitionWithoutConfig,
@@ -17,8 +17,8 @@ export const NoGlobalImports: RuleDefinitionWithoutConfig = {
 class NoGlobalImportsRule implements RuleWithoutConfig {
   public constructor(public name: string) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -47,7 +47,7 @@ class NoGlobalImportsRule implements RuleWithoutConfig {
       if (
         !importCursor.goToNextNonterminalWithKind(NonterminalKind.ImportAlias)
       ) {
-        results.push({
+        diagnostics.push({
           sourceId: file.id,
           rule: this.name,
           message: `Global import of '${importPathString}'`,
@@ -57,6 +57,6 @@ class NoGlobalImportsRule implements RuleWithoutConfig {
       }
     }
 
-    return results;
+    return diagnostics;
   }
 }

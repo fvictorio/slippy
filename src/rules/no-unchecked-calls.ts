@@ -1,6 +1,6 @@
 import { ignoreLeadingTrivia } from "../slang/trivia.js";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleDefinitionWithoutConfig,
   RuleWithoutConfig,
@@ -36,8 +36,8 @@ export const NoUncheckedCalls: RuleDefinitionWithoutConfig = {
 class NoUncheckedCallsRule implements RuleWithoutConfig {
   constructor(public name: string) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -50,7 +50,7 @@ class NoUncheckedCallsRule implements RuleWithoutConfig {
       const textRangeCursor = match.root.spawn();
       ignoreLeadingTrivia(textRangeCursor);
 
-      results.push({
+      diagnostics.push({
         rule: this.name,
         sourceId: file.id,
         line: textRangeCursor.textRange.start.line,
@@ -59,6 +59,6 @@ class NoUncheckedCallsRule implements RuleWithoutConfig {
       });
     }
 
-    return results;
+    return diagnostics;
   }
 }

@@ -1,6 +1,6 @@
 import * as z from "zod";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleDefinition,
   RuleWithConfig,
@@ -28,8 +28,8 @@ class ExplicitTypesRule implements RuleWithConfig<Config> {
     public config: Config,
   ) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -50,8 +50,8 @@ class ExplicitTypesRule implements RuleWithConfig<Config> {
           typeText === "ufixed" ||
           typeText === "fixed"
         ) {
-          results.push(
-            this._buildLintResult(typeText, file.id, cursor.textRange),
+          diagnostics.push(
+            this._buildDiagnostic(typeText, file.id, cursor.textRange),
           );
         }
       } else {
@@ -61,21 +61,21 @@ class ExplicitTypesRule implements RuleWithConfig<Config> {
           typeText === "ufixed256x18" ||
           typeText === "fixed128x18"
         ) {
-          results.push(
-            this._buildLintResult(typeText, file.id, cursor.textRange),
+          diagnostics.push(
+            this._buildDiagnostic(typeText, file.id, cursor.textRange),
           );
         }
       }
     }
 
-    return results;
+    return diagnostics;
   }
 
-  private _buildLintResult(
+  private _buildDiagnostic(
     typeText: string,
     sourceId: string,
     textRange: TextRange,
-  ): LintResult {
+  ): Diagnostic {
     return {
       rule: this.name,
       sourceId,

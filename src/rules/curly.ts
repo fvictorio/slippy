@@ -7,7 +7,7 @@ import {
   WhileStatement,
 } from "@nomicfoundation/slang/ast";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleWithoutConfig,
   RuleDefinitionWithoutConfig,
@@ -34,8 +34,8 @@ export const Curly: RuleDefinitionWithoutConfig = {
 class CurlyRule implements RuleWithoutConfig {
   public constructor(public name: string) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -49,22 +49,22 @@ class CurlyRule implements RuleWithoutConfig {
       ])
     ) {
       if (cursor.node.kind === NonterminalKind.IfStatement) {
-        results.push(...this.checkIfStatement(cursor.spawn(), file));
+        diagnostics.push(...this.checkIfStatement(cursor.spawn(), file));
       } else if (cursor.node.kind === NonterminalKind.ElseBranch) {
-        results.push(...this.checkElseBranch(cursor.spawn(), file));
+        diagnostics.push(...this.checkElseBranch(cursor.spawn(), file));
       } else if (cursor.node.kind === NonterminalKind.WhileStatement) {
-        results.push(...this.checkWhileStatement(cursor.spawn(), file));
+        diagnostics.push(...this.checkWhileStatement(cursor.spawn(), file));
       } else if (cursor.node.kind === NonterminalKind.ForStatement) {
-        results.push(...this.checkForStatement(cursor.spawn(), file));
+        diagnostics.push(...this.checkForStatement(cursor.spawn(), file));
       } else if (cursor.node.kind === NonterminalKind.DoWhileStatement) {
-        results.push(...this.checkDoWhileStatement(cursor.spawn(), file));
+        diagnostics.push(...this.checkDoWhileStatement(cursor.spawn(), file));
       }
     }
 
-    return results;
+    return diagnostics;
   }
 
-  private checkIfStatement(cursor: Cursor, file: SlangFile): LintResult[] {
+  private checkIfStatement(cursor: Cursor, file: SlangFile): Diagnostic[] {
     assertNonterminalNode(cursor.node, NonterminalKind.IfStatement);
     const ifStatement = new IfStatement(cursor.node);
 
@@ -88,7 +88,7 @@ class CurlyRule implements RuleWithoutConfig {
     ];
   }
 
-  private checkElseBranch(cursor: Cursor, file: SlangFile): LintResult[] {
+  private checkElseBranch(cursor: Cursor, file: SlangFile): Diagnostic[] {
     assertNonterminalNode(cursor.node, NonterminalKind.ElseBranch);
     const elseBranch = new ElseBranch(cursor.node);
 
@@ -115,7 +115,7 @@ class CurlyRule implements RuleWithoutConfig {
     ];
   }
 
-  private checkWhileStatement(cursor: Cursor, file: SlangFile): LintResult[] {
+  private checkWhileStatement(cursor: Cursor, file: SlangFile): Diagnostic[] {
     assertNonterminalNode(cursor.node, NonterminalKind.WhileStatement);
     const whileStatement = new WhileStatement(cursor.node);
 
@@ -139,7 +139,7 @@ class CurlyRule implements RuleWithoutConfig {
     ];
   }
 
-  private checkForStatement(cursor: Cursor, file: SlangFile): LintResult[] {
+  private checkForStatement(cursor: Cursor, file: SlangFile): Diagnostic[] {
     assertNonterminalNode(cursor.node, NonterminalKind.ForStatement);
     const forStatement = new ForStatement(cursor.node);
 
@@ -163,7 +163,7 @@ class CurlyRule implements RuleWithoutConfig {
     ];
   }
 
-  private checkDoWhileStatement(cursor: Cursor, file: SlangFile): LintResult[] {
+  private checkDoWhileStatement(cursor: Cursor, file: SlangFile): Diagnostic[] {
     assertNonterminalNode(cursor.node, NonterminalKind.DoWhileStatement);
     const doWhileStatement = new DoWhileStatement(cursor.node);
 

@@ -79,7 +79,7 @@ describe(ruleName, () => {
   it("should print the right error message (1C, 1I, 1L)", async () => {
     const linter = new Linter(mockSingleRuleConfigLoader(ruleName));
 
-    const results = await linter.lintText(
+    const diagnostics = await linter.lintText(
       `
       contract C {}
       interface I {}
@@ -88,8 +88,8 @@ describe(ruleName, () => {
       "contract.sol",
     );
 
-    expect(results).toHaveLength(1);
-    expect(results[0].message).toMatchInlineSnapshot(
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].message).toMatchInlineSnapshot(
       `"The file has 1 contract, 1 interface, and 1 library, which is not allowed"`,
     );
   });
@@ -97,7 +97,7 @@ describe(ruleName, () => {
   it("should print the right error message (2I)", async () => {
     const linter = new Linter(mockSingleRuleConfigLoader(ruleName));
 
-    const results = await linter.lintText(
+    const diagnostics = await linter.lintText(
       `
       interface I1 {}
       interface I2 {}
@@ -105,8 +105,8 @@ describe(ruleName, () => {
       "contract.sol",
     );
 
-    expect(results).toHaveLength(1);
-    expect(results[0].message).toMatchInlineSnapshot(
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].message).toMatchInlineSnapshot(
       `"The file has 2 interfaces, which is not allowed"`,
     );
   });
@@ -114,7 +114,7 @@ describe(ruleName, () => {
   it("should print the right error message (3C)", async () => {
     const linter = new Linter(mockSingleRuleConfigLoader(ruleName));
 
-    const results = await linter.lintText(
+    const diagnostics = await linter.lintText(
       `
       contract C1 {}
       contract C2 {}
@@ -123,8 +123,8 @@ describe(ruleName, () => {
       "contract.sol",
     );
 
-    expect(results).toHaveLength(1);
-    expect(results[0].message).toMatchInlineSnapshot(
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].message).toMatchInlineSnapshot(
       `"The file has 3 contracts, which is not allowed"`,
     );
   });

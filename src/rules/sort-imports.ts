@@ -1,5 +1,5 @@
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleWithoutConfig,
   RuleDefinitionWithoutConfig,
@@ -17,7 +17,7 @@ export const SortImports: RuleDefinitionWithoutConfig = {
 class SortImportsRule implements RuleWithoutConfig {
   constructor(public name: string) {}
 
-  public run({ file }: RuleContext): LintResult[] {
+  public run({ file }: RuleContext): Diagnostic[] {
     const cursor = file.createTreeCursor();
 
     const matches = cursor.query([

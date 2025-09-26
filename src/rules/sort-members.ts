@@ -1,7 +1,7 @@
 import { ContractMember, SourceUnitMember } from "@nomicfoundation/slang/ast";
 import * as z from "zod";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleWithConfig,
   RuleDefinitionWithConfig,
@@ -105,11 +105,11 @@ class SortMembersRule implements RuleWithConfig<Config> {
     public config: Config,
   ) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
     const cursor = file.createTreeCursor();
 
-    results.push(
+    diagnostics.push(
       ...this.checkMembers(
         file,
         cursor.spawn(),
@@ -126,7 +126,7 @@ class SortMembersRule implements RuleWithConfig<Config> {
         NonterminalKind.ContractDefinition,
       )
     ) {
-      results.push(
+      diagnostics.push(
         ...this.checkMembers(
           file,
           contractsCursor.spawn(),
@@ -144,7 +144,7 @@ class SortMembersRule implements RuleWithConfig<Config> {
         NonterminalKind.InterfaceDefinition,
       )
     ) {
-      results.push(
+      diagnostics.push(
         ...this.checkMembers(
           file,
           interfacesCursor.spawn(),
@@ -162,7 +162,7 @@ class SortMembersRule implements RuleWithConfig<Config> {
         NonterminalKind.LibraryDefinition,
       )
     ) {
-      results.push(
+      diagnostics.push(
         ...this.checkMembers(
           file,
           librariesCursor.spawn(),
@@ -174,7 +174,7 @@ class SortMembersRule implements RuleWithConfig<Config> {
       );
     }
 
-    return results;
+    return diagnostics;
   }
 
   private checkMembers<T extends SourceUnitMember | ContractMember>(
@@ -184,7 +184,7 @@ class SortMembersRule implements RuleWithConfig<Config> {
     AstConstructor: { new (node: NonterminalNode): T },
     memberKind: NonterminalKind,
     membersOrder: string[],
-  ): LintResult[] {
+  ): Diagnostic[] {
     const members: Array<{ kind: NonterminalKind; cursor: Cursor }> = [];
 
     const order = membersOrder.map((x) => {

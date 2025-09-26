@@ -3,7 +3,7 @@ import {
   StringExpression,
 } from "@nomicfoundation/slang/ast";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleWithConfig,
   RuleDefinitionWithConfig,
@@ -65,8 +65,8 @@ class RequireRevertReasonRule implements RuleWithConfig<Config> {
     public config: Config,
   ) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -88,36 +88,36 @@ class RequireRevertReasonRule implements RuleWithConfig<Config> {
 
       if (requireArgs !== undefined) {
         if (args.items.length === 1) {
-          results.push(
+          diagnostics.push(
             this.makeResult(file, match.root, "require", "missingReason"),
           );
         } else if (args.items.length === 2) {
           const isStringReason =
             args.items[1].variant instanceof StringExpression;
           if (this.config === "customError" && isStringReason) {
-            results.push(
+            diagnostics.push(
               this.makeResult(file, match.root, "require", "notError"),
             );
           } else if (this.config === "string" && !isStringReason) {
-            results.push(
+            diagnostics.push(
               this.makeResult(file, match.root, "require", "notString"),
             );
           }
         }
       } else if (revertFunctionArgs !== undefined) {
         if (args.items.length === 0) {
-          results.push(
+          diagnostics.push(
             this.makeResult(file, match.root, "revert", "missingReason"),
           );
         } else if (args.items.length === 1) {
           const isStringReason =
             args.items[0].variant instanceof StringExpression;
           if (this.config === "customError" && isStringReason) {
-            results.push(
+            diagnostics.push(
               this.makeResult(file, match.root, "revert", "notError"),
             );
           } else if (this.config === "string" && !isStringReason) {
-            results.push(
+            diagnostics.push(
               this.makeResult(file, match.root, "revert", "notString"),
             );
           }
@@ -125,14 +125,14 @@ class RequireRevertReasonRule implements RuleWithConfig<Config> {
       } else if (revertStatementArgs !== undefined) {
         // revert statements always have a reason of error kind
         if (this.config === "string") {
-          results.push(
+          diagnostics.push(
             this.makeResult(file, match.root, "revert", "notString"),
           );
         }
       }
     }
 
-    return results;
+    return diagnostics;
   }
 
   private makeResult(
@@ -140,7 +140,7 @@ class RequireRevertReasonRule implements RuleWithConfig<Config> {
     cursor: Cursor,
     name: "require" | "revert",
     cause: "missingReason" | "notError" | "notString",
-  ): LintResult {
+  ): Diagnostic {
     ignoreLeadingTrivia(cursor);
 
     let message: string;

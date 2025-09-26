@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { LintResult } from "../../src/rules/types.js";
+import { Diagnostic } from "../../src/rules/types.js";
 import { Linter } from "../../src/linter.js";
 import { mockSingleRuleConfigLoader } from "./config.js";
 
@@ -10,7 +10,7 @@ export interface RuleTestFixture {
   config?: any[];
 }
 
-type MinimalLintResult = {
+type MinimalDiagnostic = {
   sourceId: string;
   line: number;
   column: number;
@@ -45,56 +45,64 @@ export class RuleTester {
     const linter = new Linter(
       mockSingleRuleConfigLoader(this.ruleName, fixture.config),
     );
-    const { content: contentWithoutMarkers, expectedResults } =
-      this.parseFixture(fixture.content);
+    const {
+      content: contentWithoutMarkers,
+      expectedDiagnostics: expectedDiagnostics,
+    } = this.parseFixture(fixture.content);
 
-    const results = await linter.lintText(
+    const diagnostics = await linter.lintText(
       contentWithoutMarkers,
       "contract.sol",
     );
-    this.compareResults(results, expectedResults);
+    this.compareDiagnostics(diagnostics, expectedDiagnostics);
   }
 
   private parseFixture(fixtureContent: string): {
     content: string;
-    expectedResults: MinimalLintResult[];
+    expectedDiagnostics: MinimalDiagnostic[];
   } {
     const lines = fixtureContent.split("\n");
     const parsedLines: string[] = [];
-    const expectedResults: MinimalLintResult[] = [];
+    const expectedDiagnostics: MinimalDiagnostic[] = [];
 
     for (const line of lines) {
       if (/^\s*\^+\s*$/.test(line)) {
-        const expectedResult: MinimalLintResult = {
+        const expectedResult: MinimalDiagnostic = {
           rule: this.ruleName,
           sourceId: "contract.sol",
           line: parsedLines.length - 1,
           column: line.indexOf("^"),
         };
-        expectedResults.push(expectedResult);
+        expectedDiagnostics.push(expectedResult);
       } else {
         parsedLines.push(line);
       }
     }
 
-    return { content: parsedLines.join("\n"), expectedResults };
+    return {
+      content: parsedLines.join("\n"),
+      expectedDiagnostics: expectedDiagnostics,
+    };
   }
 
-  private compareResults(actual: LintResult[], expected: MinimalLintResult[]) {
+  private compareDiagnostics(
+    actual: Diagnostic[],
+    expected: MinimalDiagnostic[],
+  ) {
     expect(
-      actual.map((result) => {
-        const resultToCompare: MinimalLintResult = {
-          sourceId: result.sourceId,
-          line: result.line,
-          column: result.column,
-          rule: result.rule,
+      actual.map((diagnostic) => {
+        const diagnosticToCompare: MinimalDiagnostic = {
+          sourceId: diagnostic.sourceId,
+          line: diagnostic.line,
+          column: diagnostic.column,
+          rule: diagnostic.rule,
         };
 
         if (this.includeMessage) {
-          resultToCompare.message = result.message;
+          diagnosticToCompare.message = diagnostic.message;
         }
 
-        return resultToCompare;
+        return diagnosticToCompare;
       }),
     ).toEqual(expected);
   }
