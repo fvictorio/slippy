@@ -4,12 +4,20 @@ import {
 } from "@nomicfoundation/slang/compilation";
 import * as z from "zod";
 
+interface FixChange {
+  range: [number, number];
+  replacement: string;
+}
+
+type Fix = Array<FixChange>
+
 export interface LintResult {
   sourceId: string;
   line: number;
   column: number;
   rule: string | null;
   message: string;
+  fix?: Fix
 }
 
 export interface LintResultToReport extends LintResult {
