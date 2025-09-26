@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { Colorizer, formatAndPrintResults } from "../src/formatter.js";
-import { LintResultToReport } from "../src/rules/types.js";
+import { Colorizer, formatAndPrintDiagnostics } from "../src/formatter.js";
+import { DiagnosticToReport } from "../src/rules/types.js";
 
 class ConsoleLogMock {
   public logs: string[] = [];
@@ -18,13 +18,13 @@ const tagColorizer: Colorizer = {
 };
 
 describe("formatter", function () {
-  it("should not print anything if there are no results", function () {
+  it("should not print anything if there are no diagnostics", function () {
     const consoleLogMock = new ConsoleLogMock();
 
-    const results: LintResultToReport[] = [];
+    const diagnostics: DiagnosticToReport[] = [];
 
-    formatAndPrintResults(
-      results,
+    formatAndPrintDiagnostics(
+      diagnostics,
       {},
       consoleLogMock.log.bind(consoleLogMock),
       tagColorizer,
@@ -33,10 +33,10 @@ describe("formatter", function () {
     expect(consoleLogMock.logs).toEqual([]);
   });
 
-  it("should print one error result", function () {
+  it("should print one error diagnostic", function () {
     const consoleLogMock = new ConsoleLogMock();
 
-    const results: LintResultToReport[] = [
+    const diagnostics: DiagnosticToReport[] = [
       {
         sourceId: "file.sol",
         line: 1,
@@ -51,8 +51,8 @@ describe("formatter", function () {
       "file.sol": "/absolute/path/to/file.sol",
     };
 
-    formatAndPrintResults(
-      results,
+    formatAndPrintDiagnostics(
+      diagnostics,
       sourceIdToAbsolutePath,
       consoleLogMock.log.bind(consoleLogMock),
       tagColorizer,
@@ -67,10 +67,10 @@ describe("formatter", function () {
     `);
   });
 
-  it("should print one warning result", function () {
+  it("should print one warning diagnostic", function () {
     const consoleLogMock = new ConsoleLogMock();
 
-    const results: LintResultToReport[] = [
+    const diagnostics: DiagnosticToReport[] = [
       {
         sourceId: "file.sol",
         line: 1,
@@ -85,8 +85,8 @@ describe("formatter", function () {
       "file.sol": "/absolute/path/to/file.sol",
     };
 
-    formatAndPrintResults(
-      results,
+    formatAndPrintDiagnostics(
+      diagnostics,
       sourceIdToAbsolutePath,
       consoleLogMock.log.bind(consoleLogMock),
       tagColorizer,
@@ -101,10 +101,10 @@ describe("formatter", function () {
     `);
   });
 
-  it("should print one error and one warning result", function () {
+  it("should print one error and one warning diagnostic", function () {
     const consoleLogMock = new ConsoleLogMock();
 
-    const results: LintResultToReport[] = [
+    const diagnostics: DiagnosticToReport[] = [
       {
         sourceId: "file.sol",
         line: 1,
@@ -127,8 +127,8 @@ describe("formatter", function () {
       "file.sol": "/absolute/path/to/file.sol",
     };
 
-    formatAndPrintResults(
-      results,
+    formatAndPrintDiagnostics(
+      diagnostics,
       sourceIdToAbsolutePath,
       consoleLogMock.log.bind(consoleLogMock),
       tagColorizer,
@@ -144,10 +144,10 @@ describe("formatter", function () {
     `);
   });
 
-  it("should print results from two files", function () {
+  it("should print diagnostics from two files", function () {
     const consoleLogMock = new ConsoleLogMock();
 
-    const results: LintResultToReport[] = [
+    const diagnostics: DiagnosticToReport[] = [
       {
         sourceId: "file1.sol",
         line: 1,
@@ -171,8 +171,8 @@ describe("formatter", function () {
       "file2.sol": "/absolute/path/to/file2.sol",
     };
 
-    formatAndPrintResults(
-      results,
+    formatAndPrintDiagnostics(
+      diagnostics,
       sourceIdToAbsolutePath,
       consoleLogMock.log.bind(consoleLogMock),
       tagColorizer,

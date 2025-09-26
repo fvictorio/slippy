@@ -1,6 +1,6 @@
 import { StateVariableDefinition } from "@nomicfoundation/slang/ast";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleWithoutConfig,
   RuleDefinitionWithoutConfig,
@@ -26,8 +26,8 @@ export const PrivateVars: RuleDefinitionWithoutConfig = {
 class PrivateVarsRule implements RuleWithoutConfig {
   constructor(public name: string) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -48,7 +48,7 @@ class PrivateVarsRule implements RuleWithoutConfig {
         !isImmutable(stateVariable) &&
         !isPrivate(stateVariable)
       ) {
-        results.push({
+        diagnostics.push({
           rule: this.name,
           sourceId: file.id,
           message: `State variable '${stateVariable.name.unparse()}' should be private`,
@@ -58,6 +58,6 @@ class PrivateVarsRule implements RuleWithoutConfig {
       }
     }
 
-    return results;
+    return diagnostics;
   }
 }

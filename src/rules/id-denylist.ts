@@ -14,7 +14,7 @@ import {
   VariableDeclarationStatement,
 } from "@nomicfoundation/slang/ast";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleDefinition,
   RuleWithConfig,
@@ -48,8 +48,8 @@ class IdDenylistRule implements RuleWithConfig<Config> {
     public config: Config,
   ) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -112,7 +112,7 @@ class IdDenylistRule implements RuleWithConfig<Config> {
       }
 
       if (this.config.includes(contractName)) {
-        results.push({
+        diagnostics.push({
           rule: this.name,
           message: `Identifier '${contractName}' is restricted`,
           sourceId: file.id,
@@ -122,6 +122,6 @@ class IdDenylistRule implements RuleWithConfig<Config> {
       }
     }
 
-    return results;
+    return diagnostics;
   }
 }

@@ -9,7 +9,7 @@
 */
 import { File as SlangFile } from "@nomicfoundation/slang/compilation";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleDefinition,
   RuleWithConfig,
@@ -414,8 +414,8 @@ class NamingConventionRule implements RuleWithConfig<Config> {
     this.normalizedConfig = normalizeConfig(config);
   }
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -465,9 +465,9 @@ class NamingConventionRule implements RuleWithConfig<Config> {
           }
 
           let name: string | null = originalName;
-          let result;
+          let diagnostic;
 
-          result = this.validateUnderscore(
+          diagnostic = this.validateUnderscore(
             "leading",
             config,
             name,
@@ -475,14 +475,14 @@ class NamingConventionRule implements RuleWithConfig<Config> {
             file,
             originalName,
           );
-          if (typeof result === "string") {
-            name = result;
+          if (typeof diagnostic === "string") {
+            name = diagnostic;
           } else {
-            results.push(result);
+            diagnostics.push(diagnostic);
             break;
           }
 
-          result = this.validateUnderscore(
+          diagnostic = this.validateUnderscore(
             "trailing",
             config,
             name,
@@ -490,34 +490,34 @@ class NamingConventionRule implements RuleWithConfig<Config> {
             file,
             originalName,
           );
-          if (typeof result === "string") {
-            name = result;
+          if (typeof diagnostic === "string") {
+            name = diagnostic;
           } else {
-            results.push(result);
+            diagnostics.push(diagnostic);
             break;
           }
 
-          const customLintResult = this.validateCustom(
+          const customDiagnostic = this.validateCustom(
             config,
             name,
             textRange,
             file,
             originalName,
           );
-          if (customLintResult !== undefined) {
-            results.push(customLintResult);
+          if (customDiagnostic !== undefined) {
+            diagnostics.push(customDiagnostic);
             break;
           }
 
-          const predefinedFormatLintResult = this.validatePredefinedFormat(
+          const predefinedFormatDiagnostic = this.validatePredefinedFormat(
             config,
             name,
             textRange,
             file,
             originalName,
           );
-          if (predefinedFormatLintResult !== undefined) {
-            results.push(predefinedFormatLintResult);
+          if (predefinedFormatDiagnostic !== undefined) {
+            diagnostics.push(predefinedFormatDiagnostic);
             break;
           }
 
@@ -527,7 +527,7 @@ class NamingConventionRule implements RuleWithConfig<Config> {
       }
     }
 
-    return results;
+    return diagnostics;
   }
 
   private validateUnderscore(
@@ -537,7 +537,7 @@ class NamingConventionRule implements RuleWithConfig<Config> {
     textRange: TextRange,
     file: SlangFile,
     originalName: string,
-  ): string | LintResult {
+  ): string | Diagnostic {
     const option =
       position === "leading"
         ? config.leadingUnderscore
@@ -646,17 +646,17 @@ class NamingConventionRule implements RuleWithConfig<Config> {
     textRange: TextRange,
     file: SlangFile,
     originalName: string,
-  ): LintResult | undefined {
+  ): Diagnostic | undefined {
     const custom = config.custom;
     if (!custom) {
       return;
     }
 
-    const result = custom.regex.test(name);
-    if (custom.match && result) {
+    const matches = custom.regex.test(name);
+    if (custom.match && matches) {
       return;
     }
-    if (!custom.match && !result) {
+    if (!custom.match && !matches) {
       return;
     }
 
@@ -674,7 +674,7 @@ class NamingConventionRule implements RuleWithConfig<Config> {
     textRange: TextRange,
     file: SlangFile,
     originalName: string,
-  ): LintResult | undefined {
+  ): Diagnostic | undefined {
     const formats = config.format;
     if (formats === null || formats.length === 0) {
       return;

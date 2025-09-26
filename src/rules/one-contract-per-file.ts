@@ -1,7 +1,7 @@
 import * as z from "zod";
 import { ignoreLeadingTrivia } from "../slang/trivia.js";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleDefinitionWithConfig,
   RuleWithConfig,
@@ -42,7 +42,7 @@ class OneContractPerFileRule implements RuleWithConfig<Config> {
     public config: Config,
   ) {}
 
-  public run({ file }: RuleContext): LintResult[] {
+  public run({ file }: RuleContext): Diagnostic[] {
     const cursor = file.createTreeCursor();
 
     let contracts = 0;

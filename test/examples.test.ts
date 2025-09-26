@@ -41,12 +41,15 @@ describe("rules examples", function () {
           ),
         );
 
-        const results = await linter.lintText(example.source, "contract.sol");
+        const diagnostics = await linter.lintText(
+          example.source,
+          "contract.sol",
+        );
 
         if (example.correct) {
-          expect(results).toEqual([]);
+          expect(diagnostics).toEqual([]);
         } else {
-          expect(results).not.toEqual([]);
+          expect(diagnostics).not.toEqual([]);
         }
       });
     }

@@ -1,5 +1,5 @@
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleDefinitionWithConfig,
   RuleWithConfig,
@@ -44,8 +44,8 @@ class NoRestrictedSyntaxRule implements RuleWithConfig<Config> {
     public config: Config,
   ) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -56,7 +56,7 @@ class NoRestrictedSyntaxRule implements RuleWithConfig<Config> {
         ignoreLeadingTrivia(textRangeCursor);
         const textRange = textRangeCursor.textRange;
 
-        results.push({
+        diagnostics.push({
           rule: this.name,
           sourceId: file.id,
           line: textRange.start.line,
@@ -66,6 +66,6 @@ class NoRestrictedSyntaxRule implements RuleWithConfig<Config> {
       }
     }
 
-    return results;
+    return diagnostics;
   }
 }

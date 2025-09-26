@@ -1,6 +1,6 @@
 import { File as SlangFile } from "@nomicfoundation/slang/compilation";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleWithoutConfig,
   RuleDefinitionWithoutConfig,
@@ -49,31 +49,31 @@ export const SortModifiers: RuleDefinitionWithoutConfig = {
 class SortModifiersRule implements RuleWithoutConfig {
   constructor(public name: string) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
-    const functionModifiersResults = this._checkFunctionModifiers(
+    const functionModifiersDiagnostics = this._checkFunctionModifiers(
       file,
       cursor.clone(),
     );
-    results.push(...functionModifiersResults);
+    diagnostics.push(...functionModifiersDiagnostics);
 
-    const stateVarModifiersResults = this._checkStateVarModifiers(
+    const stateVarModifiersDiagnostics = this._checkStateVarModifiers(
       file,
       cursor.clone(),
     );
-    results.push(...stateVarModifiersResults);
+    diagnostics.push(...stateVarModifiersDiagnostics);
 
-    return results;
+    return diagnostics;
   }
 
   private _checkFunctionModifiers(
     file: SlangFile,
     cursor: Cursor,
-  ): LintResult[] {
-    const results: LintResult[] = [];
+  ): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     while (
       cursor.goToNextNonterminalWithKinds([
@@ -178,19 +178,19 @@ class SortModifiersRule implements RuleWithoutConfig {
         },
       ];
 
-      results.push(
+      diagnostics.push(
         ...this._checkModifiersOrder(file, modifiers, modifiersIndices),
       );
     }
 
-    return results;
+    return diagnostics;
   }
 
   private _checkStateVarModifiers(
     file: SlangFile,
     cursor: Cursor,
-  ): LintResult[] {
-    const results: LintResult[] = [];
+  ): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     while (
       cursor.goToNextNonterminalWithKind(
@@ -254,12 +254,12 @@ class SortModifiersRule implements RuleWithoutConfig {
         },
       ];
 
-      results.push(
+      diagnostics.push(
         ...this._checkModifiersOrder(file, modifiers, modifiersIndices),
       );
     }
 
-    return results;
+    return diagnostics;
   }
 
   private _checkModifiersOrder(
@@ -268,8 +268,8 @@ class SortModifiersRule implements RuleWithoutConfig {
       | Array<FunctionModifierPosition>
       | Array<StateVarModifierPosition>,
     modifiersIndices: Array<{ kind: string; index: number }>,
-  ): LintResult[] {
-    const results: LintResult[] = [];
+  ): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     for (let i = 0; i < modifiersIndices.length - 1; i++) {
       for (let k = i + 1; k < modifiersIndices.length; k++) {
@@ -293,7 +293,7 @@ class SortModifiersRule implements RuleWithoutConfig {
       }
     }
 
-    return results;
+    return diagnostics;
   }
 
   private _buildError(
@@ -301,7 +301,7 @@ class SortModifiersRule implements RuleWithoutConfig {
     first: string,
     second: string,
     textRange: TextRange,
-  ): LintResult {
+  ): Diagnostic {
     return {
       rule: this.name,
       sourceId: file.id,

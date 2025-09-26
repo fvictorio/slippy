@@ -1,5 +1,5 @@
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleDefinition,
   RuleWithConfig,
@@ -31,8 +31,8 @@ class MaxStateVarsRule implements RuleWithConfig<Config> {
     public config: Config,
   ) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -58,7 +58,7 @@ class MaxStateVarsRule implements RuleWithConfig<Config> {
       }
 
       if (count > this.config) {
-        results.push({
+        diagnostics.push({
           sourceId: file.id,
           rule: this.name,
           message: `Contract '${contractName}' has more than ${this.config} state variables`,
@@ -68,6 +68,6 @@ class MaxStateVarsRule implements RuleWithConfig<Config> {
       }
     }
 
-    return results;
+    return diagnostics;
   }
 }

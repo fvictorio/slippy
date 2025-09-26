@@ -1,6 +1,6 @@
 import {
-  LintResult,
-  LintResultToReport,
+  Diagnostic,
+  DiagnosticToReport,
   RuleDefinition,
   SourceFile,
 } from "./rules/types.js";
@@ -21,28 +21,28 @@ export class Linter {
     this.registerBuiltInRules();
   }
 
-  public async lintFiles(files: SourceFile[]): Promise<LintResultToReport[]> {
-    const results: LintResultToReport[] = [];
+  public async lintFiles(files: SourceFile[]): Promise<DiagnosticToReport[]> {
+    const diagnostics: DiagnosticToReport[] = [];
     for (const file of files) {
-      results.push(...(await this.lintText(file.content, file.filePath)));
+      diagnostics.push(...(await this.lintText(file.content, file.filePath)));
     }
 
-    return results;
+    return diagnostics;
   }
 
   public async lintText(
     content: string,
     filePath: string,
-  ): Promise<LintResultToReport[]> {
+  ): Promise<DiagnosticToReport[]> {
     const config = this.configLoader.loadConfig(filePath);
 
-    const results: LintResultToReport[] = [];
+    const diagnostics: DiagnosticToReport[] = [];
 
     const unit = await compilationUnitFromContent({ content, filePath });
     const file = unit.file(filePath)!;
 
     if (file.errors().length > 0) {
-      results.push({
+      diagnostics.push({
         sourceId: file.id,
         rule: null,
         line: file.errors()[0].textRange.start.line,
@@ -50,7 +50,7 @@ export class Linter {
         message: "Parsing error",
         severity: "error",
       });
-      return results;
+      return diagnostics;
     }
 
     for (const [ruleName, ruleConfig] of Object.entries(config.rules)) {
@@ -85,32 +85,32 @@ export class Linter {
         }
         rule = Rule.create();
       }
-      const ruleResults: LintResult[] = rule.run({
+      const ruleDiagnostics: Diagnostic[] = rule.run({
         unit,
         file,
         content,
       });
 
-      const ruleResultsToReport: LintResultToReport[] = ruleResults.map(
-        (result) => {
+      const ruleDiagnosticsToReport: DiagnosticToReport[] = ruleDiagnostics.map(
+        (diagnostic) => {
           return {
-            ...result,
+            ...diagnostic,
             severity,
           };
         },
       );
 
-      results.push(...ruleResultsToReport);
+      diagnostics.push(...ruleDiagnosticsToReport);
     }
 
-    const filteredResults = filterByCommentDirectives(
+    const filteredDiagnostics = filterByCommentDirectives(
       content,
-      results,
+      diagnostics,
       file,
       unit.languageVersion,
     );
 
-    return filteredResults;
+    return filteredDiagnostics;
   }
 
   private registerBuiltInRules() {

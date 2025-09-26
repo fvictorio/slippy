@@ -15,11 +15,11 @@ describe("linter", function () {
 
     const linter = new Linter(mockEmptyConfigLoader());
 
-    const results = await linter.lintText(sources, "contract.sol");
+    const diagnostics = await linter.lintText(sources, "contract.sol");
 
-    expect(results).toHaveLength(1);
-    expect(results[0].rule).toBeNull();
-    expect(results[0].message).toBe("Parsing error");
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].rule).toBeNull();
+    expect(diagnostics[0].message).toBe("Parsing error");
   });
 
   describe("comment directives", function () {
@@ -33,9 +33,9 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(0);
+      expect(diagnostics).toHaveLength(0);
     });
 
     it("should respect disable-line directives", async function () {
@@ -47,9 +47,9 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(0);
+      expect(diagnostics).toHaveLength(0);
     });
 
     it("should respect disable-previous-line directives", async function () {
@@ -62,9 +62,9 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(0);
+      expect(diagnostics).toHaveLength(0);
     });
 
     it("should warn about unused disable-next-line directive", async function () {
@@ -77,12 +77,12 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].line).toBe(2);
-      expect(results[0].column).toBe(12);
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].line).toBe(2);
+      expect(diagnostics[0].column).toBe(12);
     });
 
     it("should warn about unused disable-line directive", async function () {
@@ -94,12 +94,12 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].line).toBe(2);
-      expect(results[0].column).toBe(30);
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].line).toBe(2);
+      expect(diagnostics[0].column).toBe(30);
     });
 
     it("should warn about unused disable-previous-line directive", async function () {
@@ -112,12 +112,12 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].line).toBe(3);
-      expect(results[0].column).toBe(12);
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].line).toBe(3);
+      expect(diagnostics[0].column).toBe(12);
     });
 
     it("should warn about unused disable--line directives rules", async function () {
@@ -133,11 +133,11 @@ describe("linter", function () {
         mockConfigLoaderWithRules(["explicit-types", "no-unused-vars"]),
       );
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].message).toMatchInlineSnapshot(
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].message).toMatchInlineSnapshot(
         `"Unused slippy-disable-line directive (no problems were reported from 'explicit-types')"`,
       );
     });
@@ -153,13 +153,13 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(2);
-      expect(results[0].rule).toBe("explicit-types");
-      expect(results[0].line).toBe(3);
-      expect(results[1].rule).toBe("explicit-types");
-      expect(results[1].line).toBe(4);
+      expect(diagnostics).toHaveLength(2);
+      expect(diagnostics[0].rule).toBe("explicit-types");
+      expect(diagnostics[0].line).toBe(3);
+      expect(diagnostics[1].rule).toBe("explicit-types");
+      expect(diagnostics[1].line).toBe(4);
     });
 
     it("should handle disable directive without rules", async function () {
@@ -174,13 +174,13 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(2);
-      expect(results[0].rule).toBe("explicit-types");
-      expect(results[0].line).toBe(2);
-      expect(results[1].rule).toBe("explicit-types");
-      expect(results[1].line).toBe(3);
+      expect(diagnostics).toHaveLength(2);
+      expect(diagnostics[0].rule).toBe("explicit-types");
+      expect(diagnostics[0].line).toBe(2);
+      expect(diagnostics[1].rule).toBe("explicit-types");
+      expect(diagnostics[1].line).toBe(3);
     });
 
     it("should handle disable directive with rules", async function () {
@@ -197,11 +197,11 @@ describe("linter", function () {
         mockConfigLoaderWithRules(["explicit-types", "no-unused-vars"]),
       );
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].rule).toBe("no-unused-vars");
-      expect(results[0].line).toBe(4);
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].rule).toBe("no-unused-vars");
+      expect(diagnostics[0].line).toBe(4);
     });
 
     it("should handle enable directive without rules", async function () {
@@ -220,10 +220,10 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].line).toBe(6);
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].line).toBe(6);
     });
 
     it("should handle enable directive with rules", async function () {
@@ -244,13 +244,13 @@ describe("linter", function () {
         mockConfigLoaderWithRules(["explicit-types", "no-unused-vars"]),
       );
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(3);
-      expect(results[0].rule).toBe("explicit-types");
-      expect(results[0].line).toBe(6);
-      expect(results[1].line).toBe(8);
-      expect(results[2].line).toBe(8);
+      expect(diagnostics).toHaveLength(3);
+      expect(diagnostics[0].rule).toBe("explicit-types");
+      expect(diagnostics[0].line).toBe(6);
+      expect(diagnostics[1].line).toBe(8);
+      expect(diagnostics[2].line).toBe(8);
     });
 
     it("should report unused disable directives without rules", async function () {
@@ -264,11 +264,11 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].line).toBe(1);
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].line).toBe(1);
     });
     it("should report unused disable directives with rules (one unused)", async function () {
       const sources = `
@@ -283,12 +283,12 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].line).toBe(1);
-      expect(results[0].message).toMatchInlineSnapshot(
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].line).toBe(1);
+      expect(diagnostics[0].message).toMatchInlineSnapshot(
         `"Unused slippy-disable directive (no problems were reported from 'no-unused-vars')"`,
       );
     });
@@ -306,11 +306,11 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].line).toBe(1);
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].line).toBe(1);
     });
 
     it("should report unused disable directive without rules followed by another disable directive without rules", async function () {
@@ -324,12 +324,12 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].line).toBe(1);
-      expect(results[0].message).toMatchInlineSnapshot(
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].line).toBe(1);
+      expect(diagnostics[0].message).toMatchInlineSnapshot(
         `"Unused slippy-disable directive (no problems were reported)"`,
       );
     });
@@ -345,12 +345,12 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].line).toBe(1);
-      expect(results[0].message).toMatchInlineSnapshot(
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].line).toBe(1);
+      expect(diagnostics[0].message).toMatchInlineSnapshot(
         `"Unused slippy-disable directive (no problems were reported from 'explicit-types')"`,
       );
     });
@@ -366,12 +366,12 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].line).toBe(1);
-      expect(results[0].message).toMatchInlineSnapshot(
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].line).toBe(1);
+      expect(diagnostics[0].message).toMatchInlineSnapshot(
         `"Unused slippy-disable directive (no problems were reported)"`,
       );
     });
@@ -387,12 +387,12 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].line).toBe(1);
-      expect(results[0].message).toMatchInlineSnapshot(
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].line).toBe(1);
+      expect(diagnostics[0].message).toMatchInlineSnapshot(
         `"Unused slippy-disable directive (no problems were reported from 'explicit-types')"`,
       );
     });
@@ -408,18 +408,18 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(2);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].line).toBe(1);
-      expect(results[0].message).toMatchInlineSnapshot(
+      expect(diagnostics).toHaveLength(2);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].line).toBe(1);
+      expect(diagnostics[0].message).toMatchInlineSnapshot(
         `"Unused slippy-disable directive (no problems were reported)"`,
       );
 
-      expect(results[1].rule).toBeNull();
-      expect(results[1].line).toBe(2);
-      expect(results[1].message).toMatchInlineSnapshot(
+      expect(diagnostics[1].rule).toBeNull();
+      expect(diagnostics[1].line).toBe(2);
+      expect(diagnostics[1].message).toMatchInlineSnapshot(
         `"Unused slippy-disable directive (no problems were reported)"`,
       );
     });
@@ -435,18 +435,18 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(2);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].line).toBe(1);
-      expect(results[0].message).toMatchInlineSnapshot(
+      expect(diagnostics).toHaveLength(2);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].line).toBe(1);
+      expect(diagnostics[0].message).toMatchInlineSnapshot(
         `"Unused slippy-disable directive (no problems were reported from 'explicit-types')"`,
       );
 
-      expect(results[1].rule).toBeNull();
-      expect(results[1].line).toBe(2);
-      expect(results[1].message).toMatchInlineSnapshot(
+      expect(diagnostics[1].rule).toBeNull();
+      expect(diagnostics[1].line).toBe(2);
+      expect(diagnostics[1].message).toMatchInlineSnapshot(
         `"Unused slippy-disable directive (no problems were reported from 'explicit-types')"`,
       );
     });
@@ -461,12 +461,12 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].line).toBe(1);
-      expect(results[0].message).toMatchInlineSnapshot(
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].line).toBe(1);
+      expect(diagnostics[0].message).toMatchInlineSnapshot(
         `"Unused slippy-enable directive (no matching slippy-disable directives were found)"`,
       );
     });
@@ -481,12 +481,12 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].line).toBe(1);
-      expect(results[0].message).toMatchInlineSnapshot(
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].line).toBe(1);
+      expect(diagnostics[0].message).toMatchInlineSnapshot(
         `"Unused slippy-enable directive (no matching slippy-disable directives were found for 'explicit-types')"`,
       );
     });
@@ -501,12 +501,12 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].line).toBe(1);
-      expect(results[0].message).toMatchInlineSnapshot(
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].line).toBe(1);
+      expect(diagnostics[0].message).toMatchInlineSnapshot(
         `"Unused slippy-enable directive (no matching slippy-disable directives were found for 'explicit-types' or 'no-unused-vars')"`,
       );
     });
@@ -522,17 +522,17 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(2);
-      expect(results[0].rule).toBeNull();
-      expect(results[0].line).toBe(1);
-      expect(results[0].message).toMatchInlineSnapshot(
+      expect(diagnostics).toHaveLength(2);
+      expect(diagnostics[0].rule).toBeNull();
+      expect(diagnostics[0].line).toBe(1);
+      expect(diagnostics[0].message).toMatchInlineSnapshot(
         `"Unused slippy-enable directive (no matching slippy-disable directives were found for 'explicit-types')"`,
       );
-      expect(results[1].rule).toBeNull();
-      expect(results[1].line).toBe(2);
-      expect(results[1].message).toMatchInlineSnapshot(
+      expect(diagnostics[1].rule).toBeNull();
+      expect(diagnostics[1].line).toBe(2);
+      expect(diagnostics[1].message).toMatchInlineSnapshot(
         `"Unused slippy-enable directive (no matching slippy-disable directives were found for 'no-unused-vars')"`,
       );
     });
@@ -546,9 +546,9 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(0);
+      expect(diagnostics).toHaveLength(0);
     });
 
     it("should not disable problem when directive is on the same line, after the node", async function () {
@@ -561,11 +561,11 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
-      expect(results[0].rule).toBe("explicit-types");
-      expect(results[0].line).toBe(2);
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].rule).toBe("explicit-types");
+      expect(diagnostics[0].line).toBe(2);
     });
   });
 
@@ -585,9 +585,9 @@ describe("linter", function () {
       });
       const linter = new Linter(configLoader);
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(0);
+      expect(diagnostics).toHaveLength(0);
     });
 
     it("should not ignore files that aren't in the ignore list", async function () {
@@ -605,9 +605,9 @@ describe("linter", function () {
       });
       const linter = new Linter(configLoader);
 
-      const results = await linter.lintText(sources, "contract.sol");
+      const diagnostics = await linter.lintText(sources, "contract.sol");
 
-      expect(results).toHaveLength(1);
+      expect(diagnostics).toHaveLength(1);
     });
 
     it("should accept globs", async function () {
@@ -625,9 +625,9 @@ describe("linter", function () {
       });
       const linter = new Linter(configLoader);
 
-      const results = await linter.lintText(sources, "MockFoo.sol");
+      const diagnostics = await linter.lintText(sources, "MockFoo.sol");
 
-      expect(results).toHaveLength(0);
+      expect(diagnostics).toHaveLength(0);
     });
 
     it("should ignore if one of the globs matches", async function () {
@@ -645,9 +645,9 @@ describe("linter", function () {
       });
       const linter = new Linter(configLoader);
 
-      const results = await linter.lintText(sources, "Asdf.sol");
+      const diagnostics = await linter.lintText(sources, "Asdf.sol");
 
-      expect(results).toHaveLength(0);
+      expect(diagnostics).toHaveLength(0);
     });
 
     it("should allow negations", async function () {
@@ -665,12 +665,12 @@ describe("linter", function () {
       });
       const linter = new Linter(configLoader);
 
-      const results = await linter.lintText(
+      const diagnostics = await linter.lintText(
         sources,
         "contracts/mocks/MockFoo.sol",
       );
 
-      expect(results).toHaveLength(1);
+      expect(diagnostics).toHaveLength(1);
     });
   });
 });

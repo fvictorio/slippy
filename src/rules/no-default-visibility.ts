@@ -1,7 +1,7 @@
 import { StateVariableDefinition } from "@nomicfoundation/slang/ast";
 import { hasDefaultVisibility } from "../slang/state-variables.js";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleWithoutConfig,
   RuleDefinitionWithoutConfig,
@@ -23,8 +23,8 @@ export const NoDefaultVisibility: RuleDefinitionWithoutConfig = {
 class NoDefaultVisibilityRule implements RuleWithoutConfig {
   public constructor(public name: string) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -48,7 +48,7 @@ class NoDefaultVisibilityRule implements RuleWithoutConfig {
         ) {
           // ignore trivia
         }
-        results.push({
+        diagnostics.push({
           rule: this.name,
           sourceId: file.id,
           line: firstTerminalCursor.textRange.start.line,
@@ -58,6 +58,6 @@ class NoDefaultVisibilityRule implements RuleWithoutConfig {
       }
     }
 
-    return results;
+    return diagnostics;
   }
 }

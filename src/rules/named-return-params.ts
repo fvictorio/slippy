@@ -1,6 +1,6 @@
 import { Parameters } from "@nomicfoundation/slang/ast";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleDefinitionWithConfig,
   RuleWithConfig,
@@ -44,8 +44,8 @@ class NamedReturnParamsRule implements RuleWithConfig<Config> {
     public config: Config,
   ) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -71,7 +71,7 @@ class NamedReturnParamsRule implements RuleWithConfig<Config> {
         ignoreLeadingTrivia(textRangeCursor);
 
         if (param.name === undefined) {
-          results.push({
+          diagnostics.push({
             rule: this.name,
             sourceId: file.id,
             line: textRangeCursor.textRange.start.line,
@@ -82,6 +82,6 @@ class NamedReturnParamsRule implements RuleWithConfig<Config> {
       }
     }
 
-    return results;
+    return diagnostics;
   }
 }

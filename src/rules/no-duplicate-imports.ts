@@ -1,5 +1,5 @@
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleWithoutConfig,
   RuleDefinitionWithoutConfig,
@@ -17,8 +17,8 @@ export const NoDuplicateImports: RuleDefinitionWithoutConfig = {
 class NoDuplicateImportsRule implements RuleWithoutConfig {
   public constructor(public name: string) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -49,7 +49,7 @@ class NoDuplicateImportsRule implements RuleWithoutConfig {
       }
 
       if (importPaths.has(importPath)) {
-        results.push({
+        diagnostics.push({
           sourceId: file.id,
           rule: this.name,
           message: `Duplicate import of '${importPath}'`,
@@ -61,6 +61,6 @@ class NoDuplicateImportsRule implements RuleWithoutConfig {
       }
     }
 
-    return results;
+    return diagnostics;
   }
 }

@@ -8,7 +8,7 @@ import {
   YulStatements,
 } from "@nomicfoundation/slang/ast";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleWithoutConfig,
   RuleDefinitionWithoutConfig,
@@ -27,7 +27,7 @@ const name = "no-empty-blocks";
 
 interface QueryHandler {
   query: string;
-  handler: (file: SlangFile, match: QueryMatch) => LintResult[];
+  handler: (file: SlangFile, match: QueryMatch) => Diagnostic[];
 }
 
 function checkEmptyBlock(
@@ -36,7 +36,7 @@ function checkEmptyBlock(
   isEmpty: boolean,
   openBrace: Cursor,
   closeBrace: Cursor,
-): LintResult[] {
+): Diagnostic[] {
   if (isEmpty) {
     // check if it has comments
     const commentCursor = root.spawn();
@@ -78,7 +78,7 @@ const handlers: QueryHandler[] = [
   @closeBrace close_brace: [CloseBrace]
 ]
 `,
-    handler: (file: SlangFile, match: QueryMatch): LintResult[] => {
+    handler: (file: SlangFile, match: QueryMatch): Diagnostic[] => {
       const hasInheritanceSpecifiers = checkHasInheritanceSpecifier(
         match.root.clone(),
       );
@@ -106,7 +106,7 @@ const handlers: QueryHandler[] = [
   @closeBrace close_brace: [CloseBrace]
 ]
 `,
-    handler: (file: SlangFile, match: QueryMatch): LintResult[] => {
+    handler: (file: SlangFile, match: QueryMatch): Diagnostic[] => {
       const hasInheritanceSpecifiers = checkHasInheritanceSpecifier(
         match.root.clone(),
       );
@@ -134,7 +134,7 @@ const handlers: QueryHandler[] = [
   @closeBrace close_brace: [CloseBrace]
 ]
 `,
-    handler: (file: SlangFile, match: QueryMatch): LintResult[] => {
+    handler: (file: SlangFile, match: QueryMatch): Diagnostic[] => {
       const openBrace = match.captures.openBrace[0];
       const members = match.captures.members[0];
       const closeBrace = match.captures.closeBrace[0];
@@ -154,7 +154,7 @@ const handlers: QueryHandler[] = [
   @closeBrace close_brace: [CloseBrace]
 ]
 `,
-    handler: (file: SlangFile, match: QueryMatch): LintResult[] => {
+    handler: (file: SlangFile, match: QueryMatch): Diagnostic[] => {
       const isVirtual = checkIsVirtual(match.root.clone());
       const isConstructorWithBase = checkIsValidConstructor(match.root.clone());
       const isFallbackOrReceive = checkIsFallbackOrReceive(match.root.clone());
@@ -182,7 +182,7 @@ const handlers: QueryHandler[] = [
   @closeBrace close_brace: [CloseBrace]
 ]
 `,
-    handler: (file: SlangFile, match: QueryMatch): LintResult[] => {
+    handler: (file: SlangFile, match: QueryMatch): Diagnostic[] => {
       const openBrace = match.captures.openBrace[0];
       const statements = match.captures.statements[0];
       const closeBrace = match.captures.closeBrace[0];
@@ -207,8 +207,8 @@ export const NoEmptyBlocks: RuleDefinitionWithoutConfig = {
 class NoEmptyBlocksRule implements RuleWithoutConfig {
   public constructor(public name: string) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -218,10 +218,10 @@ class NoEmptyBlocksRule implements RuleWithoutConfig {
 
     for (const match of matches) {
       const handler = handlers[match.queryIndex];
-      results.push(...handler.handler(file, match));
+      diagnostics.push(...handler.handler(file, match));
     }
 
-    return results;
+    return diagnostics;
   }
 }
 

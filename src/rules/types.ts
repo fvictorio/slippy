@@ -9,18 +9,18 @@ interface FixChange {
   replacement: string;
 }
 
-type Fix = Array<FixChange>
+type Fix = Array<FixChange>;
 
-export interface LintResult {
+export interface Diagnostic {
   sourceId: string;
   line: number;
   column: number;
   rule: string | null;
   message: string;
-  fix?: Fix
+  fix?: Fix;
 }
 
-export interface LintResultToReport extends LintResult {
+export interface DiagnosticToReport extends Diagnostic {
   severity: "error" | "warn";
 }
 
@@ -49,7 +49,7 @@ export interface RuleDefinitionWithoutConfig {
 
 export interface RuleWithoutConfig {
   name: string;
-  run: (context: RuleContext) => LintResult[];
+  run: (context: RuleContext) => Diagnostic[];
 }
 
 export interface RuleWithConfig<Config> extends RuleWithoutConfig {

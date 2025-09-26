@@ -1,6 +1,6 @@
 import { VersionPragma } from "@nomicfoundation/slang/ast";
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleWithoutConfig,
   RuleDefinitionWithoutConfig,
@@ -26,7 +26,7 @@ export const CompatiblePragma: RuleDefinitionWithoutConfig = {
 class CompatiblePragmaRule implements RuleWithoutConfig {
   public constructor(public name: string) {}
 
-  public run({ content, file }: RuleContext): LintResult[] {
+  public run({ content, file }: RuleContext): Diagnostic[] {
     const versionPragmas: string[] = [];
 
     const cursor = file.createTreeCursor();

@@ -54,7 +54,7 @@ describe(ruleName, () => {
   it("should show the correct position of the import", async () => {
     const linter = new Linter(mockSingleRuleConfigLoader(ruleName));
 
-    const results = await linter.lintText(
+    const diagnostics = await linter.lintText(
       `
 import "D";
 import "A";
@@ -64,8 +64,8 @@ import "C";
       "contract.sol",
     );
 
-    expect(results).toHaveLength(1);
-    expect(results[0].message).toBe(
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].message).toBe(
       `Import of "D" should come after import of "C"`,
     );
   });

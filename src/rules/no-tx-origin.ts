@@ -1,5 +1,5 @@
 import {
-  LintResult,
+  Diagnostic,
   RuleContext,
   RuleWithoutConfig,
   RuleDefinitionWithoutConfig,
@@ -17,8 +17,8 @@ export const NoTxOrigin: RuleDefinitionWithoutConfig = {
 class NoTxOriginRule implements RuleWithoutConfig {
   public constructor(public name: string) {}
 
-  public run({ file }: RuleContext): LintResult[] {
-    const results: LintResult[] = [];
+  public run({ file }: RuleContext): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
 
@@ -41,7 +41,7 @@ class NoTxOriginRule implements RuleWithoutConfig {
         if (memberAccess.node.unparse() !== "origin") continue;
       }
 
-      results.push({
+      diagnostics.push({
         sourceId: file.id,
         rule: this.name,
         message: "Avoid using tx.origin",
@@ -50,6 +50,6 @@ class NoTxOriginRule implements RuleWithoutConfig {
       });
     }
 
-    return results;
+    return diagnostics;
   }
 }
