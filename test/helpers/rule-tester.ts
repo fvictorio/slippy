@@ -50,7 +50,7 @@ export class RuleTester {
       expectedDiagnostics: expectedDiagnostics,
     } = this.parseFixture(fixture.content);
 
-    const diagnostics = await linter.lintText(
+    const { diagnostics } = await linter.lintText(
       contentWithoutMarkers,
       "contract.sol",
     );

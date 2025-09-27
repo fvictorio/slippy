@@ -7,6 +7,7 @@ import fg from "fast-glob";
 import minimist from "minimist";
 import { formatAndPrintDiagnostics } from "../formatter.js";
 import chalk from "chalk";
+import setupDebug from "debug";
 import {
   SlippyDirectoriesNotSupportedError,
   SlippyError,
@@ -18,6 +19,8 @@ import { RunLinterSuccess, RunLinterWorker } from "./worker.js";
 import { initConfig } from "./init.js";
 import workerpool from "workerpool";
 import { existsSync } from "node:fs";
+
+const debug = setupDebug("slippy:cli");
 
 async function main() {
   try {
@@ -53,7 +56,7 @@ interface Argv {
 async function runCli(): Promise<number> {
   const unknownArgs: string[] = [];
   const argv = minimist<Argv>(process.argv.slice(2), {
-    boolean: ["help", "init", "version"],
+    boolean: ["help", "init", "version", "fix"],
     alias: { h: "help" },
     string: ["config"],
     unknown: (arg) => {
@@ -106,6 +109,7 @@ async function runCli(): Promise<number> {
   }
 
   if (argv.init) {
+    debug("initializing config");
     await initConfig();
     return 0;
   }
@@ -127,6 +131,7 @@ async function runCli(): Promise<number> {
     sourceIds.map(async (sourceId) => {
       const result = await pool.exec<RunLinterWorker>("runLinter", [
         sourceId,
+        argv.fix,
         configPath,
       ]);
       if ("diagnostics" in result) {

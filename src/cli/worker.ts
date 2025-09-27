@@ -25,6 +25,7 @@ export type RunLinterResult = RunLinterSuccess | RunLinterError;
 
 export default async function runLinter(
   sourceId: string,
+  fix: boolean,
   customConfigPath?: string,
 ): Promise<RunLinterResult> {
   try {
@@ -32,7 +33,7 @@ export default async function runLinter(
     if (configPath === undefined) {
       configPath = await findSlippyConfigPath(process.cwd());
     }
-    return await internalRunLinter(sourceId, configPath);
+    return await internalRunLinter(sourceId, configPath, fix);
   } catch (error) {
     if (SlippyError.isSlippyError(error)) {
       return {
@@ -48,6 +49,7 @@ export default async function runLinter(
 async function internalRunLinter(
   sourceId: string,
   configPath: string,
+  fix: boolean,
 ): Promise<RunLinterSuccess> {
   const configLoader = await createConfigLoader(configPath);
 
@@ -60,10 +62,14 @@ async function internalRunLinter(
       filePath: sourceId,
       content: await fs.readFile(absolutePath, "utf8"),
     };
-    const diagnostics = await runner.lintFiles([file]);
+    const [lintResult] = await runner.lintFiles([file], { fix });
+
+    if (fix && lintResult.fixedContent !== undefined) {
+      await fs.writeFile(absolutePath, lintResult.fixedContent);
+    }
 
     return {
-      diagnostics,
+      diagnostics: lintResult.diagnostics,
       sourceIdToAbsolutePath,
     };
   } catch (error) {

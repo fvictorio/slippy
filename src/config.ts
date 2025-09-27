@@ -10,7 +10,7 @@ import {
 } from "./errors.js";
 import { conditionalUnionType } from "./zod.js";
 
-type EffectiveConfig = Pick<ResolvedConfigObject, "rules">;
+export type EffectiveConfig = Pick<ResolvedConfigObject, "rules">;
 
 export interface ConfigLoader {
   loadConfig(filePath: string): EffectiveConfig;
@@ -184,8 +184,14 @@ export function validateUserConfig(
   );
 }
 
+export async function tryFindSlippyConfigPath(
+  cwd: string,
+): Promise<string | undefined> {
+  return findUp("slippy.config.js", cwd);
+}
+
 export async function findSlippyConfigPath(cwd: string): Promise<string> {
-  const configPath = await findUp("slippy.config.js", cwd);
+  const configPath = await tryFindSlippyConfigPath(cwd);
   if (configPath === undefined) {
     throw new SlippyConfigNotFoundError();
   }

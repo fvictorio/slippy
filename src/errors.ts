@@ -17,6 +17,8 @@ export enum SlippyErrorCode {
   SlippyInvalidConfig = "SLIPPY_INVALID_CONFIG",
   SlippyRuleConfigError = "SLIPPY_RULE_CONFIG_ERROR",
   SlippyNonexistentConfigPath = "SLIPPY_NONEXISTENT_CONFIG_PATH",
+  SlippyTooManyFixes = "SLIPPY_TOO_MANY_FIXES",
+  SlippyParsingErrorAfterFix = "SLIPPY_PARSING_ERROR_AFTER_FIX",
 }
 
 export class SlippyError extends Error {
@@ -118,5 +120,19 @@ export class SlippyNonexistentConfigPathError extends SlippyError {
   constructor(configPath: string) {
     super(`The specified config path does not exist: '${configPath}'`);
     this.code = SlippyErrorCode.SlippyNonexistentConfigPath;
+  }
+}
+
+export class SlippyTooManyFixesError extends SlippyError {
+  constructor(fileId: string) {
+    super(`The file '${fileId}' produced too many fixes.`);
+    this.code = SlippyErrorCode.SlippyTooManyFixes;
+  }
+}
+
+export class SlippyParsingErrorAfterFixError extends SlippyError {
+  constructor(fileId: string) {
+    super(`Parsing error after autofix in file '${fileId}'.`);
+    this.code = SlippyErrorCode.SlippyParsingErrorAfterFix;
   }
 }

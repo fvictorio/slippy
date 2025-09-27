@@ -79,7 +79,7 @@ describe(ruleName, () => {
   it("should print the right error message (1C, 1I, 1L)", async () => {
     const linter = new Linter(mockSingleRuleConfigLoader(ruleName));
 
-    const diagnostics = await linter.lintText(
+    const { diagnostics } = await linter.lintText(
       `
       contract C {}
       interface I {}
@@ -97,7 +97,7 @@ describe(ruleName, () => {
   it("should print the right error message (2I)", async () => {
     const linter = new Linter(mockSingleRuleConfigLoader(ruleName));
 
-    const diagnostics = await linter.lintText(
+    const { diagnostics } = await linter.lintText(
       `
       interface I1 {}
       interface I2 {}
@@ -114,7 +114,7 @@ describe(ruleName, () => {
   it("should print the right error message (3C)", async () => {
     const linter = new Linter(mockSingleRuleConfigLoader(ruleName));
 
-    const diagnostics = await linter.lintText(
+    const { diagnostics } = await linter.lintText(
       `
       contract C1 {}
       contract C2 {}

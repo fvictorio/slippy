@@ -2,13 +2,13 @@ import chalk from "chalk";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { findSlippyConfigPath } from "../config.js";
+import { tryFindSlippyConfigPath } from "../config.js";
 import { SlippyConfigAlreadyExistsError } from "../errors.js";
 import { findUp } from "../helpers/fs.js";
 import { getAllRules } from "../rules/get-all-rules.js";
 
 export async function initConfig() {
-  const existingSlippyConfigPath = await findSlippyConfigPath(process.cwd());
+  const existingSlippyConfigPath = await tryFindSlippyConfigPath(process.cwd());
   if (existingSlippyConfigPath !== undefined) {
     throw new SlippyConfigAlreadyExistsError(existingSlippyConfigPath);
   }
