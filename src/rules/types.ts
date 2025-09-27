@@ -4,12 +4,24 @@ import {
 } from "@nomicfoundation/slang/compilation";
 import * as z from "zod";
 
+export interface LintResult {
+  diagnostics: DiagnosticToReport[];
+  /** Contains the new text if fixes were applied */
+  fixedContent?: string;
+}
+
+export type Range = [number, number];
+
 interface FixChange {
-  range: [number, number];
+  range: Range;
   replacement: string;
 }
 
-type Fix = Array<FixChange>;
+/**
+ * A fix is a list of changes. These changes are assuming to be non-overlapping.
+ * They don't need to be sorted.
+ */
+export type Fix = Array<FixChange>;
 
 export interface Diagnostic {
   sourceId: string;

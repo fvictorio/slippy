@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { Linter } from "../src/linter.js";
+import { Linter } from "../../src/linter.js";
 import {
   mockConfigLoaderWithRules,
   mockEmptyConfigLoader,
   mockSingleRuleConfigLoader,
-} from "./helpers/config.js";
-import { BasicConfigLoader } from "../src/config.js";
+} from "../helpers/config.js";
+import { BasicConfigLoader } from "../../src/config.js";
 
 describe("linter", function () {
   it("should show parsing errors", async function () {
@@ -15,7 +15,7 @@ describe("linter", function () {
 
     const linter = new Linter(mockEmptyConfigLoader());
 
-    const diagnostics = await linter.lintText(sources, "contract.sol");
+    const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0].rule).toBeNull();
@@ -33,7 +33,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(0);
     });
@@ -47,7 +47,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(0);
     });
@@ -62,7 +62,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(0);
     });
@@ -77,7 +77,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].rule).toBeNull();
@@ -94,7 +94,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].rule).toBeNull();
@@ -112,7 +112,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].rule).toBeNull();
@@ -130,10 +130,13 @@ describe("linter", function () {
       `;
 
       const linter = new Linter(
-        mockConfigLoaderWithRules(["explicit-types", "no-unused-vars"]),
+        mockConfigLoaderWithRules({
+          "explicit-types": ["error"],
+          "no-unused-vars": ["error"],
+        }),
       );
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].rule).toBeNull();
@@ -153,7 +156,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(2);
       expect(diagnostics[0].rule).toBe("explicit-types");
@@ -174,7 +177,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(2);
       expect(diagnostics[0].rule).toBe("explicit-types");
@@ -194,10 +197,13 @@ describe("linter", function () {
       `;
 
       const linter = new Linter(
-        mockConfigLoaderWithRules(["explicit-types", "no-unused-vars"]),
+        mockConfigLoaderWithRules({
+          "explicit-types": ["error"],
+          "no-unused-vars": ["error"],
+        }),
       );
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].rule).toBe("no-unused-vars");
@@ -220,7 +226,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].line).toBe(6);
@@ -241,10 +247,13 @@ describe("linter", function () {
       `;
 
       const linter = new Linter(
-        mockConfigLoaderWithRules(["explicit-types", "no-unused-vars"]),
+        mockConfigLoaderWithRules({
+          "explicit-types": ["error"],
+          "no-unused-vars": ["error"],
+        }),
       );
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(3);
       expect(diagnostics[0].rule).toBe("explicit-types");
@@ -264,7 +273,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].rule).toBeNull();
@@ -283,7 +292,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].rule).toBeNull();
@@ -306,7 +315,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].rule).toBeNull();
@@ -324,7 +333,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].rule).toBeNull();
@@ -345,7 +354,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].rule).toBeNull();
@@ -366,7 +375,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].rule).toBeNull();
@@ -387,7 +396,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].rule).toBeNull();
@@ -408,7 +417,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(2);
       expect(diagnostics[0].rule).toBeNull();
@@ -435,7 +444,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(2);
       expect(diagnostics[0].rule).toBeNull();
@@ -461,7 +470,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].rule).toBeNull();
@@ -481,7 +490,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].rule).toBeNull();
@@ -501,7 +510,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].rule).toBeNull();
@@ -522,7 +531,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(2);
       expect(diagnostics[0].rule).toBeNull();
@@ -546,7 +555,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(0);
     });
@@ -561,7 +570,7 @@ describe("linter", function () {
 
       const linter = new Linter(mockSingleRuleConfigLoader("explicit-types"));
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].rule).toBe("explicit-types");
@@ -585,7 +594,7 @@ describe("linter", function () {
       });
       const linter = new Linter(configLoader);
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(0);
     });
@@ -605,7 +614,7 @@ describe("linter", function () {
       });
       const linter = new Linter(configLoader);
 
-      const diagnostics = await linter.lintText(sources, "contract.sol");
+      const { diagnostics } = await linter.lintText(sources, "contract.sol");
 
       expect(diagnostics).toHaveLength(1);
     });
@@ -625,7 +634,7 @@ describe("linter", function () {
       });
       const linter = new Linter(configLoader);
 
-      const diagnostics = await linter.lintText(sources, "MockFoo.sol");
+      const { diagnostics } = await linter.lintText(sources, "MockFoo.sol");
 
       expect(diagnostics).toHaveLength(0);
     });
@@ -645,7 +654,7 @@ describe("linter", function () {
       });
       const linter = new Linter(configLoader);
 
-      const diagnostics = await linter.lintText(sources, "Asdf.sol");
+      const { diagnostics } = await linter.lintText(sources, "Asdf.sol");
 
       expect(diagnostics).toHaveLength(0);
     });
@@ -665,7 +674,7 @@ describe("linter", function () {
       });
       const linter = new Linter(configLoader);
 
-      const diagnostics = await linter.lintText(
+      const { diagnostics } = await linter.lintText(
         sources,
         "contracts/mocks/MockFoo.sol",
       );

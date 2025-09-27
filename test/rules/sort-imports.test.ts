@@ -54,7 +54,7 @@ describe(ruleName, () => {
   it("should show the correct position of the import", async () => {
     const linter = new Linter(mockSingleRuleConfigLoader(ruleName));
 
-    const diagnostics = await linter.lintText(
+    const { diagnostics } = await linter.lintText(
       `
 import "D";
 import "A";

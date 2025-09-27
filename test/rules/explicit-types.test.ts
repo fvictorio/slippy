@@ -30,7 +30,7 @@ const fixtures: RuleTestFixture[] = [
       ^^^^^^^
       int256 public b;
       ^^^^^^
-      ufixed256x18 public c;
+      ufixed128x18 public c;
       ^^^^^^^^^^^^
       fixed128x18 public d;
       ^^^^^^^^^^^

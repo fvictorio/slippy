@@ -41,7 +41,7 @@ describe("rules examples", function () {
           ),
         );
 
-        const diagnostics = await linter.lintText(
+        const { diagnostics } = await linter.lintText(
           example.source,
           "contract.sol",
         );

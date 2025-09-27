@@ -19,11 +19,11 @@ export function mockSingleRuleConfigLoader(
   };
 }
 
-export function mockConfigLoaderWithRules(ruleNames: string[]): ConfigLoader {
+export function mockConfigLoaderWithRules(
+  rules: Record<string, ResolvedRuleConfig>,
+): ConfigLoader {
   return {
     loadConfig: () => {
-      const ruleEntries = ruleNames.map((name) => [name, ["error"]]);
-      const rules = Object.fromEntries(ruleEntries);
       return {
         files: [],
         ignores: [],
