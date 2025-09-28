@@ -8,7 +8,9 @@ import {
 } from "./types.js";
 import {
   assertNonterminalNode,
+  Cursor,
   NonterminalKind,
+  TerminalKind,
   TerminalKindExtensions,
 } from "@nomicfoundation/slang/cst";
 
@@ -23,7 +25,7 @@ export const NoDefaultVisibility: RuleDefinitionWithoutConfig = {
 class NoDefaultVisibilityRule implements RuleWithoutConfig {
   public constructor(public name: string) {}
 
-  public run({ file }: RuleContext): Diagnostic[] {
+  public run({ content, file }: RuleContext): Diagnostic[] {
     const diagnostics: Diagnostic[] = [];
 
     const cursor = file.createTreeCursor();
@@ -37,9 +39,13 @@ class NoDefaultVisibilityRule implements RuleWithoutConfig {
       const stateVariableDefinition = new StateVariableDefinition(cursor.node);
       const defaultVisibility = hasDefaultVisibility(stateVariableDefinition);
 
-      const name = stateVariableDefinition.name.unparse();
-
       if (defaultVisibility) {
+        const nameCursor = getNameCursor(
+          cursor.spawn(),
+          stateVariableDefinition,
+        );
+        const name = nameCursor.node.unparse();
+
         const firstTerminalCursor = cursor.spawn();
         while (
           firstTerminalCursor.goToNextTerminal() &&
@@ -48,16 +54,43 @@ class NoDefaultVisibilityRule implements RuleWithoutConfig {
         ) {
           // ignore trivia
         }
+
+        const insertionPoint = nameCursor.textRange.start.utf16;
+        const hasNonWhitespaceBefore =
+          content[insertionPoint - 1]?.match(/\S/) !== null;
+
         diagnostics.push({
           rule: this.name,
           sourceId: file.id,
           line: firstTerminalCursor.textRange.start.line,
           column: firstTerminalCursor.textRange.start.column,
           message: `State variable '${name}' has default visibility`,
+          fix: [
+            {
+              range: [insertionPoint, insertionPoint],
+              replacement: hasNonWhitespaceBefore ? " public " : "public ",
+            },
+          ],
         });
       }
     }
 
     return diagnostics;
   }
+}
+
+function getNameCursor(
+  cursor: Cursor,
+  stateVariableDefinition: StateVariableDefinition,
+): Cursor {
+  const nameId = stateVariableDefinition.name.id;
+
+  while (
+    cursor.node.id !== nameId &&
+    cursor.goToNextTerminalWithKind(TerminalKind.Identifier)
+  ) {
+    // iterate to the name
+  }
+
+  return cursor;
 }
