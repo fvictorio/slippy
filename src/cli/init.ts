@@ -6,6 +6,7 @@ import { tryFindSlippyConfigPath } from "../config.js";
 import { SlippyConfigAlreadyExistsError } from "../errors.js";
 import { findUp } from "../helpers/fs.js";
 import { getAllRules } from "../rules/get-all-rules.js";
+import { Logger } from "../internal/logger.js";
 
 export async function initConfig() {
   const existingSlippyConfigPath = await tryFindSlippyConfigPath(process.cwd());
@@ -42,7 +43,7 @@ export async function initConfig() {
 
   await fs.writeFile(slippyConfigPath, lines.join("\n"));
 
-  console.log(
+  Logger.log(
     `${chalk.green("[slippy]")} Configuration file created at ${slippyConfigPath}`,
   );
 }

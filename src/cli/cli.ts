@@ -19,6 +19,7 @@ import { RunLinterSuccess, RunLinterWorker } from "./worker.js";
 import { initConfig } from "./init.js";
 import workerpool from "workerpool";
 import { existsSync } from "node:fs";
+import { Logger } from "../internal/logger.js";
 
 const debug = setupDebug("slippy:cli");
 
@@ -28,20 +29,20 @@ async function main() {
     process.exit(exitCode);
   } catch (error) {
     if (SlippyError.isSlippyError(error)) {
-      console.error(chalk.red("[slippy]"), error.message);
+      Logger.error(chalk.red("[slippy]"), error.message);
       if (error.hint !== undefined) {
-        console.error();
-        console.error(`${chalk.bold("Hint")}: ${error.hint}`);
+        Logger.error();
+        Logger.error(`${chalk.bold("Hint")}: ${error.hint}`);
       }
       process.exit(1);
     }
 
     const slippyVersion = await getSlippyVersion();
-    console.error(
+    Logger.error(
       chalk.red("[slippy]"),
       `Unexpected error, please report this issue: https://github.com/fvictorio/slippy/issues/new?body=${encodeURIComponent(`Slippy: ${slippyVersion}\nNode: ${process.version}`)}`,
     );
-    console.error();
+    Logger.error();
     throw error;
   }
 }
@@ -92,8 +93,8 @@ async function runCli(): Promise<number> {
   const sourceIds = [...new Set(rawSourceIds)];
 
   if (unknownArgs.length > 0) {
-    console.error(`Unexpected argument ${unknownArgs[0]}`);
-    console.error();
+    Logger.error(`Unexpected argument ${unknownArgs[0]}`);
+    Logger.error();
     printShortHelp({ error: true });
     return 1;
   }
@@ -201,14 +202,14 @@ async function getSlippyVersion(): Promise<string> {
 }
 
 function printShortHelp({ error }: { error: boolean }) {
-  console[error ? "error" : "log"](
+  Logger[error ? "error" : "log"](
     `${chalk.bold("Usage")}: slippy [OPTIONS] <file>...`,
   );
 }
 
 function printHelp({ error }: { error: boolean }) {
   printShortHelp({ error });
-  console[error ? "error" : "log"](
+  Logger[error ? "error" : "log"](
     `
 ${chalk.bold("Options")}:
   --config <path>   Use the specified config file
@@ -221,7 +222,7 @@ ${chalk.bold("Options")}:
 
 async function printVersion() {
   const version = await getSlippyVersion();
-  console.log(`slippy ${version}`);
+  Logger.log(`slippy ${version}`);
 }
 
 function resolveConfigPath(configPath: string): string {

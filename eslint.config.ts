@@ -23,6 +23,7 @@ const config: ConfigArray = tseslint.config(
   {
     rules: {
       "@typescript-eslint/strict-boolean-expressions": "error",
+      "no-console": "error",
       "no-undef": "off",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unsafe-return": "off",
