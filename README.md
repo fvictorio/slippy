@@ -61,7 +61,7 @@ _Rules that have a 🔧 next to them can be automatically fixed by running Slipp
 - [`named-return-params`](/docs/rules/named-return-params.md): enforces that functions with multiple return parameters use named return parameters.
 - [`naming-convention`](/docs/rules/naming-convention.md): enforces a naming convention across the codebase.
 - [`no-console`](/docs/rules/no-console.md): forbids the use of `console.log` and the import of `console.sol`.
-- [`no-default-visibility`](/docs/rules/no-default-visibility.md): forbids the use of default visibility for state variables.
+- [`no-default-visibility`](/docs/rules/no-default-visibility.md): forbids the use of default visibility for state variables. 🔧
 - [`no-duplicate-imports`](/docs/rules/no-duplicate-imports.md): forbids importing the same file multiple times.
 - [`no-empty-blocks`](/docs/rules/no-empty-blocks.md): forbids blocks without statements.
 - [`no-global-imports`](/docs/rules/no-global-imports.md): forbids global imports like `import "./foo.sol"`.
