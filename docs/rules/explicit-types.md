@@ -1,5 +1,7 @@
 # explicit-types
 
+> 🔧 Problems reported by this rule can be automatically fixed by using the `--fix` flag
+
 Enforces or forbids the use of aliases like `uint` instead of `uint256`.
 
 ## Rule details
