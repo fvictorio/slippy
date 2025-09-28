@@ -8,6 +8,7 @@ export interface RuleTestFixture {
   description: string;
   content: string;
   config?: any[];
+  fixed?: string;
 }
 
 type MinimalDiagnostic = {
@@ -55,6 +56,19 @@ export class RuleTester {
       "contract.sol",
     );
     this.compareDiagnostics(diagnostics, expectedDiagnostics);
+
+    if (fixture.fixed !== undefined) {
+      const { fixedContent } = await linter.lintText(
+        contentWithoutMarkers,
+        "contract.sol",
+        { fix: true },
+      );
+
+      expect(
+        fixedContent,
+        "Fixed content doesn't match the expected value",
+      ).toBe(fixture.fixed);
+    }
   }
 
   private parseFixture(fixtureContent: string): {

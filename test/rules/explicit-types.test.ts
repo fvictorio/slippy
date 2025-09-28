@@ -19,6 +19,14 @@ const fixtures: RuleTestFixture[] = [
       ^^^^^
     }
     `,
+    fixed: `
+    contract A {
+      uint256 public a;
+      int256 public b;
+      ufixed128x18 public c;
+      fixed128x18 public d;
+    }
+    `,
     config: ["always"],
   },
   {
@@ -34,6 +42,14 @@ const fixtures: RuleTestFixture[] = [
       ^^^^^^^^^^^^
       fixed128x18 public d;
       ^^^^^^^^^^^
+    }
+    `,
+    fixed: `
+    contract A {
+      uint public a;
+      int public b;
+      ufixed public c;
+      fixed public d;
     }
     `,
     config: ["never"],
