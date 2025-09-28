@@ -50,9 +50,11 @@ For more details on configuring Slippy, including advanced features like cascadi
 
 # Rules
 
+_Rules that have a 🔧 next to them can be automatically fixed by running Slippy with the `--fix` flag._
+
 - [`compatible-pragma`](/docs/rules/compatible-pragma.md): checks that the minimum supported pragma version is compatible with the features used in the file.
 - [`curly`](/docs/rules/curly.md): enforces the use of curly braces for all control structures.
-- [`explicit-types`](/docs/rules/explicit-types.md): enforces or forbids the use of aliases like `uint` instead of `uint256`.
+- [`explicit-types`](/docs/rules/explicit-types.md): enforces or forbids the use of aliases like `uint` instead of `uint256`. 🔧
 - [`id-denylist`](/docs/rules/id-denylist.md): allows you to specify a list of forbidden identifiers.
 - [`imports-on-top`](/docs/rules/imports-on-top.md): enforces that all import statements are at the top of the file.
 - [`max-state-vars`](/docs/rules/max-state-vars.md): limits the number of state variables in a contract.
@@ -82,7 +84,6 @@ Don't see a rule you need? [Open an issue](https://github.com/fvictorio/slippy/i
 
 What’s next for Slippy:
 
-- Autofix
 - IDE support
 - Browser build
 - Support for plugins
