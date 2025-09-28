@@ -1,3 +1,4 @@
+import { Logger } from "./internal/logger.js";
 import { DiagnosticToReport } from "./rules/types.js";
 import chalk from "chalk";
 
@@ -12,7 +13,7 @@ export interface Colorizer {
 export function formatAndPrintDiagnostics(
   diagnostics: DiagnosticToReport[],
   sourceIdToAbsolutePath: Record<string, string>,
-  consoleLog: (...args: string[]) => void = console.log,
+  consoleLog: (...args: string[]) => void = Logger.log,
   colorizer: Colorizer = chalk,
 ): void {
   if (diagnostics.length === 0) {
