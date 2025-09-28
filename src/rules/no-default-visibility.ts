@@ -56,8 +56,10 @@ class NoDefaultVisibilityRule implements RuleWithoutConfig {
         }
 
         const insertionPoint = nameCursor.textRange.start.utf16;
+        const charBeforeInsertionPoint = content[insertionPoint - 1];
         const hasNonWhitespaceBefore =
-          content[insertionPoint - 1]?.match(/\S/) !== null;
+          charBeforeInsertionPoint !== undefined &&
+          charBeforeInsertionPoint.match(/\S/) !== null;
 
         diagnostics.push({
           rule: this.name,
