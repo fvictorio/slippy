@@ -1,44 +1,121 @@
-name: Publish
+# taken from https://github.com/alcuadrado/trusted-publishing-example/
+
+name: Publish Package
 
 on:
-  workflow_dispatch:
-  release:
-    types: [published]
+  push:
+    tags:
+      - "v*"
+
+permissions: {}
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NPM_TAG: latest
 
 jobs:
-  publish:
+  prepare:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      id-token: write
-
+      contents: read # To clone the repository
+      actions: write # To upload the package tarball to the artifacts
+    outputs:
+      packageName: ${{ steps.packageName.outputs.packageName }}
+      filename: ${{ steps.pack.outputs.filename }}
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20
-          registry-url: "https://registry.npmjs.org"
+          node-version: "22"
           cache: "pnpm"
-
-      - run: pnpm install --frozen-lockfile
-
-      - run: pnpm lint
-
-      - run: pnpm test
-
-      - name: Publish to npm
+      - name: Store package name
+        id: packageName
         run: |
-          VERSION=$(node -p "require('./package.json').version")
-          case $VERSION in
-            *-alpha.*) TAG="alpha" ;;
-            *-beta.*)  TAG="beta" ;;
-            *-rc.*)    TAG="next" ;;
-            *)         TAG="latest" ;;
-          esac
-          pnpm publish --access public --no-git-checks --tag $TAG
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
+          PACKAGE_NAME=$(cat package.json | jq -r .name)
+          echo "PACKAGE_NAME=$PACKAGE_NAME"
+          echo "packageName=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+      - name: Install dependencies
+        # No `--prefer-offline` flag here to allow pnpm to validate its cache
+        # integrity.
+        run: pnpm install --frozen-lockfile
+      - name: List all dependencies for future reference
+        run: pnpm list --depth=10000
+      - name: Build the project
+        run: echo "This project doesn't have a build step"
+      - name: Publish dry run for a light check of the package contents
+        # Using --no-git-checks because we are releasing from a tag,
+        # not a branch. Highly recommended to use the git-checks though.
+        run: pnpm publish --dry-run --no-git-checks --tag ${{ env.NPM_TAG }}
+      - name: Pack
+        id: pack
+        run: |
+          FILENAME=$(pnpm pack --json | jq -r .filename)
+          echo "FILENAME=$FILENAME"
+          echo "filename=$FILENAME" >> $GITHUB_OUTPUT
+      - name: Upload packed tarball
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.pack.outputs.filename }}
+          path: ${{ steps.pack.outputs.filename }}
+          retention-days: 2
+          overwrite: true
+          if-no-files-found: error
+
+  review:
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read # To download the tarball to review
+    steps:
+      - name: Download packed tarball
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.prepare.outputs.filename }}
+          path: .
+      - name: Download previous "@${{ env.NPM_TAG }}" version tarball
+        run: |
+          TARBALL_URL=$(npm view "${{ needs.prepare.outputs.packageName }}@${{ env.NPM_TAG }}" dist.tarball)
+          curl -L "$TARBALL_URL" -o ${{ env.NPM_TAG }}.tgz
+          TARBALL_NAME=$(basename "$TARBALL_URL")
+          echo "Downloaded $TARBALL_NAME as ${{ env.NPM_TAG }}.tgz"
+      - name: Prepare tarballs for comparisons
+        run: |
+          mkdir ${{ env.NPM_TAG }}
+          tar -xzf ${{ env.NPM_TAG }}.tgz -C ${{ env.NPM_TAG }}
+          mkdir proposed-version
+          tar -xzf ${{ needs.prepare.outputs.filename }} -C proposed-version
+      - name: List new, changed and deleted files
+        run: |
+          git diff --color=always --no-index --name-status ${{ env.NPM_TAG }} proposed-version || true
+      - name: Compare package.json files
+        run: |
+          git diff --color=always --no-index ${{ env.NPM_TAG }}/package/package.json proposed-version/package/package.json  || true
+
+  publish:
+    needs: [prepare, review]
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    permissions:
+      actions: read # To download the tarball to publish
+      id-token: write ## Needed for npm Trusted Publishing (OIDC)
+    steps:
+      - name: Download packed tarball
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.prepare.outputs.filename }}
+          path: .
+      - name: Setup node to be able to update npm
+        uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+      - name: Update npm to make sure it supports Trusted Publishing
+        run: npm install -g npm@latest
+      - name: Publish
+        run: |
+          echo "Publishing ${{ needs.prepare.outputs.filename }}"
+          npm publish "${{ needs.prepare.outputs.filename }}" --tag ${{ env.NPM_TAG }}
