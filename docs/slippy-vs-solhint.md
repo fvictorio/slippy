@@ -16,7 +16,6 @@ While Slippy is not feature-complete compared to Solhint yet, it has several adv
 ## Slippy limitations
 
 - **Fewer built-in rules**. Not every Solhint rule has a direct equivalent in Slippy. Some of them are easy to add if there's demand. Others will never be added, for various reasons. On the other hand, Slippy already has some rules that are not supported by Solhint, like [`no-uninitialized-immutable-references`](/docs/rules/no-uninitialized-immutable-references.md) or [`curly`](/docs/rules/curly.md). See the [rules comparison](#rules-comparison) below for more details.
-- **No autofix**. Slippy doesn't currently support automatic fixing of linting errors, although this is on the roadmap.
 - **No plugins**. Adding new functionality through plugins is not supported in Slippy yet.
 - **No browser support**. Slippy doesn't have a browser build, but it's designed so that this is easy to add.
 
