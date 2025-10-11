@@ -46,7 +46,7 @@ jobs:
       - name: List all dependencies for future reference
         run: pnpm list --depth=10000
       - name: Build the project
-        run: echo "This project doesn't have a build step"
+        run: pnpm run build
       - name: Publish dry run for a light check of the package contents
         # Using --no-git-checks because we are releasing from a tag,
         # not a branch. Highly recommended to use the git-checks though.
