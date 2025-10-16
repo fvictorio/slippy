@@ -19,11 +19,15 @@ const fixtures: RuleTestFixture[] = [
     content: `
     import { console } from "hardhat/console.sol";
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    import { console2 } from "forge-std/console2.sol";
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     contract A {
       function f() public {
         console.log("hi");
-        ^^^^^^^^^^^^^^^^^
+        ^^^^^^^^^^^^^^^^^^
+        console2.log("hi");
+        ^^^^^^^^^^^^^^^^^^^
         console.logUint(42);
         ^^^^^^^^^^^^^^^^^^^^
       }
