@@ -47,7 +47,7 @@ class NoConsoleRule implements RuleWithoutConfig {
       ...cursor.query([
         Query.create(`
 [MemberAccessExpression
-  operand: [Expression @operand ["console"]]
+  operand: [Expression @operand (["console"] | ["console2"])]
   @member member: [Identifier]
 ]
 `),
