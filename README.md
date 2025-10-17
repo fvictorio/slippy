@@ -80,11 +80,3 @@ _Rules that have a 🔧 next to them can be automatically fixed by running Slipp
 - [`yul-prefer-iszero`](/docs/rules/yul-prefer-iszero.md): recommends using `iszero` instead of `eq` when comparing to the `0` literal in Yul code.
 
 Don't see a rule you need? [Open an issue](https://github.com/fvictorio/slippy/issues/new).
-
-# Roadmap
-
-What’s next for Slippy:
-
-- IDE support
-- Browser build
-- Support for plugins
