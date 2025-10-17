@@ -2,6 +2,8 @@
 
 Recommends using `iszero` instead of `eq` when comparing to the `0` literal in Yul code.
 
+`iszero` is more readable, uses less gas, and results in smaller bytecode.
+
 ## Rule details
 
 Examples of **incorrect** code for this rule:
