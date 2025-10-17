@@ -77,6 +77,7 @@ _Rules that have a 🔧 next to them can be automatically fixed by running Slipp
 - [`sort-imports`](/docs/rules/sort-imports.md): enforces a specific order for import statements.
 - [`sort-members`](/docs/rules/sort-members.md): enforces a specific order for top-level elements and contract/interface/library members.
 - [`sort-modifiers`](/docs/rules/sort-modifiers.md): enforces a specific order for modifiers.
+- [`yul-prefer-iszero`](/docs/rules/yul-prefer-iszero.md): recommends using `iszero` instead of `eq` when comparing to the `0` literal in Yul code.
 
 Don't see a rule you need? [Open an issue](https://github.com/fvictorio/slippy/issues/new).
 
