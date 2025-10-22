@@ -211,6 +211,20 @@ describe("config", function () {
       });
     });
 
+    it("should work with a local object with matching files", function () {
+      const userConfig: UserConfig = {
+        files: ["./path/**/*.js"],
+        rules: { "some-rule": "off" },
+      };
+      const configLoader = BasicConfigLoader.create(userConfig);
+
+      const config = configLoader.loadConfig("./path/to/file.js");
+
+      expect(config).toEqual({
+        rules: { "some-rule": ["off"] },
+      });
+    });
+
     it("should work with an object with no matching files", function () {
       const userConfig: UserConfig = {
         files: ["/path/**/*.js"],
@@ -233,6 +247,20 @@ describe("config", function () {
       const configLoader = BasicConfigLoader.create(userConfig);
 
       const config = configLoader.loadConfig("/path/to/file.js");
+
+      expect(config).toEqual({
+        rules: {},
+      });
+    });
+
+    it("should work with a local object with matching ignores", function () {
+      const userConfig: UserConfig = {
+        ignores: ["./path/**/*.js"],
+        rules: { "some-rule": "off" },
+      };
+      const configLoader = BasicConfigLoader.create(userConfig);
+
+      const config = configLoader.loadConfig("./path/to/file.js");
 
       expect(config).toEqual({
         rules: {},

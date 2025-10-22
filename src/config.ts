@@ -138,15 +138,19 @@ export class BasicConfigLoader implements ConfigLoader {
     };
 
     for (const configObject of this.config) {
+      const slicedFilePath = filePath.startsWith("./")
+        ? filePath.slice(2)
+        : filePath;
+
       if (
         configObject.ignores.length > 0 &&
-        micromatch([filePath], configObject.ignores).length > 0
+        micromatch([slicedFilePath], configObject.ignores).length > 0
       ) {
         continue;
       }
 
       if (configObject.files.length > 0) {
-        if (micromatch([filePath], configObject.files).length === 0) {
+        if (micromatch([slicedFilePath], configObject.files).length === 0) {
           continue;
         }
       }
