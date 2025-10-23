@@ -7,12 +7,21 @@ Forbids unnecessary comparisons to boolean literals.
 Examples of **incorrect** code for this rule:
 
 ```solidity
-import "hardhat/console.sol";
-
 contract Example {
-  function f(bool b) public {
-    require(b == true);
-    require(b != false);
+  function f(bool b1, bool b2) public {
+    require(b1 == true);
+    require(b2 == false);
+  }
+}
+```
+
+Examples of **correct** code for this rule:
+
+```solidity
+contract Example {
+  function f(bool b1, bool b2) public {
+    require(b1);
+    require(!b2);
   }
 }
 ```
