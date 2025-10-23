@@ -70,6 +70,7 @@ _Rules that have a 🔧 next to them can be automatically fixed by running Slipp
 - [`no-tx-origin`](/docs/rules/no-tx-origin.md): forbids the use of `tx.origin`.
 - [`no-unchecked-calls`](/docs/rules/no-unchecked-calls.md): disallows low-level calls like `call`, `staticcall`, and `delegatecall` that don't use their return values.
 - [`no-uninitialized-immutable-references`](/docs/rules/no-uninitialized-immutable-references.md): forbids using immutable references before they are initialized.
+- [`no-unnecessary-boolean-compare`](/docs/rules/no-unnecessary-boolean-compare.md): forbids unnecessary comparisons to boolean literals.
 - [`no-unused-vars`](/docs/rules/no-unused-vars.md): detects unused variables, imports and functions.
 - [`one-contract-per-file`](/docs/rules/one-contract-per-file.md): enforces that a file contains at most one contract/interface/library definition.
 - [`private-vars`](/docs/rules/private-vars.md): enforces that all state variables are private.

@@ -25,6 +25,7 @@ import { SortMembers } from "./sort-members.js";
 import { OneContractPerFile } from "./one-contract-per-file.js";
 import { CompatiblePragma } from "./compatible-pragma.js";
 import { YulPreferIszero } from "./yul-prefer-iszero.js";
+import { NoUnnecessaryBooleanCompare } from "./no-unnecessary-boolean-compare.js";
 
 export function getAllRules(): Array<RuleDefinition<any>> {
   return [
@@ -46,6 +47,7 @@ export function getAllRules(): Array<RuleDefinition<any>> {
     NoTxOrigin,
     NoUncheckedCalls,
     NoUninitializedImmutableReference,
+    NoUnnecessaryBooleanCompare,
     NoUnusedVars,
     OneContractPerFile,
     PrivateVars,
