@@ -26,6 +26,7 @@ import { OneContractPerFile } from "./one-contract-per-file.js";
 import { CompatiblePragma } from "./compatible-pragma.js";
 import { YulPreferIszero } from "./yul-prefer-iszero.js";
 import { NoUnnecessaryBooleanCompare } from "./no-unnecessary-boolean-compare.js";
+import { NoUnnecessaryElse } from "./no-unnecessary-else.js";
 
 export function getAllRules(): Array<RuleDefinition<any>> {
   return [
@@ -48,6 +49,7 @@ export function getAllRules(): Array<RuleDefinition<any>> {
     NoUncheckedCalls,
     NoUninitializedImmutableReference,
     NoUnnecessaryBooleanCompare,
+    NoUnnecessaryElse,
     NoUnusedVars,
     OneContractPerFile,
     PrivateVars,
