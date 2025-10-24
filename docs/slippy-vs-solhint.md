@@ -72,7 +72,7 @@ To the best of my knowledge, the following Slippy rules are not supported by Sol
 | [`no-uninitialized-immutable-references`](/docs/rules/no-uninitialized-immutable-references.md) |
 | [`no-unnecessary-boolean-compare`](/docs/rules/no-unnecessary-boolean-compare.md)               |
 | [`no-unnecessary-else`](/docs/rules/no-unnecessary-else.md)                                     |
-| [`private-vars``](/docs/rules/private-vars.md)                                                  |
+| [`private-vars`](/docs/rules/private-vars.md)                                                   |
 | [`yul-prefer-iszero`](/docs/rules/yul-prefer-iszero.md)                                         |
 
 ### Solhint rules that could be added to Slippy
