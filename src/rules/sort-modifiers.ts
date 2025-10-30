@@ -29,14 +29,14 @@ type FunctionModifierKind =
 
 interface FunctionModifierPosition {
   kind: FunctionModifierKind;
-  textRange: TextRange;
+  cursor: Cursor;
 }
 
 type StateVarModifierKind = "visibility" | "mutability";
 
 interface StateVarModifierPosition {
   kind: StateVarModifierKind;
-  textRange: TextRange;
+  cursor: Cursor;
 }
 
 export const SortModifiers: RuleDefinitionWithoutConfig = {
@@ -111,47 +111,41 @@ class SortModifiersRule implements RuleWithoutConfig {
             case TerminalKind.InternalKeyword:
             case TerminalKind.PublicKeyword:
             case TerminalKind.PrivateKeyword:
-              ignoreLeadingTrivia(functionCursor);
               modifiers.push({
                 kind: "visibility",
-                textRange: functionCursor.textRange,
+                cursor: functionCursor.spawn(),
               });
               break;
             case TerminalKind.ViewKeyword:
             case TerminalKind.PureKeyword:
             case TerminalKind.PayableKeyword:
-              ignoreLeadingTrivia(functionCursor);
               modifiers.push({
                 kind: "mutability",
-                textRange: functionCursor.textRange,
+                cursor: functionCursor.spawn(),
               });
               break;
             case TerminalKind.VirtualKeyword:
-              ignoreLeadingTrivia(functionCursor);
               modifiers.push({
                 kind: "virtual",
-                textRange: functionCursor.textRange,
+                cursor: functionCursor.spawn(),
               });
               break;
             case TerminalKind.OverrideKeyword:
-              ignoreLeadingTrivia(functionCursor);
               modifiers.push({
                 kind: "override",
-                textRange: functionCursor.textRange,
+                cursor: functionCursor.spawn(),
               });
               break;
           }
         } else if ("overrideKeyword" in variant) {
-          ignoreLeadingTrivia(functionCursor);
           modifiers.push({
             kind: "override",
-            textRange: functionCursor.textRange,
+            cursor: functionCursor.spawn(),
           });
         } else {
-          ignoreLeadingTrivia(functionCursor);
           modifiers.push({
             kind: "custom",
-            textRange: functionCursor.textRange,
+            cursor: functionCursor.spawn(),
           });
         }
       }
@@ -217,19 +211,17 @@ class SortModifiersRule implements RuleWithoutConfig {
             case TerminalKind.InternalKeyword:
             case TerminalKind.PublicKeyword:
             case TerminalKind.PrivateKeyword:
-              ignoreLeadingTrivia(stateVarCursor);
               modifiers.push({
                 kind: "visibility",
-                textRange: stateVarCursor.textRange,
+                cursor: stateVarCursor.spawn(),
               });
               break;
             case TerminalKind.ConstantKeyword:
             case TerminalKind.ImmutableKeyword:
             case TerminalKind.TransientKeyword:
-              ignoreLeadingTrivia(stateVarCursor);
               modifiers.push({
                 kind: "mutability",
-                textRange: stateVarCursor.textRange,
+                cursor: stateVarCursor.spawn(),
               });
               break;
           }
@@ -279,7 +271,7 @@ class SortModifiersRule implements RuleWithoutConfig {
               file,
               first.kind,
               second.kind,
-              modifiers[second.index].textRange,
+              modifiers[second.index].cursor,
             ),
           ];
         }
@@ -293,8 +285,12 @@ class SortModifiersRule implements RuleWithoutConfig {
     file: SlangFile,
     first: string,
     second: string,
-    textRange: TextRange,
+    cursor: Cursor,
   ): Diagnostic {
+    const textRangeCursor = cursor.spawn();
+    ignoreLeadingTrivia(textRangeCursor);
+    const textRange = textRangeCursor.textRange;
+
     return {
       rule: this.name,
       sourceId: file.id,
