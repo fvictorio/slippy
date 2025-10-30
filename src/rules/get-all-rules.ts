@@ -27,6 +27,7 @@ import { CompatiblePragma } from "./compatible-pragma.js";
 import { YulPreferIszero } from "./yul-prefer-iszero.js";
 import { NoUnnecessaryBooleanCompare } from "./no-unnecessary-boolean-compare.js";
 import { NoUnnecessaryElse } from "./no-unnecessary-else.js";
+import { NoHardcodedGas } from "./no-hardcoded-gas.js";
 
 export function getAllRules(): Array<RuleDefinition<any>> {
   return [
@@ -43,6 +44,7 @@ export function getAllRules(): Array<RuleDefinition<any>> {
     NoDuplicateImports,
     NoEmptyBlocks,
     NoGlobalImports,
+    NoHardcodedGas,
     NoRestrictedSyntax,
     NoSend,
     NoTxOrigin,
