@@ -19,30 +19,37 @@ type MinimalDiagnostic = {
   message?: string;
 };
 
-interface RuleTesterOptions {
+interface RuleTesterDebuggingOptions {
   includeMessage?: boolean;
+  ignoreFixed?: boolean;
 }
 
 export class RuleTester {
-  private includeMessage = false;
+  constructor(private ruleName: string) {}
 
-  constructor(
-    private ruleName: string,
-    options: RuleTesterOptions = {},
+  public runFixtures(
+    fixtures: RuleTestFixture[],
+    debuggingOptions?: RuleTesterDebuggingOptions,
   ) {
-    this.includeMessage = options.includeMessage ?? false;
-  }
+    // throw if options are passed in the CI environment
+    if (process.env.CI !== undefined && debuggingOptions !== undefined) {
+      throw new Error(
+        "Passing debugging options to runFixtures is only allowed for local testing.",
+      );
+    }
 
-  public runFixtures(fixtures: RuleTestFixture[]) {
     for (const fixture of fixtures) {
       const itFunction = fixture.only === true ? it.only : it;
       itFunction(fixture.description, async () => {
-        await this.testFixture(fixture);
+        await this.testFixture(fixture, debuggingOptions);
       });
     }
   }
 
-  private async testFixture(fixture: RuleTestFixture) {
+  private async testFixture(
+    fixture: RuleTestFixture,
+    debuggingOptions?: RuleTesterDebuggingOptions,
+  ) {
     const linter = new Linter(
       mockSingleRuleConfigLoader(this.ruleName, fixture.config),
     );
@@ -55,9 +62,13 @@ export class RuleTester {
       contentWithoutMarkers,
       "contract.sol",
     );
-    this.compareDiagnostics(diagnostics, expectedDiagnostics);
+    this.compareDiagnostics(
+      diagnostics,
+      expectedDiagnostics,
+      debuggingOptions?.includeMessage ?? false,
+    );
 
-    if (fixture.fixed !== undefined) {
+    if (fixture.fixed !== undefined && debuggingOptions?.ignoreFixed !== true) {
       const { fixedContent } = await linter.lintText(
         contentWithoutMarkers,
         "contract.sol",
@@ -102,6 +113,7 @@ export class RuleTester {
   private compareDiagnostics(
     actual: Diagnostic[],
     expected: MinimalDiagnostic[],
+    includeMessage: boolean,
   ) {
     expect(
       actual.map((diagnostic) => {
@@ -112,7 +124,7 @@ export class RuleTester {
           rule: diagnostic.rule,
         };
 
-        if (this.includeMessage) {
+        if (includeMessage) {
           diagnosticToCompare.message = diagnostic.message;
         }
 
