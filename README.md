@@ -65,6 +65,7 @@ _Rules that have a 🔧 next to them can be automatically fixed by running Slipp
 - [`no-duplicate-imports`](/docs/rules/no-duplicate-imports.md): forbids importing the same file multiple times.
 - [`no-empty-blocks`](/docs/rules/no-empty-blocks.md): forbids blocks without statements.
 - [`no-global-imports`](/docs/rules/no-global-imports.md): forbids global imports like `import "./foo.sol"`.
+- [`no-hardcoded-gas`](/docs/rules/no-hardcoded-gas.md): disallows hardcoded gas values in call options.
 - [`no-restricted-syntax`](/docs/rules/no-restricted-syntax.md): disallows syntax patterns specified with [Slang queries](https://nomicfoundation.github.io/slang/latest/user-guide/06-query-language/01-query-syntax/).
 - [`no-send`](/docs/rules/no-send.md): forbids the use of `send` and `transfer` for sending value, in favor of using `call` with value.
 - [`no-tx-origin`](/docs/rules/no-tx-origin.md): forbids the use of `tx.origin`.
