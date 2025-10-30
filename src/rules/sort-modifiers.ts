@@ -4,6 +4,7 @@ import {
   RuleContext,
   RuleWithoutConfig,
   RuleDefinitionWithoutConfig,
+  Fix,
 } from "./types.js";
 import {
   assertNonterminalNode,
@@ -12,7 +13,6 @@ import {
   NonterminalKind,
   TerminalKind,
   TerminalKindExtensions,
-  TextRange,
 } from "@nomicfoundation/slang/cst";
 import {
   FunctionAttribute,
@@ -20,22 +20,15 @@ import {
 } from "@nomicfoundation/slang/ast";
 import { ignoreLeadingTrivia } from "../slang/trivia.js";
 
-type FunctionModifierKind =
+type ModifierKind =
   | "visibility"
   | "mutability"
   | "virtual"
   | "override"
   | "custom";
 
-interface FunctionModifierPosition {
-  kind: FunctionModifierKind;
-  cursor: Cursor;
-}
-
-type StateVarModifierKind = "visibility" | "mutability";
-
-interface StateVarModifierPosition {
-  kind: StateVarModifierKind;
+interface ModifierPosition {
+  kind: ModifierKind;
   cursor: Cursor;
 }
 
@@ -93,7 +86,7 @@ class SortModifiersRule implements RuleWithoutConfig {
       }
       const functionCursor = cursor.spawn();
 
-      const modifiers: FunctionModifierPosition[] = [];
+      const modifiers: ModifierPosition[] = [];
 
       while (
         functionCursor.goToNextNonterminalWithKind(
@@ -150,31 +143,16 @@ class SortModifiersRule implements RuleWithoutConfig {
         }
       }
 
-      const modifiersIndices = [
-        {
-          kind: "visibility",
-          index: modifiers.findIndex((m) => m.kind === "visibility"),
-        },
-        {
-          kind: "mutability",
-          index: modifiers.findIndex((m) => m.kind === "mutability"),
-        },
-        {
-          kind: "virtual",
-          index: modifiers.findIndex((m) => m.kind === "virtual"),
-        },
-        {
-          kind: "override",
-          index: modifiers.findIndex((m) => m.kind === "override"),
-        },
-        {
-          kind: "custom",
-          index: modifiers.findIndex((m) => m.kind === "custom"),
-        },
-      ];
+      const expectedOrder = {
+        visibility: 0,
+        mutability: 1,
+        virtual: 2,
+        override: 3,
+        custom: 4,
+      };
 
       diagnostics.push(
-        ...this._checkModifiersOrder(file, modifiers, modifiersIndices),
+        ...this._checkModifiersOrder(file, modifiers, expectedOrder),
       );
     }
 
@@ -194,7 +172,7 @@ class SortModifiersRule implements RuleWithoutConfig {
     ) {
       const stateVarCursor = cursor.spawn();
 
-      const modifiers: StateVarModifierPosition[] = [];
+      const modifiers: ModifierPosition[] = [];
 
       while (
         stateVarCursor.goToNextNonterminalWithKind(
@@ -228,19 +206,13 @@ class SortModifiersRule implements RuleWithoutConfig {
         }
       }
 
-      const modifiersIndices = [
-        {
-          kind: "visibility",
-          index: modifiers.findIndex((m) => m.kind === "visibility"),
-        },
-        {
-          kind: "mutability",
-          index: modifiers.findIndex((m) => m.kind === "mutability"),
-        },
-      ];
+      const expectedOrder = {
+        visibility: 0,
+        mutability: 1,
+      };
 
       diagnostics.push(
-        ...this._checkModifiersOrder(file, modifiers, modifiersIndices),
+        ...this._checkModifiersOrder(file, modifiers, expectedOrder),
       );
     }
 
@@ -249,54 +221,93 @@ class SortModifiersRule implements RuleWithoutConfig {
 
   private _checkModifiersOrder(
     file: SlangFile,
-    modifiers:
-      | Array<FunctionModifierPosition>
-      | Array<StateVarModifierPosition>,
-    modifiersIndices: Array<{ kind: string; index: number }>,
+    modifiers: ModifierPosition[],
+    expectedOrder: Record<string, number>,
   ): Diagnostic[] {
-    const diagnostics: Diagnostic[] = [];
+    const sortedModifiers = modifiers.slice().sort((a, b) => {
+      return expectedOrder[a.kind] - expectedOrder[b.kind];
+    });
 
-    for (let i = 0; i < modifiersIndices.length - 1; i++) {
-      for (let k = i + 1; k < modifiersIndices.length; k++) {
-        const first = modifiersIndices[i];
-        const second = modifiersIndices[k];
+    for (let i = 0; i < modifiers.length; i++) {
+      const actual = modifiers[i];
+      const expected = sortedModifiers[i];
 
-        if (
-          first.index !== -1 &&
-          second.index !== -1 &&
-          first.index > second.index
-        ) {
-          return [
-            this._buildError(
-              file,
-              first.kind,
-              second.kind,
-              modifiers[second.index].cursor,
-            ),
-          ];
-        }
+      if (actual.cursor.node.id !== expected.cursor.node.id) {
+        // report the position that should be here, not the one that is here
+        return [
+          this._buildError({
+            file,
+            expected: extractContent(expected.cursor),
+            actual: extractContent(actual.cursor),
+            cursor: expected.cursor,
+            modifiers,
+            sortedModifiers,
+          }),
+        ];
       }
     }
 
-    return diagnostics;
+    return [];
   }
 
-  private _buildError(
-    file: SlangFile,
-    first: string,
-    second: string,
-    cursor: Cursor,
-  ): Diagnostic {
+  private _buildError({
+    file,
+    expected,
+    actual,
+    cursor,
+    modifiers,
+    sortedModifiers,
+  }: {
+    file: SlangFile;
+    expected: string;
+    actual: string;
+    cursor: Cursor;
+    modifiers: ModifierPosition[];
+    sortedModifiers: ModifierPosition[];
+  }): Diagnostic {
     const textRangeCursor = cursor.spawn();
     ignoreLeadingTrivia(textRangeCursor);
     const textRange = textRangeCursor.textRange;
 
+    const fix = this._buildFix(modifiers, sortedModifiers);
+
     return {
       rule: this.name,
       sourceId: file.id,
-      message: `${first} modifier should come before ${second} modifier`,
+      message: `'${expected}' should come before '${actual}'`,
       line: textRange.start.line,
       column: textRange.start.column,
+      fix,
     };
   }
+
+  private _buildFix(
+    modifiers: ModifierPosition[],
+    sortedModifiers: ModifierPosition[],
+  ): Fix {
+    const fix: Fix = [];
+
+    for (let i = 0; i < modifiers.length; i++) {
+      const currentModifier = modifiers[i];
+      const expectedModifier = sortedModifiers[i];
+
+      if (currentModifier.cursor.node.id !== expectedModifier.cursor.node.id) {
+        fix.push({
+          range: [
+            currentModifier.cursor.textRange.start.utf16,
+            currentModifier.cursor.textRange.end.utf16,
+          ],
+          replacement: expectedModifier.cursor.node.unparse(),
+        });
+      }
+    }
+
+    return fix;
+  }
+}
+
+function extractContent(cursor: Cursor): string {
+  const contentCursor = cursor.spawn();
+  ignoreLeadingTrivia(contentCursor);
+  return contentCursor.node.unparse();
 }

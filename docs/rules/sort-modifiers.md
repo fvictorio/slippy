@@ -1,5 +1,7 @@
 # sort-modifiers
 
+> 🔧 Problems reported by this rule can be automatically fixed by using the `--fix` flag
+
 Enforces a specific order for functions and state variable modifiers.
 
 ## Rule details
