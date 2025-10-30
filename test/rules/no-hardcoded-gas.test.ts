@@ -5,7 +5,7 @@ const ruleName = "no-hardcoded-gas";
 
 const fixtures: RuleTestFixture[] = [
   {
-    description: "should not report anything when no console is used",
+    description: "should report hardcoded gas values in call options",
     content: `
     contract A {
       function f() public {
