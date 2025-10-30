@@ -18,6 +18,7 @@ import {
   FunctionAttribute,
   StateVariableAttribute,
 } from "@nomicfoundation/slang/ast";
+import { ignoreLeadingTrivia } from "../slang/trivia.js";
 
 type FunctionModifierKind =
   | "visibility"
@@ -110,7 +111,7 @@ class SortModifiersRule implements RuleWithoutConfig {
             case TerminalKind.InternalKeyword:
             case TerminalKind.PublicKeyword:
             case TerminalKind.PrivateKeyword:
-              ignoreTrivia(functionCursor);
+              ignoreLeadingTrivia(functionCursor);
               modifiers.push({
                 kind: "visibility",
                 textRange: functionCursor.textRange,
@@ -119,21 +120,21 @@ class SortModifiersRule implements RuleWithoutConfig {
             case TerminalKind.ViewKeyword:
             case TerminalKind.PureKeyword:
             case TerminalKind.PayableKeyword:
-              ignoreTrivia(functionCursor);
+              ignoreLeadingTrivia(functionCursor);
               modifiers.push({
                 kind: "mutability",
                 textRange: functionCursor.textRange,
               });
               break;
             case TerminalKind.VirtualKeyword:
-              ignoreTrivia(functionCursor);
+              ignoreLeadingTrivia(functionCursor);
               modifiers.push({
                 kind: "virtual",
                 textRange: functionCursor.textRange,
               });
               break;
             case TerminalKind.OverrideKeyword:
-              ignoreTrivia(functionCursor);
+              ignoreLeadingTrivia(functionCursor);
               modifiers.push({
                 kind: "override",
                 textRange: functionCursor.textRange,
@@ -141,13 +142,13 @@ class SortModifiersRule implements RuleWithoutConfig {
               break;
           }
         } else if ("overrideKeyword" in variant) {
-          ignoreTrivia(functionCursor);
+          ignoreLeadingTrivia(functionCursor);
           modifiers.push({
             kind: "override",
             textRange: functionCursor.textRange,
           });
         } else {
-          ignoreTrivia(functionCursor);
+          ignoreLeadingTrivia(functionCursor);
           modifiers.push({
             kind: "custom",
             textRange: functionCursor.textRange,
@@ -197,14 +198,6 @@ class SortModifiersRule implements RuleWithoutConfig {
         NonterminalKind.StateVariableDefinition,
       )
     ) {
-      const stateVarTextRangeCursor = cursor.spawn();
-      while (
-        stateVarTextRangeCursor.goToNextTerminal() &&
-        stateVarTextRangeCursor.node.isTerminalNode() &&
-        TerminalKindExtensions.isTrivia(stateVarTextRangeCursor.node.kind)
-      ) {
-        // skip trivia nodes
-      }
       const stateVarCursor = cursor.spawn();
 
       const modifiers: StateVarModifierPosition[] = [];
@@ -224,7 +217,7 @@ class SortModifiersRule implements RuleWithoutConfig {
             case TerminalKind.InternalKeyword:
             case TerminalKind.PublicKeyword:
             case TerminalKind.PrivateKeyword:
-              ignoreTrivia(stateVarCursor);
+              ignoreLeadingTrivia(stateVarCursor);
               modifiers.push({
                 kind: "visibility",
                 textRange: stateVarCursor.textRange,
@@ -233,7 +226,7 @@ class SortModifiersRule implements RuleWithoutConfig {
             case TerminalKind.ConstantKeyword:
             case TerminalKind.ImmutableKeyword:
             case TerminalKind.TransientKeyword:
-              ignoreTrivia(stateVarCursor);
+              ignoreLeadingTrivia(stateVarCursor);
               modifiers.push({
                 kind: "mutability",
                 textRange: stateVarCursor.textRange,
@@ -309,16 +302,5 @@ class SortModifiersRule implements RuleWithoutConfig {
       line: textRange.start.line,
       column: textRange.start.column,
     };
-  }
-}
-
-function ignoreTrivia(cursor: Cursor) {
-  cursor.goToNextTerminal();
-  while (
-    cursor.node.isTerminalNode() &&
-    TerminalKindExtensions.isTrivia(cursor.node.kind) &&
-    cursor.goToNext()
-  ) {
-    // skip trivia nodes
   }
 }
