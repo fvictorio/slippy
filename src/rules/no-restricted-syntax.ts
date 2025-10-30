@@ -31,7 +31,7 @@ type Config = z.infer<typeof ConfigSchema>;
 
 export const NoRestrictedSyntax: RuleDefinitionWithConfig<Config> = {
   name: "no-restricted-syntax",
-  recommended: true,
+  recommended: false,
   parseConfig: (config: unknown) => ConfigSchema.parse(config),
   create: function (config: Config) {
     return new NoRestrictedSyntaxRule(this.name, config);
