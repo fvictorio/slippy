@@ -1,0 +1,46 @@
+---
+title: Getting started
+description: Getting started with Slippy
+---
+
+import { Code } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+Slippy is a linter for Solidity that's simple, powerful, and thoughtfully built.
+
+## Installation
+
+Install it:
+
+<Tabs syncKey="package-manager">
+  <TabItem label="npm">
+    <Code code="npm install --save-dev @slippy-lint/slippy" lang="bash" />
+  </TabItem>
+  <TabItem label="pnpm">
+    <Code code="pnpm add --save-dev @slippy-lint/slippy" lang="bash" />
+  </TabItem>
+</Tabs>
+
+Initialize a config file:
+
+<Tabs syncKey="package-manager">
+  <TabItem label="npm">
+    <Code code="npx slippy --init" lang="bash" />
+  </TabItem>
+  <TabItem label="pnpm">
+    <Code code="pnpm slippy --init" lang="bash" />
+  </TabItem>
+</Tabs>
+
+Run it:
+
+<Tabs syncKey="package-manager">
+  <TabItem label="npm">
+    <Code code={`npx slippy "contracts/**/*.sol\"`} lang="bash" />
+  </TabItem>
+  <TabItem label="pnpm">
+    <Code code={`pnpm slippy "contracts/**/*.sol\"`} lang="bash" />
+  </TabItem>
+</Tabs>
+
+Check the [list of rules](/slippy/reference/rules/) for available linting rules and their documentation and the [configuration guide](/slippy/guides/configuration/) for more details on configuring Slippy.

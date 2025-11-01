@@ -1,15 +1,21 @@
 import { fileURLToPath } from "node:url";
 import eslint from "@eslint/js";
-import tseslint, { ConfigArray } from "typescript-eslint";
+import { defineConfig } from "eslint/config";
+import tseslint from "typescript-eslint";
 import { includeIgnoreFile } from "@eslint/compat";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 
 const gitignorePath = fileURLToPath(new URL(".gitignore", import.meta.url));
 
-const config: ConfigArray = tseslint.config(
+export default defineConfig([
+  // ignores
+  includeIgnoreFile(gitignorePath, "Imported .gitignore patterns"),
+  {
+    ignores: ["./docs/"],
+  },
+  // basic config
   eslint.configs.recommended,
-  ...tseslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
+  tseslint.configs.recommendedTypeChecked,
   {
     languageOptions: {
       parserOptions: {
@@ -18,8 +24,8 @@ const config: ConfigArray = tseslint.config(
       },
     },
   },
-  includeIgnoreFile(gitignorePath, "Imported .gitignore patterns"),
   eslintConfigPrettier,
+  // custom rules
   {
     rules: {
       "@typescript-eslint/strict-boolean-expressions": "error",
@@ -31,6 +37,4 @@ const config: ConfigArray = tseslint.config(
       "@typescript-eslint/require-await": "off",
     },
   },
-);
-
-export default config;
+]);
