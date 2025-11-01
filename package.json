@@ -2,6 +2,7 @@
   "name": "slippy",
   "version": "0.3.0",
   "description": "A simple but powerful linter for Solidity",
+  "homepage": "https://slippy-lint.github.io/slippy/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/slippy-lint/slippy"
