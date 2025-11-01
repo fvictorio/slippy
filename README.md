@@ -9,7 +9,7 @@ Slippy is a linter for Solidity that's simple, powerful, and thoughtfully built.
 Install it:
 
 ```bash
-npm install --save-dev @slippy-lint/slippy
+npm install --save-dev slippy
 ```
 
 Initialize a config file:
