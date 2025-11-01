@@ -4,7 +4,7 @@
   "description": "A simple but powerful linter for Solidity",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fvictorio/slippy"
+    "url": "git+https://github.com/slippy-lint/slippy"
   },
   "bin": {
     "slippy": "./dist/cli/cli.js"

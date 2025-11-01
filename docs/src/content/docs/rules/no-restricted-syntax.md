@@ -21,7 +21,7 @@ This rule receives an array of objects with two required properties:
 - `query`: A [Slang query](https://nomicfoundation.github.io/slang/latest/user-guide/06-query-language/01-query-syntax/) that specifies the syntax pattern to disallow.
 - `message`: A string that describes the violation.
 
-You can experiment with Slang queries in [this online playground](https://fvictorio.github.io/slang-playground/).
+You can experiment with Slang queries in [this online playground](https://slippy-lint.github.io/slang-playground/).
 
 ## Examples
 

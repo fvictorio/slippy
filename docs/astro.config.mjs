@@ -3,7 +3,7 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 
 export default defineConfig({
-  site: "https://fvictorio.github.io",
+  site: "https://slippy-lint.github.io",
   base: "/slippy",
   integrations: [
     starlight({
@@ -12,7 +12,7 @@ export default defineConfig({
         {
           icon: "github",
           label: "GitHub",
-          href: "https://github.com/fvictorio/slippy",
+          href: "https://github.com/slippy-lint/slippy",
         },
       ],
       sidebar: [

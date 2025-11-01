@@ -40,7 +40,7 @@ async function main() {
     const slippyVersion = await getSlippyVersion();
     Logger.error(
       chalk.red("[slippy]"),
-      `Unexpected error, please report this issue: https://github.com/fvictorio/slippy/issues/new?body=${encodeURIComponent(`Slippy: ${slippyVersion}\nNode: ${process.version}`)}`,
+      `Unexpected error, please report this issue: https://github.com/slippy-lint/slippy/issues/new?body=${encodeURIComponent(`Slippy: ${slippyVersion}\nNode: ${process.version}`)}`,
     );
     Logger.error();
     throw error;

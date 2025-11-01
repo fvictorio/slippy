@@ -79,7 +79,7 @@ To the best of my knowledge, the following Slippy rules are not supported by Sol
 
 ### Solhint rules that could be added to Slippy
 
-These are rules that I'm not sure about adding, but where I could change my mind. Please [open an issue](https://github.com/fvictorio/slippy/issues/new) if you think one of these should be included.
+These are rules that I'm not sure about adding, but where I could change my mind. Please [open an issue](https://github.com/slippy-lint/slippy/issues/new) if you think one of these should be included.
 
 | Solhint rule               |
 | -------------------------- |
@@ -107,7 +107,7 @@ These are rules that I'm not sure about adding, but where I could change my mind
 
 ### Solhint rules that won't be added to Slippy
 
-These are rules I'm 99% sure won't be added to Slippy. This can be due to being obsolete, out of scope, or because it's unclear if they are useful. If you disagree with any of these, please [open an issue](https://github.com/fvictorio/slippy/issues/new).
+These are rules I'm 99% sure won't be added to Slippy. This can be due to being obsolete, out of scope, or because it's unclear if they are useful. If you disagree with any of these, please [open an issue](https://github.com/slippy-lint/slippy/issues/new).
 
 | Solhint rule         |
 | -------------------- |
