@@ -10,9 +10,6 @@
   "bin": {
     "slippy": "./dist/cli/cli.js"
   },
-  "exports": {
-    ".": "./dist/lib.js"
-  },
   "files": [
     "dist/",
     "src/",
