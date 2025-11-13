@@ -9,10 +9,10 @@ Enforces a specific order for import statements.
 The enforced order is:
 
 1. Imports of non-relative files (e.g., `import "my-dependency/Foo.sol"`).
-2. Imports of relative files outside the current directory (e.g., `import "../Foo.sol"`).
+2. Imports of relative files outside the current directory (e.g., `import "../Foo.sol"`), with those going up more directories coming first.
 3. Imports of relative files in the current directory (e.g., `import "./Foo.sol"`).
 
-Imports of the same type are sorted alphabetically.
+Imports of the same type are sorted alphabetically, but directories are placed before files. That means that `./a/b/c.sol` will come before `./a/a.sol`, even if the latter is alphabetically first.
 
 Examples of **incorrect** code for this rule:
 
