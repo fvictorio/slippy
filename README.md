@@ -1,5 +1,9 @@
 # Slippy
 
+> ⚠️ **Slippy is now published under the [`slippy`](https://www.npmjs.com/package/slippy) package.**
+>
+> Please see the new [documentation site](https://slippy-lint.github.io/slippy/) for up-to-date usage and the [v0.3.0 release notes](https://github.com/slippy-lint/slippy/releases/tag/v0.3.0) for migration instructions.
+
 Slippy is a linter for Solidity that's simple, powerful, and thoughtfully built.
 
 ## Installation

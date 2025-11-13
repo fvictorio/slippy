@@ -55,6 +55,12 @@ interface Argv {
 }
 
 async function runCli(): Promise<number> {
+  // Show migration warning
+  Logger.error(
+    `\n${chalk.yellow.bold("[WARNING]")} ${chalk.yellow("Slippy is now published under the")} ${chalk.bold("slippy")} ${chalk.yellow("package.")}` +
+      `\n${chalk.yellow("See the new docs at:")} ${chalk.underline("https://slippy-lint.github.io/slippy/")}\n`,
+  );
+
   const unknownArgs: string[] = [];
   const argv = minimist<Argv>(process.argv.slice(2), {
     boolean: ["help", "init", "version", "fix"],
