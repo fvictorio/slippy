@@ -1,10 +1,10 @@
 {
   "name": "@slippy-lint/slippy",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A simple but powerful linter for Solidity",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fvictorio/slippy"
+    "url": "git+https://github.com/slippy-lint/slippy"
   },
   "bin": {
     "slippy": "./dist/cli/cli.js"
