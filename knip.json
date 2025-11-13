@@ -1,5 +1,5 @@
 {
-  "entry": ["src/cli/cli.ts", "src/cli/worker.ts", "src/lib.ts"],
+  "entry": ["src/cli/cli.ts", "src/cli/worker.ts"],
   "project": ["src/**/*.ts", "test/**/*.ts"],
   "ignoreDependencies": ["tsx"]
 }
