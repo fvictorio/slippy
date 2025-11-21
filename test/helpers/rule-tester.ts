@@ -9,6 +9,7 @@ export interface RuleTestFixture {
   content: string;
   config?: any[];
   fixed?: string;
+  messageIncludes?: string;
 }
 
 type MinimalDiagnostic = {
@@ -67,6 +68,19 @@ export class RuleTester {
       expectedDiagnostics,
       debuggingOptions?.includeMessage ?? false,
     );
+
+    if (fixture.messageIncludes !== undefined) {
+      if (diagnostics.length !== 1) {
+        throw new Error(
+          "messageIncludes can only be used when only one diagnostic is expected.",
+        );
+      }
+
+      expect(
+        diagnostics[0].message,
+        "Diagnostic message does not include expected substring",
+      ).toContain(fixture.messageIncludes);
+    }
 
     if (fixture.fixed !== undefined && debuggingOptions?.ignoreFixed !== true) {
       const { fixedContent } = await linter.lintText(

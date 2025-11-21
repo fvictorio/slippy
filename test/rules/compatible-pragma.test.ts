@@ -13,6 +13,8 @@ const fixtures: RuleTestFixture[] = [
     error MyError();
           ^^^^^^^^^
     `,
+    messageIncludes:
+      "The first version that parses this file correctly is 0.8.4",
   },
   {
     description:

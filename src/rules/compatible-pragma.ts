@@ -12,6 +12,7 @@ import {
 import semver from "semver";
 import { Parser } from "@nomicfoundation/slang/parser";
 import { AssertionError } from "../errors.js";
+import { LanguageFacts } from "@nomicfoundation/slang/utils";
 
 const name = "compatible-pragma";
 
@@ -43,7 +44,8 @@ class CompatiblePragmaRule implements RuleWithoutConfig {
       return [];
     }
 
-    const minVersion = semver.minVersion(versionPragmas.join(" "));
+    const joinedPragmaVersions = versionPragmas.join(" ");
+    const minVersion = semver.minVersion(joinedPragmaVersions);
 
     if (minVersion === null) {
       throw new AssertionError("Incompatible pragma versions");
@@ -57,11 +59,19 @@ class CompatiblePragmaRule implements RuleWithoutConfig {
     if (errors.length > 0) {
       const error = errors[0];
 
+      const minValidVersion = getMinValidVersion(content, joinedPragmaVersions);
+
+      if (minValidVersion === null) {
+        throw new AssertionError(
+          "No solidity version compatible with this file can parse it.",
+        );
+      }
+
       return [
         {
           rule: this.name,
           sourceId: file.id,
-          message: `The minimum solidity version compatible with this file is ${minVersion.version} but the file has a syntax error for that version`,
+          message: `The minimum solidity version compatible with this file is ${minVersion.version} but the file has a syntax error for that version. The first version that parses this file correctly is ${minValidVersion}.`,
           line: error.textRange.start.line,
           column: error.textRange.start.column,
         },
@@ -70,4 +80,27 @@ class CompatiblePragmaRule implements RuleWithoutConfig {
 
     return [];
   }
+}
+
+function getMinValidVersion(
+  content: string,
+  joinedPragmaVersions: string,
+): string | null {
+  const slangSupportedVersions = LanguageFacts.allVersions().filter((v) =>
+    semver.satisfies(v, joinedPragmaVersions),
+  );
+
+  for (const version of slangSupportedVersions) {
+    const parser = Parser.create(version);
+
+    const cst = parser.parseFileContents(content);
+
+    const errors = cst.errors();
+
+    if (errors.length === 0) {
+      return version;
+    }
+  }
+
+  return null;
 }
